@@ -1,14 +1,24 @@
 import express from "express";
-import { getAllCases, getCaseById, createCase, updateCaseById, solveCase, assignCaseToAgent } from "../Controllers/CaseController.js";
+import {
+    getAllCases,
+    getCaseById,
+    createCase,
+    updateCaseById,
+    getSolvedCasesByAgent,
+    getAllUnassignedCases,
+    getCasesAssignedToAgent
+} from "../Controllers/CaseController.js";
 
 const router = express.Router();
+
+
+router.get("/assigned/:agentId", getCasesAssignedToAgent);
+router.get("/solved/:agentId", getSolvedCasesByAgent);
+router.get("/unassigned", getAllUnassignedCases);
 
 router.get("/", getAllCases);
 router.get("/:id", getCaseById);
 router.post("/", createCase);
 router.put("/:id", updateCaseById);
-router.put("/solveCase/:id", solveCase);
-router.put("assignCase/:id", assignCaseToAgent);
-
 
 export default router;
