@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import supervisorRouter from './Routers/SupervisorRouter.js';
+import agentRouter from './Routers/AgentRouter.js';
 import caseRouter from './Routers/CaseRouter.js';
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,7 +21,12 @@ app.get('/', (req, res) => {
 });
 //supervisor routes
 app.use('/supervisors', supervisorRouter);
+//agent routes
+app.use('/agents', agentRouter);
+//case routes
 app.use('/cases', caseRouter);
+
+
 
 
 

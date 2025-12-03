@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Case from "../Models/Case.js";
+import Agent from "../Models/Agent.js";
 
 
 // Get cases assigned to an agent (not solved)
@@ -171,3 +172,77 @@ export const solveCase = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const assignCaseToAgent = async (req, res) => {
+    try {
+        const { agentId, caseId } = req.params;
+
+        const agent = await Agent.exists({ _id: agentId });
+        if (!agent) {
+            return res.status(404).json({ message: "Agent not found" });
+        }
+
+        const assignedCase = await Case.findOneAndUpdate(
+            {
+                _id: caseId,
+                case_status: { $nin: ["pending", "solved"] }
+            },
+            {
+                $set: {
+                    assignedAgentID: agentId,
+                    case_status: "pending"
+                }
+            },
+            { new: true }
+        );
+
+        if (!assignedCase) {
+            return res.status(400).json({
+                message: "Case not found OR already assigned/solved"
+            });
+        }
+
+        res.status(200).json({
+            message: "Case assigned successfully",
+            case: assignedCase
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const unassignCaseFromAgent = async (req, res) => {
+    try {
+        const { agentId, caseId } = req.params;
+        const agent = await Agent.exists({ _id: agentId });
+        if (!agent) {
+            return res.status(404).json({ message: "Agent not found" });
+        }
+        const unassignedCase = await Case.findOneAndUpdate(
+            {
+                _id: caseId,
+                assignedAgentID: agentId,
+                case_status: "pending"
+            },
+            {
+                $set: {
+                    assignedAgentID: null,
+                    case_status: "unassigned"
+                }
+            },
+            { new: true }
+        );
+        if (!unassignedCase) {
+            return res.status(400).json({
+                message: "Case not found OR not assigned to this agent OR already solved"
+            });
+        }
+        res.status(200).json({
+            message: "Case unassigned successfully",
+            case: unassignedCase
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }   
+};
+
