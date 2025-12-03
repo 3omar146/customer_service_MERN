@@ -1,6 +1,7 @@
 import Agent from "../Models/Agent.js";
 import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
+import mongoose from "mongoose";
 
 export const getAllAgents = async (req, res) => {
     try {
@@ -166,3 +167,120 @@ export const updateAgent = async (req, res) => {
     }
 };
 
+
+
+// Route handler to get report for all agents
+export const getAgentsReport = async (req, res) => {
+       try {
+const report = await Case.aggregate([
+  {
+    // Join agent info
+    $lookup: {
+      from: "agents",
+      localField: "assignedAgentID",
+      foreignField: "_id",
+      as: "agent"
+    }
+  },
+  { $unwind: "$agent" }, // flatten agent array
+  {
+    // Group by agent and case status
+    $group: {
+      _id: { agentId: "$agent._id", agentName: "$agent.name" },
+      solvedCases: {
+        $sum: { $cond: [{ $eq: ["$case_status", "solved"] }, 1, 0] }
+      },
+      pendingCases: {
+        $sum: { $cond: [{ $eq: ["$case_status", "pending"] }, 1, 0] }
+      },
+      totalCases: { $sum: 1 }
+    }
+  },
+  {
+    // Flatten _id
+    $project: {
+      _id: 0,
+      agentId: "$_id.agentId",
+      agentName: "$_id.agentName",
+      solvedCases: 1,
+      pendingCases: 1,
+      totalCases: 1
+    }
+  },
+  { $sort: { totalCases: -1 } }
+]);
+    res.status(200).json(report);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating report" });
+  }
+};
+
+
+// Generate agent report by ID
+export const getAgentReportById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const agentId = id.trim(); // remove hidden spaces/newlines
+
+    if (!mongoose.Types.ObjectId.isValid(agentId)) {
+      return res.status(400).json({ message: "Invalid agent ID" });
+    }
+
+    const report = await Agent.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(agentId) } }, // filter by agent ID
+      {
+        $lookup: {
+          from: "cases",                  
+          localField: "_id",
+          foreignField: "assignedAgentID",
+          as: "cases"
+        }
+      },
+      { $unwind: { path: "$cases", preserveNullAndEmptyArrays: true } },
+      {
+        $group: {
+          _id: { agentId: "$_id", agentName: "$name" },
+          solvedCases: {
+            $sum: { $cond: [{ $eq: ["$cases.case_status", "solved"] }, 1, 0] }
+          },
+          pendingCases: {
+            $sum: { $cond: [{ $eq: ["$cases.case_status", "pending"] }, 1, 0] }
+          },
+          totalCases: {
+            $sum: { $cond: [{ $ifNull: ["$cases", false] }, 1, 0] }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          agentId: "$_id.agentId",
+          agentName: "$_id.agentName",
+          solvedCases: 1,
+          pendingCases: 1,
+          totalCases: 1
+        }
+      }
+    ]);
+
+    // Handle agent with no cases
+    if (report.length === 0) {
+      const agent = await Agent.findById(agentId);
+      if (!agent) return res.status(404).json({ message: "Agent not found" });
+
+      return res.status(200).json({
+        agentId: agent._id,
+        agentName: agent.name,
+        solvedCases: 0,
+        pendingCases: 0,
+        totalCases: 0
+      });
+    }
+
+    res.status(200).json(report[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generating agent report" });
+  }
+};
