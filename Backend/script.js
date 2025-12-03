@@ -60,7 +60,7 @@ async function main() {
 
     const logSubSchema = new Schema({
       performedBy: { type: Schema.Types.ObjectId, ref: "Supervisor" },
-      protocolId: { type: Schema.Types.ObjectId, ref: "ActionProtocol" },
+      protocolID: { type: Schema.Types.ObjectId, ref: "ActionProtocol" },
       timestamp: { type: Date }
     }, { _id: false });
 
@@ -282,7 +282,7 @@ async function main() {
         case_status: "solved",
         createdAt: new Date("2025-11-20T08:30:00Z"),
         updatedAt: new Date("2025-11-20T09:10:00Z"),
-        logs: { performedBy: supervisors[0]._id, protocolId: protocols[0]._id, timestamp: new Date("2025-11-20T09:05:00Z") }
+        logs: { performedBy: supervisors[0]._id, protocolID: protocols[0]._id, timestamp: new Date("2025-11-20T09:05:00Z") }
       },
       {
         _id: genId(),
@@ -312,7 +312,7 @@ async function main() {
         case_status: "solved",
         createdAt: new Date("2025-11-23T11:00:00Z"),
         updatedAt: new Date("2025-11-23T12:50:00Z"),
-        logs: { performedBy: supervisors[3]._id, protocolId: protocols[3]._id, timestamp: new Date("2025-11-23T12:45:00Z") }
+        logs: { performedBy: supervisors[3]._id, protocolID: protocols[3]._id, timestamp: new Date("2025-11-23T12:45:00Z") }
       },
       {
         _id: genId(),
@@ -352,7 +352,7 @@ async function main() {
         case_status: "solved",
         createdAt: new Date("2025-11-27T15:00:00Z"),
         updatedAt: new Date("2025-11-27T16:20:00Z"),
-        logs: { performedBy: supervisors[7]._id, protocolId: protocols[7]._id, timestamp: new Date("2025-11-27T16:10:00Z") }
+        logs: { performedBy: supervisors[7]._id, protocolID: protocols[7]._id, timestamp: new Date("2025-11-27T16:10:00Z") }
       },
       {
         _id: genId(),
@@ -362,7 +362,7 @@ async function main() {
         case_status: "solved",
         createdAt: new Date("2025-11-28T16:10:00Z"),
         updatedAt: new Date("2025-11-28T17:30:00Z"),
-        logs: { performedBy: supervisors[8]._id, protocolId: protocols[8]._id, timestamp: new Date("2025-11-28T17:25:00Z") }
+        logs: { performedBy: supervisors[8]._id, protocolID: protocols[8]._id, timestamp: new Date("2025-11-28T17:25:00Z") }
       },
       {
         _id: genId(),
@@ -372,7 +372,7 @@ async function main() {
         case_status: "solved",
         createdAt: new Date("2025-11-29T17:20:00Z"),
         updatedAt: new Date("2025-11-29T18:40:00Z"),
-        logs: { performedBy: supervisors[9]._id, protocolId: protocols[9]._id, timestamp: new Date("2025-11-29T18:35:00Z") }
+        logs: { performedBy: supervisors[9]._id, protocolID: protocols[9]._id, timestamp: new Date("2025-11-29T18:35:00Z") }
       },
     ];
 
@@ -403,7 +403,7 @@ async function main() {
       .populate("assignedAgentID", "name email department")
       .populate("clientID", "firstName lastName email phone")
       .populate("logs.performedBy", "name email")
-      .populate("logs.protocolId", "action type timestamp")
+      .populate("logs.protocolID", "action type timestamp")
       .lean()
       .exec();
     console.log(`Found ${solvedCases.length} solved cases (sample):`);
@@ -427,7 +427,7 @@ async function main() {
       const performingSupervisor = await Supervisor.findOne().lean();
       unsolvedCase.logs = {
         performedBy: performingSupervisor._id,
-        protocolId: newProtocol._id,
+        protocolID: newProtocol._id,
         timestamp: new Date()
       };
       await unsolvedCase.save();
