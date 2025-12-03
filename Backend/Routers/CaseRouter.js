@@ -6,21 +6,21 @@ import {
     updateCaseById,
     getSolvedCasesByAgent,
     getAllUnassignedCases,
-    getCasesAssignedToAgent
+    getCasesAssignedToAgent,
+    assignCaseToAgent,
+    unassignCaseFromAgent
 } from "../Controllers/CaseController.js";
 
 const router = express.Router();
 
-// -----------------------------
-// Specific routes first
-// -----------------------------
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
 router.get("/solved/:agentId", getSolvedCasesByAgent);
 router.get("/unassigned", getAllUnassignedCases);
+//assign case to agent
+router.patch("/assign/:caseId/agent/:agentId",assignCaseToAgent);
+//unassign case from agent
+router.patch("/unassign/:caseId/agent/agentId",unassignCaseFromAgent);
 
-// -----------------------------
-// General routes
-// -----------------------------
 router.get("/", getAllCases);
 router.get("/:id", getCaseById);
 router.post("/", createCase);

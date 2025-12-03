@@ -1,4 +1,5 @@
 import Agent from "../Models/Agent.js";
+import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
 
 export const getAllAgents = async (req, res) => {
@@ -81,7 +82,7 @@ export const getAgentsBySupervisor = async (req, res) => {
 //create a new agent
 export const createAgent = async (req, res) => {
 try{
-const {department, email, name, role, password, supervisor_id} = req.body;
+const {department, email, name, role, password, supervisorID} = req.body;
 const hashedPassword = await bcrypt.hash(password, 10);
 const newAgent = new Agent({
     department,
@@ -90,7 +91,7 @@ const newAgent = new Agent({
     name,
     role,
     hashedPassword,
-    supervisor_id,
+    supervisorID,
     updatedAt: new Date()
 });
 await newAgent.save();
@@ -128,7 +129,7 @@ export const deleteAgent = async (req, res) => {
         console.error("Error:", err);
     }
 }
-
+//edit agent
 export const updateAgent = async (req, res) => {
     try {
         const { id } = req.params;
@@ -164,3 +165,4 @@ export const updateAgent = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+

@@ -2,7 +2,7 @@
 // Single-file Mongoose seed + schema + CRUD + aggregations
 // Usage: set MONGODB_URI env or replace the placeholder then run `node script.js`
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, Types } = mongoose;
 
 const MONGODB_URI = "mongodb+srv://ActivityTrackerUser:ActivityTrackerPass@cluster0.2sjmnf6.mongodb.net/";
@@ -18,58 +18,59 @@ async function main() {
     // ------------------------
 
     const supervisorSchema = new Schema({
-      department: { type: String, required: true },
-      email: { type: String, required: true, match: /.+@.+\..+/ },
-      name: { type: String, required: true },
-      role: { type: String, required: true, enum: ["Manager", "SeniorSupervisor", "Reminder"] },
-      password: { type: String, required: true, minlength: 6 },
-      updatedAt: { type: Date, required: true }
+      department: { type: String },
+      email: { type: String },
+      name: { type: String },
+      role: { type: String},
+      password: { type: String },
+      updatedAt: { type: Date }
     }, { collection: "supervisors" });
 
     const agentSchema = new Schema({
-      department: { type: String, required: true },
-      email: { type: String, required: true, match: /.+@.+\..+/ },
-      isActive: { type: Boolean, required: true },
-      name: { type: String, required: true },
-      role: { type: String, required: true },
-      password: { type: String, required: true, minlength: 6 },
-      updatedAt: { type: Date, required: true }
+      department: { type: String },
+      email: { type: String },
+      isActive: { type: Boolean},
+      name: { type: String },
+      role: { type: String },
+      password: { type: String},
+      supervisorID: { type: Schema.Types.ObjectId, ref: "Supervisor" },
+      updatedAt: { type: Date }
     }, { collection: "agents" });
 
     const clientSchema = new Schema({
-      email: { type: String, required: true, match: /.+@.+\..+/ },
-      firstName: { type: String, required: true },
-      lastName: { type: String, required: true },
-      phone: { type: String, required: true },
-      password: { type: String, required: true, minlength: 6 },
-      updatedAt: { type: Date, required: true }
+      email: { type: String},
+      firstName: { type: String },
+      lastName: { type: String },
+      phone: { type: String },
+      password: { type: String},
+      updatedAt: { type: Date }
     }, { collection: "clients" });
 
     // unique index on client email
     clientSchema.index({ email: 1 }, { unique: true });
 
     const actionProtocolSchema = new Schema({
-      agentID: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
-      action: { type: String, required: true },
-      type: { type: String, required: true },
-      timestamp: { type: Date, required: true }
+      agentID: { type: Schema.Types.ObjectId, ref: "Agent" },
+      action: { type: String },
+      type: { type: String },
+      timestamp: { type: Date }
     }, { collection: "action_protocols" });
 
     actionProtocolSchema.index({ agentID: 1, timestamp: -1 });
 
     const logSubSchema = new Schema({
-      performedBy: { type: Schema.Types.ObjectId, ref: "Supervisor", required: true },
-      protocolId: { type: Schema.Types.ObjectId, ref: "ActionProtocol", required: true },
-      timestamp: { type: Date, required: true }
+      performedBy: { type: Schema.Types.ObjectId, ref: "Supervisor" },
+      protocolId: { type: Schema.Types.ObjectId, ref: "ActionProtocol" },
+      timestamp: { type: Date }
     }, { _id: false });
 
     const caseSchema = new Schema({
-      assignedAgentID: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
-      clientID: { type: Schema.Types.ObjectId, ref: "Client", required: true },
-      case_description: { type: String, required: true },
-      case_status: { type: String, required: true, enum: ["solved", "unsolved", "pending"] },
-      createdAt: { type: Date, required: true },
-      updatedAt: { type: Date, required: true },
+      assignedAgentID: { type: Schema.Types.ObjectId, ref: "Agent" },
+      clientID: { type: Schema.Types.ObjectId, ref: "Client" },
+      case_description: { type: String },
+      case_status: { type: String},
+      createdAt: { type: Date },
+      updatedAt: { type: Date },
       logs: { type: logSubSchema, default: null }
     }, { collection: "cases" });
 
@@ -116,31 +117,132 @@ async function main() {
 
     // Supervisors (10)
     const supervisors = [
-      { _id: genId(), department: "Customer Success", email: "laila.hassan@company.com", name: "Laila Hassan", role: "Manager", password: "passLaila1", updatedAt: new Date("2025-10-28T09:00:00Z") },
-      { _id: genId(), department: "Security", email: "amr.kamal@company.com", name: "Amr Kamal", role: "SeniorSupervisor", password: "passAmr1", updatedAt: new Date("2025-11-01T10:30:00Z") },
-      { _id: genId(), department: "Fraud", email: "dina.elsayed@company.com", name: "Dina Elsayed", role: "Reminder", password: "passDina1", updatedAt: new Date("2025-11-02T13:20:00Z") },
-      { _id: genId(), department: "Operations", email: "mohamed.gaber@company.com", name: "Mohamed Gaber", role: "Manager", password: "passMoh1", updatedAt: new Date("2025-11-05T08:00:00Z") },
-      { _id: genId(), department: "Customer Success", email: "sara.fahmy@company.com", name: "Sara Fahmy", role: "SeniorSupervisor", password: "passSara1", updatedAt: new Date("2025-11-06T11:45:00Z") },
-      { _id: genId(), department: "Compliance", email: "khaled.mahfouz@company.com", name: "Khaled Mahfouz", role: "Manager", password: "passKhaled1", updatedAt: new Date("2025-11-07T14:15:00Z") },
-      { _id: genId(), department: "Security", email: "yasmin.nabil@company.com", name: "Yasmin Nabil", role: "Reminder", password: "passYasmin1", updatedAt: new Date("2025-11-08T09:40:00Z") },
-      { _id: genId(), department: "Operations", email: "tamer.hassan@company.com", name: "Tamer Hassan", role: "SeniorSupervisor", password: "passTamer1", updatedAt: new Date("2025-11-09T16:00:00Z") },
-      { _id: genId(), department: "Client Onboarding", email: "mona.elkhateeb@company.com", name: "Mona El-Khateeb", role: "Manager", password: "passMona1", updatedAt: new Date("2025-11-10T12:30:00Z") },
-      { _id: genId(), department: "Compliance", email: "omar.eldeeb@company.com", name: "Omar El-Deeb", role: "SeniorSupervisor", password: "passOmar1", updatedAt: new Date("2025-11-11T07:20:00Z") },
+      { _id: genId(), department: "Customer Success", email: "laila.hassan@company.com", name: "Laila Hassan", role: 'Head Supervisor', password: "passLaila1", updatedAt: new Date("2025-10-28T09:00:00Z") },
+      { _id: genId(), department: "Security", email: "amr.kamal@company.com", name: "Amr Kamal", role: 'Senior Supervisor', password: "passAmr1", updatedAt: new Date("2025-11-01T10:30:00Z") },
+      { _id: genId(), department: "Fraud", email: "dina.elsayed@company.com", name: "Dina Elsayed", role: 'Supervisor', password: "passDina1", updatedAt: new Date("2025-11-02T13:20:00Z") },
+      { _id: genId(), department: "Operations", email: "mohamed.gaber@company.com", name: "Mohamed Gaber", role: 'Head Supervisor', password: "passMoh1", updatedAt: new Date("2025-11-05T08:00:00Z") },
+      { _id: genId(), department: "Customer Success", email: "sara.fahmy@company.com", name: "Sara Fahmy", role: 'Senior Supervisor', password: "passSara1", updatedAt: new Date("2025-11-06T11:45:00Z") },
+      { _id: genId(), department: "Compliance", email: "khaled.mahfouz@company.com", name: "Khaled Mahfouz", role: 'Head Supervisor', password: "passKhaled1", updatedAt: new Date("2025-11-07T14:15:00Z") },
+      { _id: genId(), department: "Security", email: "yasmin.nabil@company.com", name: "Yasmin Nabil", role: 'Supervisor', password: "passYasmin1", updatedAt: new Date("2025-11-08T09:40:00Z") },
+      { _id: genId(), department: "Operations", email: "tamer.hassan@company.com", name: "Tamer Hassan", role: 'Senior Supervisor', password: "passTamer1", updatedAt: new Date("2025-11-09T16:00:00Z") },
+      { _id: genId(), department: "Client Onboarding", email: "mona.elkhateeb@company.com", name: "Mona El-Khateeb", role: 'Head Supervisor', password: "passMona1", updatedAt: new Date("2025-11-10T12:30:00Z") },
+      { _id: genId(), department: "Compliance", email: "omar.eldeeb@company.com", name: "Omar El-Deeb", role: 'Senior Supervisor', password: "passOmar1", updatedAt: new Date("2025-11-11T07:20:00Z") },
     ];
 
     // Agents (10)
     const agents = [
-      { _id: genId(), department: "Customer Success", email: "ahmed.salem@company.com", isActive: true, name: "Ahmed Salem", role: "Agent", password: "agentA1", updatedAt: new Date("2025-11-20T09:00:00Z") },
-      { _id: genId(), department: "Customer Success", email: "nora.mostafa@company.com", isActive: true, name: "Nora Mostafa", role: "Agent", password: "agentN1", updatedAt: new Date("2025-11-21T09:20:00Z") },
-      { _id: genId(), department: "Fraud", email: "hassan.ismail@company.com", isActive: false, name: "Hassan Ismail", role: "Agent", password: "agentH1", updatedAt: new Date("2025-11-22T10:00:00Z") },
-      { _id: genId(), department: "Security", email: "noha.samir@company.com", isActive: true, name: "Noha Samir", role: "Agent", password: "agentNo1", updatedAt: new Date("2025-11-23T11:00:00Z") },
-      { _id: genId(), department: "Operations", email: "ramy.abdel@company.com", isActive: true, name: "Ramy Abdel", role: "Agent", password: "agentR1", updatedAt: new Date("2025-11-24T12:00:00Z") },
-      { _id: genId(), department: "Compliance", email: "fatma.hany@company.com", isActive: true, name: "Fatma Hany", role: "Agent", password: "agentF1", updatedAt: new Date("2025-11-25T13:00:00Z") },
-      { _id: genId(), department: "Client Onboarding", email: "hoda.mostafa@company.com", isActive: true, name: "Hoda Mostafa", role: "Agent", password: "agentHo1", updatedAt: new Date("2025-11-26T14:00:00Z") },
-      { _id: genId(), department: "Customer Success", email: "yasser.mohamed@company.com", isActive: false, name: "Yasser Mohamed", role: "Agent", password: "agentY1", updatedAt: new Date("2025-11-27T15:00:00Z") },
-      { _id: genId(), department: "Security", email: "salma.nagy@company.com", isActive: true, name: "Salma Nagy", role: "Agent", password: "agentS1", updatedAt: new Date("2025-11-28T16:00:00Z") },
-      { _id: genId(), department: "Operations", email: "mostafa.a@company.com", isActive: true, name: "Mostafa Ahmed", role: "Agent", password: "agentM1", updatedAt: new Date("2025-11-29T17:00:00Z") },
-    ];
+  {
+    _id: genId(),
+    department: "Customer Success",
+    email: "ahmed.salem@company.com",
+    isActive: true,
+    name: "Ahmed Salem",
+    role: "Agent",
+    password: "agentA1",
+    updatedAt: new Date("2025-11-20T09:00:00Z"),
+    supervisorID: supervisors[0]._id // Laila Hassan (Customer Success)
+  },
+  {
+    _id: genId(),
+    department: "Customer Success",
+    email: "nora.mostafa@company.com",
+    isActive: true,
+    name: "Nora Mostafa",
+    role: "Senior Agent",
+    password: "agentN1",
+    updatedAt: new Date("2025-11-21T09:20:00Z"),
+    supervisorID: supervisors[4]._id // Sara Fahmy (Customer Success)
+  },
+  {
+    _id: genId(),
+    department: "Fraud",
+    email: "hassan.ismail@company.com",
+    isActive: false,
+    name: "Hassan Ismail",
+    role: "Agent",
+    password: "agentH1",
+    updatedAt: new Date("2025-11-22T10:00:00Z"),
+    supervisorID: supervisors[2]._id // Dina Elsayed (Fraud)
+  },
+  {
+    _id: genId(),
+    department: "Security",
+    email: "noha.samir@company.com",
+    isActive: true,
+    name: "Noha Samir",
+    role: "Agent",
+    password: "agentNo1",
+    updatedAt: new Date("2025-11-23T11:00:00Z"),
+    supervisorID: supervisors[1]._id // Amr Kamal (Security)
+  },
+  {
+    _id: genId(),
+    department: "Operations",
+    email: "ramy.abdel@company.com",
+    isActive: true,
+    name: "Ramy Abdel",
+    role: "Agent",
+    password: "agentR1",
+    updatedAt: new Date("2025-11-24T12:00:00Z"),
+    supervisorID: supervisors[3]._id // Mohamed Gaber (Operations)
+  },
+  {
+    _id: genId(),
+    department: "Compliance",
+    email: "fatma.hany@company.com",
+    isActive: true,
+    name: "Fatma Hany",
+    role: "Agent",
+    password: "agentF1",
+    updatedAt: new Date("2025-11-25T13:00:00Z"),
+    supervisorID: supervisors[5]._id // Khaled Mahfouz (Compliance)
+  },
+  {
+    _id: genId(),
+    department: "Client Onboarding",
+    email: "hoda.mostafa@company.com",
+    isActive: true,
+    name: "Hoda Mostafa",
+    role: "Agent",
+    password: "agentHo1",
+    updatedAt: new Date("2025-11-26T14:00:00Z"),
+    supervisorID: supervisors[8]._id // Mona El-Khateeb (Onboarding)
+  },
+  {
+    _id: genId(),
+    department: "Customer Success",
+    email: "yasser.mohamed@company.com",
+    isActive: false,
+    name: "Yasser Mohamed",
+    role: "Agent",
+    password: "agentY1",
+    updatedAt: new Date("2025-11-27T15:00:00Z"),
+    supervisorID: supervisors[0]._id // Laila Hassan (Customer Success)
+  },
+  {
+    _id: genId(),
+    department: "Security",
+    email: "salma.nagy@company.com",
+    isActive: true,
+    name: "Salma Nagy",
+    role: "Agent",
+    password: "agentS1",
+    updatedAt: new Date("2025-11-28T16:00:00Z"),
+    supervisorID: supervisors[1]._id // Amr Kamal (Security)
+  },
+  {
+    _id: genId(),
+    department: "Operations",
+    email: "mostafa.a@company.com",
+    isActive: true,
+    name: "Mostafa Ahmed",
+    role: "Agent",
+    password: "agentM1",
+    updatedAt: new Date("2025-11-29T17:00:00Z"),
+    supervisorID: supervisors[7]._id // Tamer Hassan (Operations)
+  }
+];
+
 
     // Clients (10)
     const clients = [
@@ -214,7 +316,7 @@ async function main() {
       },
       {
         _id: genId(),
-        assignedAgentID: agents[4]._id,
+        assignedAgentID: null,
         clientID: clients[4]._id,
         case_description: "Incorrect billing amount.",
         case_status: "unsolved",

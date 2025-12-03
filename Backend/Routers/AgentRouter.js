@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import {deleteAgent, getActiveAgents, getAgentByEmail, getAgentById, getAgentsByRole, getAgentsBySupervisor, getAllAgents,updateAgent} from '../Controllers/AgentConroller.js';
+import {createAgent, deleteAgent, getActiveAgents, getAgentByEmail, getAgentById, getAgentsByRole, getAgentsBySupervisor, getAllAgents,updateAgent} from '../Controllers/AgentConroller.js';
 ;
 
 //get all supervisors
@@ -20,5 +20,7 @@ router.get('/supervisor/:supervisorId', getAgentsBySupervisor);
 router.patch('/:id', updateAgent);
 //delete agent from system
 router.delete('/:id', deleteAgent);
+//post new agent
+router.post('/', createAgent);
 
 export default router;
