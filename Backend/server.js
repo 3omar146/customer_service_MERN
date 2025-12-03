@@ -5,6 +5,7 @@ import cors from 'cors';
 import supervisorRouter from './Routers/SupervisorRouter.js';
 import agentRouter from './Routers/AgentRouter.js';
 import caseRouter from './Routers/CaseRouter.js';
+import protocolRouter from './Routers/ActionProtocolRouter.js'
 
 dotenv.config();
 const app = express();
@@ -27,7 +28,8 @@ app.use('/supervisors', supervisorRouter);
 app.use('/agents', agentRouter);
 //case routes
 app.use('/cases', caseRouter);
-
+// protocol routes
+app.use('/protocols', protocolRouter);
 
 
 app.listen(PORT, () => {

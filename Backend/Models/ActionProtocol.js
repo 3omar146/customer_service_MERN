@@ -1,13 +1,23 @@
 import mongoose from "mongoose";
 
-const actionProtocolSchema = new mongoose.Schema({
+const protocolSchema = new mongoose.Schema({
   agentID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Agent"
+    type: String,
+    required: true,
   },
-  action: String,
-  type: String,
-  timestamp: Date
+  action: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.model("ActionProtocol", actionProtocolSchema);
+
+export default mongoose.model("ActionProtocol", protocolSchema,"action_protocols");
