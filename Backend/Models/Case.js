@@ -22,7 +22,7 @@ const caseSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Agent"
     },
-    protocol_id: {
+    protocolID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ActionProtocol"
     },

@@ -119,3 +119,55 @@ export const updateCaseById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// SOLVE a case and set logs
+export const solveCase = async (req, res) => {
+
+    //still need to handle new action protocols
+  try {
+    let caseID = req.params.id;
+    
+    const logs  = req.body.logs;
+
+    console.log("Solving case:", caseID, "with logs:", logs);
+
+    if (!caseID || !logs) {
+      return res.status(400).json({ message: "caseID and logs are required" });
+    }
+
+    // Required log fields
+    const requiredFields = ["performedBy", "protocolID"];
+    const missing = requiredFields.filter((f) => !logs[f]);
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        message: `Missing log fields: ${missing.join(", ")}`
+      });
+    }
+
+    const caseItem = await Case.findById(caseID);
+    if (!caseItem) {
+      return res.status(404).json({ message: "Case not found" });
+    }
+
+    // Solved cases MUST have an assigned agent
+    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+      return res.status(400).json({
+        message: "Cannot solve a case with no assigned agent"
+      });
+    }
+
+    // Apply the update
+    logs.timestamp = new Date();
+    caseItem.case_status = "solved";
+    caseItem.logs = logs;
+    caseItem.updatedAt = new Date();
+    
+
+    const updated = await caseItem.save();
+    res.status(200).json(updated);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
