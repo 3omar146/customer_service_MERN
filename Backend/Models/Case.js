@@ -29,5 +29,4 @@ const caseSchema = new mongoose.Schema({
     timestamp: Date
   }
 });
-
-module.exports = mongoose.model("Case", caseSchema);
+export default mongoose.model("Case", caseSchema);

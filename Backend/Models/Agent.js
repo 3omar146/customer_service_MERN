@@ -8,7 +8,7 @@ const agentSchema = new mongoose.Schema({
   role: String,
   password: String,
 
-  supervisor_id: {
+  supervisorID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Supervisor"
   },
@@ -16,4 +16,4 @@ const agentSchema = new mongoose.Schema({
   updatedAt: Date
 });
 
-module.exports = mongoose.model("Agent", agentSchema);
+export default mongoose.model("Agent", agentSchema);
