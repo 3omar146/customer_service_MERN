@@ -7,8 +7,9 @@ import {
 
 const router = express.Router();
 
-router.put('/:id', updateClientProfile);
 router.get('/:id/cases', getCasesByClient);
+router.put('/:id', updateClientProfile);
 router.get('/:id', getClientById);
+
 
 export default router;
