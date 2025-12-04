@@ -3,6 +3,7 @@ import axios from "axios";
 import DataTable from "../Components/DataTable";
 import ClientNavbar from "../Components/ClientNavbar";
 import "../Style/ClientDashboard.css";
+import { useNavigate } from "react-router-dom";
 
 function ClientDashboard() {
   const [clientID, setClientID] = useState(null);
@@ -11,8 +12,10 @@ function ClientDashboard() {
   const [caseFilter, setCaseFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newCaseDescription, setNewCaseDescription] = useState("");
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newCaseDescription, setNewCaseDescription] = useState("");
+    
+  const navigate = useNavigate();
 
   // Load client ID
   useEffect(() => {
@@ -37,7 +40,7 @@ function ClientDashboard() {
     if (!clientID) return;
 
     axios
-      .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/cases/${clientID}`)
+      .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/${clientID}/cases`)
       .then((res) => {
         setCases(res.data);
         setFiltered(res.data);
@@ -123,13 +126,12 @@ function ClientDashboard() {
           >
             + New Case
           </button>
-
           <button
             disabled={!selectedId}
             className="client-btn"
             onClick={() =>
               selectedId &&
-              (window.location.href = `/client/case/${selectedId}`)
+              (window.location.href = `/client/case/${selectedId}`) && navigate(`/client/case/${selectedId}`)
             }
           >
             View Details
