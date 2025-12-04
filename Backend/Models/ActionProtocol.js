@@ -5,7 +5,7 @@ const protocolSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  action: {
+  steps: {
     type: String,
     required: true,
   },

@@ -16,17 +16,5 @@ const caseSchema = new mongoose.Schema({
 
   createdAt: Date,
   updatedAt: Date,
-
-  logs: {
-    performedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Agent"
-    },
-    protocolID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ActionProtocol"
-    },
-    timestamp: Date
-  }
 });
 export default mongoose.model("Case", caseSchema);
