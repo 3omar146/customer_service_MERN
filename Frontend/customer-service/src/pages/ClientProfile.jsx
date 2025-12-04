@@ -42,15 +42,16 @@ function ClientProfile() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    axios
-      .put(
-        `${import.meta.env.VITE_BACKEND_API_URL}/clients/update/${client._id}`,
-        updatedData
-      )
-      .then((res) => {
-        setClient(res.data);
-        setEditMode(false);
-      });
+   axios.put(
+    `${import.meta.env.VITE_BACKEND_API_URL}/clients/${client._id}`,
+    updatedData
+  )
+  .then((res) => {
+    setClient(res.data);
+    setEditMode(false);
+  })
+  .catch(err => console.error("Profile update failed:", err));
+
   }
 
   if (!client) return <p>Loading profile...</p>;
