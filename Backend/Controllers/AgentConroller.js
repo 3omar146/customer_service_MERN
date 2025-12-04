@@ -202,7 +202,6 @@ const report = await Case.aggregate([
     // Flatten _id
     $project: {
       _id: 0,
-      agentId: "$_id.agentId",
       agentName: "$_id.agentName",
       solvedCases: 1,
       pendingCases: 1,
@@ -257,7 +256,7 @@ export const getAgentReportById = async (req, res) => {
       {
         $project: {
           _id: 0,
-          agentId: "$_id.agentId",
+     
           agentName: "$_id.agentName",
           solvedCases: 1,
           pendingCases: 1,
