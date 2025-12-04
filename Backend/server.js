@@ -6,6 +6,7 @@ import supervisorRouter from './Routers/SupervisorRouter.js';
 import agentRouter from './Routers/AgentRouter.js';
 import caseRouter from './Routers/CaseRouter.js';
 import protocolRouter from './Routers/ActionProtocolRouter.js'
+import clientRouter from './Routers/ClientRouter.js';
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,8 @@ app.use('/agents', agentRouter);
 app.use('/cases', caseRouter);
 // protocol routes
 app.use('/protocols', protocolRouter);
+// client routes
+app.use('/clients', clientRouter);
 
 
 app.listen(PORT, () => {
