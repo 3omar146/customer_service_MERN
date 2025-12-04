@@ -126,16 +126,7 @@ function ClientDashboard() {
           >
             + New Case
           </button>
-          <button
-            disabled={!selectedId}
-            className="client-btn"
-            onClick={() =>
-              selectedId &&
-              (window.location.href = `/client/case/${selectedId}`) && navigate(`/client/case/${selectedId}`)
-            }
-          >
-            View Details
-          </button>
+
         </div>
 
         <div className="client-table">
