@@ -288,6 +288,7 @@ export const getCasesForSupervisor = async (req, res) => {
                 }
             },
 
+
             // --------------------------
             // Final output
             // --------------------------
@@ -304,6 +305,10 @@ export const getCasesForSupervisor = async (req, res) => {
                     agentName: "$agent.name",
                     agentEmail: "$agent.email",
 
+                    // Client fields
+                    clientID: 1,
+                    clientName: "$client.name",
+                    clientEmail: "$client.email"
                 }
             },
 
@@ -317,4 +322,3 @@ export const getCasesForSupervisor = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-

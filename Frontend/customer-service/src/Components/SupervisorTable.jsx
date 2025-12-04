@@ -1,9 +1,10 @@
-// pages/SupervisorAgents.jsx
+// pages/SupervisorTable.jsx
 import React, { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import axios from "axios";
+import "../Style/SupervisorTable.css";
 
-const SupervisorTable = ({ supervisorId }) => {
+const SupervisorTable = ({ supervisorID }) => {
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
@@ -26,7 +27,7 @@ const SupervisorTable = ({ supervisorId }) => {
     { header: "Case Description", accessor: "case_description" },
     { header: "Status", accessor: "case_status" },
     { header: "Assigned Agent", accessor: "agentName" },
-    { header: "Agent's Email", accessor: "agentEmail" },
+    { header: "Agent Email", accessor: "agentEmail" },
     { header: "Created At", accessor: "createdAt" },
     { header: "Updated At", accessor: "updatedAt" },
   ];
@@ -35,19 +36,19 @@ const SupervisorTable = ({ supervisorId }) => {
   // Fetch AGENTS
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorId}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorID}`;
 
     axios
       .get(url)
       .then((res) => setAgents(res.data))
       .catch((err) => console.error("Error fetching agents:", err));
-  }, [supervisorId]);
+  }, [supervisorID]);
 
   // -------------------
   // Fetch CASES
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/${supervisorId}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/${supervisorID}`;
 
     axios
       .get(url)
@@ -67,32 +68,26 @@ const SupervisorTable = ({ supervisorId }) => {
   const ActiveData = dataMode === "agents" ? agents : filteredCases;
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">My Agents & Cases</h2>
+    <div className="supervisor-container">
+      <h2 className="supervisor-title">{dataMode === "agents"?"My Agents":"Cases"}</h2>
 
-      {/* Dropdown selector */}
-      <div className="mb-4 flex gap-4 items-center">
-        <select
-          className="px-4 py-2 border rounded"
-          value={dataMode}
-          onChange={(e) => setDataMode(e.target.value)}
-        >
-          <option value="agents">Agents</option>
-          <option value="cases">Cases</option>
-        </select>
+      {/* TOP BAR SPLIT LEFT + RIGHT */}
+      <div className="supervisor-top-row">
 
-        {/* AGENTS MODE → Show Details */}
-        {dataMode === "agents" && (
-          <button className="px-4 py-2 bg-blue-600 text-white rounded">
-            Show Details
-          </button>
-        )}
+        {/* LEFT SIDE: FILTERS */}
+        <div className="supervisor-left-controls">
+          <select
+            className="supervisor-select"
+            value={dataMode}
+            onChange={(e) => setDataMode(e.target.value)}
+          >
+            <option value="agents">Agents</option>
+            <option value="cases">Cases</option>
+          </select>
 
-        {/* CASES MODE → Filter + Show Case Details */}
-        {dataMode === "cases" && (
-          <>
+          {dataMode === "cases" && (
             <select
-              className="px-4 py-2 border rounded"
+              className="supervisor-select"
               value={caseFilter}
               onChange={(e) => setCaseFilter(e.target.value)}
             >
@@ -101,23 +96,32 @@ const SupervisorTable = ({ supervisorId }) => {
               <option value="unsolved">Unsolved</option>
               <option value="pending">Pending</option>
             </select>
+          )}
+        </div>
 
-            <button className="px-4 py-2 bg-blue-600 text-white rounded">
-              Show Case Details
-            </button>
-          </>
-        )}
+        {/* RIGHT SIDE: BUTTON */}
+        <div className="supervisor-right-controls">
+          {dataMode === "agents" && (
+            <button disabled = {!selectedId} className="supervisor-btn">Show Details</button>
+          )}
+
+          {dataMode === "cases" && (
+            <button disabled = {!selectedId} className="supervisor-btn">Show Details</button>
+          )}
+        </div>
       </div>
 
-      {/* Data Table */}
-      <DataTable
-        columns={ActiveColumns}
-        data={ActiveData}
-        selectedId={selectedId}
-        setSelectedId={setSelectedId}
-      />
+      {/* TABLE */}
+      <div className="supervisor-table-container">
+        <DataTable
+          columns={ActiveColumns}
+          data={ActiveData}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+        />
+      </div>
     </div>
   );
 };
 
-export default SupervisorAgents;
+export default SupervisorTable;
