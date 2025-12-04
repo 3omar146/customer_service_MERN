@@ -77,20 +77,28 @@ export const getAllCases = async (req, res) => {
 
 // Get case by ID
 export const getCaseById = async (req, res) => {
-    const { id } = req.params;
+  try {
+    const caseInfo = await Case.findById(req.params.id)
+      .populate("assignedAgentID", "name email")
+      .populate("recommendedActionProtocol", "steps type timestamp");
 
-    try {
-        const caseItem = await Case.findById(id);
-
-        if (!caseItem) {
-            return res.status(404).json({ message: "Case not found" });
-        }
-
-        res.status(200).json(caseItem);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!caseInfo) {
+      return res.status(404).json({ message: "Case not found" });
     }
+
+    const response = {
+      ...caseInfo.toObject(),
+      agentName: caseInfo.assignedAgentID?.name || "Not assigned",
+      agentEmail: caseInfo.assignedAgentID?.email || "No email",
+      recommendedActionProtocol: caseInfo.recommendedActionProtocol,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 
 // Create a new case

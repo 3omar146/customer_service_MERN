@@ -6,7 +6,8 @@ import {
     updateCaseById,
     getSolvedCasesByAgent,
     getAllUnassignedCases,
-    getCasesAssignedToAgent,solveCase,
+    getCasesAssignedToAgent,
+    solveCase,
     assignCaseToAgent,
     unassignCaseFromAgent,
     getCasesForSupervisor
@@ -14,22 +15,23 @@ import {
 
 const router = express.Router();
 
+// AGENT RELATED
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
 router.get("/solved/:agentId", getSolvedCasesByAgent);
+router.patch("/assign/:caseId/agent/:agentId", assignCaseToAgent);
+router.patch("/unassign/:caseId/agent/:agentId", unassignCaseFromAgent);
+
+// CASE STATUS
 router.get("/unassigned", getAllUnassignedCases);
-//assign case to agent
-router.patch("/assign/:caseId/agent/:agentId",assignCaseToAgent);
-//unassign case from agent
-router.patch("/unassign/:caseId/agent/agentId",unassignCaseFromAgent);
+router.patch("/solve/:id", solveCase);
 
-router.patch("/solve/:id",solveCase);
-
-
-router.get("/", getAllCases);
+// SUPERVISOR DASHBOARD
 router.get("/supervisor/:id", getCasesForSupervisor);
+
+// CLIENT + ADMIN USAGE
+router.get("/", getAllCases);
 router.get("/:id", getCaseById);
 router.post("/", createCase);
 router.put("/:id", updateCaseById);
-
 
 export default router;
