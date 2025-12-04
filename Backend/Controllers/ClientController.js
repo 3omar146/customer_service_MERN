@@ -1,5 +1,6 @@
 import Client from '../Models/Client.js';
 import Case from '../Models/Case.js';
+import mongoose from 'mongoose';
 
 // Get client details by ID
 export const getClientById = async (req, res) => {
