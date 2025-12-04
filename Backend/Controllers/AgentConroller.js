@@ -3,6 +3,7 @@ import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
 import mongoose from "mongoose";
 
+
 export const getAllAgents = async (req, res) => {
     try {
         const Agents = await Agent.find({},"-password").sort({ updatedAt: -1 });
@@ -11,6 +12,7 @@ export const getAllAgents = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 //get agent by id
 export const getAgentById = async (req, res) => {
     try {
