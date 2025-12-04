@@ -8,6 +8,16 @@
   align-items: center;
 }
 
+.modal-select {
+  padding: 12px;
+  width: 100%;
+  border: 2px solid #90ee90;
+  border-radius: 10px;
+  background: #f8fff8;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
 .client-header {
   text-align: center;
   margin-bottom: 25px;

@@ -12,10 +12,18 @@ function ClientDashboard() {
   const [caseFilter, setCaseFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
 
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [newCaseDescription, setNewCaseDescription] = useState("");
-    
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCaseDescription, setNewCaseDescription] = useState("");
+
   const navigate = useNavigate();
+
+  // Common pre-written case descriptions
+  const commonIssues = [
+    "Internet is slow or unstable.",
+    "No internet connection at all.",
+    "Billing issue: Incorrect charged amount.",
+    "Router keeps restarting or disconnecting."
+  ];
 
   // Load client ID
   useEffect(() => {
@@ -127,6 +135,14 @@ function ClientDashboard() {
             + New Case
           </button>
 
+          <button
+            disabled={!selectedId}
+            className="client-btn"
+            onClick={() => navigate(`/client/case/${selectedId}`)}
+          >
+            View Details
+          </button>
+
         </div>
 
         <div className="client-table">
@@ -146,6 +162,18 @@ function ClientDashboard() {
             <h3>Create New Case</h3>
 
             <form className="modal-form" onSubmit={createNewCase}>
+
+              {/* Dropdown that autofills issue */}
+              <select
+                className="modal-select"
+                onChange={(e) => setNewCaseDescription(e.target.value)}
+              >
+                <option value="">Select a common issue...</option>
+                {commonIssues.map((issue, idx) => (
+                  <option key={idx} value={issue}>{issue}</option>
+                ))}
+              </select>
+
               <textarea
                 required
                 placeholder="Describe your issue..."
@@ -166,6 +194,7 @@ function ClientDashboard() {
                   Submit
                 </button>
               </div>
+
             </form>
           </div>
         </div>
