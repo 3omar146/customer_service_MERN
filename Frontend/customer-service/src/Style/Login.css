@@ -1,0 +1,84 @@
+/* Background */
+.login-wrapper {
+  height: 100vh;
+  background-color: #f9fff9;  /* soft mint white theme */
+  
+  display: flex;
+  justify-content: center;
+  
+  /* Move box higher (center but shifted upward) */
+  align-items: flex-start;
+  padding-top: 80px;
+}
+
+/* Login box */
+.login-card {
+  width: 450px;                    /* bigger */
+  padding: 40px;                   /* more padding */
+  background: white;
+  border-radius: 14px;
+  border: 2px solid #7fdc87;       /* same green outline */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* Title */
+.login-title {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 30px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Form layout */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  margin-bottom: 6px;
+  color: #444;
+  font-size: 15px;
+}
+
+/* Input fields */
+.login-form input {
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 2px solid #93e494;     /* green border */
+  background-color: #f9fff9;
+  transition: 0.2s ease;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #7fdc87;
+  box-shadow: 0 0 6px #7fdc87;
+}
+
+/* Error text */
+.login-error {
+  color: red;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Button */
+.login-btn {
+  padding: 14px;
+  font-size: 18px;
+  background-color: #92f7a1;      /* mint button */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+  transition: background-color 0.25s;
+}
+
+.login-btn:hover {
+  background-color: #7edc8c;
+}
