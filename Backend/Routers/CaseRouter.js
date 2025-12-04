@@ -8,7 +8,8 @@ import {
     getAllUnassignedCases,
     getCasesAssignedToAgent,solveCase,
     assignCaseToAgent,
-    unassignCaseFromAgent
+    unassignCaseFromAgent,
+    getCasesForSupervisor
 } from "../Controllers/CaseController.js";
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.patch("/solve/:id",solveCase);
 
 
 router.get("/", getAllCases);
+router.get("/supervisor/:id", getCasesForSupervisor);
 router.get("/:id", getCaseById);
 router.post("/", createCase);
 router.put("/:id", updateCaseById);

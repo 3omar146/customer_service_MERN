@@ -1,7 +1,6 @@
-// components/DataTable.jsx
 import React from "react";
 
-const DataTable = ({ columns, data }) => {
+const DataTable = ({ columns, data, selectedId, setSelectedId }) => {
   return (
     <div className="overflow-x-auto w-full border rounded-lg shadow">
       <table className="w-full border-collapse">
@@ -19,37 +18,41 @@ const DataTable = ({ columns, data }) => {
         </thead>
 
         <tbody>
-          {data?.length > 0 ? (
-            data.map((row) => (
-              <tr key={row._id} className="hover:bg-gray-50">
-                {columns.map((col) => {
-                  let value = row[col.accessor];
+          {(
+            data.map((row) => {
+              const isSelected = row._id === selectedId;
 
-                  // Format booleans
-                  if (typeof value === "boolean") {
-                    value = value ? "Active" : "Inactive";
-                  }
+              return (
+                <tr
+                  key={row._id}
+                  className={`cursor-pointer hover:bg-gray-50 ${
+                    isSelected ? "bg-blue-100" : ""
+                  }`}
+                  onClick={() => {setSelectedId(row._id);console.log("Selected ID:", row._id);}}
+                >
+                  {columns.map((col) => {
+                    let value = row[col.accessor];
 
-                  // Format dates
-                  if (value && col.accessor === "updatedAt") {
-                    value = new Date(value).toLocaleString();
-                  }
+                    // Format booleans
+                    if (typeof value === "boolean") {
+                      value = value ? "Active" : "Inactive";
+                    }
 
-                  return (
-                    <td key={col.accessor} className="px-4 py-2 border-b">
-                      {value || "-"}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td className="text-center py-4 text-gray-500" colSpan={columns.length}>
-                No Agents Found
-              </td>
-            </tr>
-          )}
+                    // Format dates
+                    if (value && col.accessor === "updatedAt") {
+                      value = new Date(value).toLocaleString();
+                    }
+
+                    return (
+                      <td key={col.accessor} className="px-4 py-2 border-b">
+                        {value || "-"}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          ) }
         </tbody>
       </table>
     </div>

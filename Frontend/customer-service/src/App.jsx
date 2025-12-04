@@ -2,7 +2,7 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AgentDashboard from './pages/AgentDashboard.jsx';
-import SupervisorAgents from './pages/SupervisorPage.jsx';
+import SupervisorAgents from './Components/SupervisorTable.jsx';
 function App() {
   return (
     <Router>

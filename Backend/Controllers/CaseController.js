@@ -246,3 +246,75 @@ export const unassignCaseFromAgent = async (req, res) => {
     }   
 };
 
+export const getCasesForSupervisor = async (req, res) => {
+    try {
+        const supervisorId = req.params.id;
+
+        // 1. Get all agents under this supervisor
+        const agents = await Agent.find(
+            { supervisorID: supervisorId },
+            { _id: 1 }
+        );
+
+        const agentIds = agents.map(a => a._id);
+
+        // 2. Aggregation
+        const cases = await Case.aggregate([
+            {
+                $match: {
+                    $or: [
+                        { case_status: "unsolved" },
+                        { case_status: "pending", assignedAgentID: { $in: agentIds }},
+                        { case_status: "solved", assignedAgentID: { $in: agentIds }}
+                    ]
+                }
+            },
+
+            // --------------------------
+            // JOIN AGENT INFORMATION
+            // --------------------------
+            {
+                $lookup: {
+                    from: "agents",
+                    localField: "assignedAgentID",
+                    foreignField: "_id",
+                    as: "agent"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$agent",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+
+            // --------------------------
+            // Final output
+            // --------------------------
+            {
+                $project: {
+                    _id: 1,
+                    case_description: 1,
+                    case_status: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+
+                    // Agent fields
+                    assignedAgentID: 1,
+                    agentName: "$agent.name",
+                    agentEmail: "$agent.email",
+
+                }
+            },
+
+            { $sort: { createdAt: -1 } }
+        ]);
+
+        res.status(200).json(cases);
+
+    } catch (error) {
+        console.error("Error in getCasesForSupervisor:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
