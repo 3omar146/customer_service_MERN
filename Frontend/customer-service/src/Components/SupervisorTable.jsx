@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import axios from "axios";
 
-const SupervisorAgents = ({ supervisorId }) => {
+const SupervisorTable = ({ supervisorId }) => {
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
