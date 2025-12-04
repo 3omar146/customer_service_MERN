@@ -13,7 +13,7 @@ const caseSchema = new mongoose.Schema({
 
   case_description: String,
   case_status: String,
-
+  recommendedActionProtocol:mongoose.Schema.Types.ObjectId,
   createdAt: Date,
   updatedAt: Date,
 });

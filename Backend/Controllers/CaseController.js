@@ -123,27 +123,13 @@ export const updateCaseById = async (req, res) => {
 
 // SOLVE a case and set logs
 export const solveCase = async (req, res) => {
-
-    //still need to handle new action protocols
   try {
-    let caseID = req.params.id;
-    
-    const logs  = req.body.logs;
+    const caseID = req.params.id;
 
-    console.log("Solving case:", caseID, "with logs:", logs);
+    console.log("Solving case:", caseID);
 
-    if (!caseID || !logs) {
-      return res.status(400).json({ message: "caseID and logs are required" });
-    }
-
-    // Required log fields
-    const requiredFields = ["performedBy", "protocolID"];
-    const missing = requiredFields.filter((f) => !logs[f]);
-
-    if (missing.length > 0) {
-      return res.status(400).json({
-        message: `Missing log fields: ${missing.join(", ")}`
-      });
+    if (!caseID) {
+      return res.status(400).json({ message: "caseID is required" });
     }
 
     const caseItem = await Case.findById(caseID);
@@ -151,27 +137,38 @@ export const solveCase = async (req, res) => {
       return res.status(404).json({ message: "Case not found" });
     }
 
-    // Solved cases MUST have an assigned agent
-    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+    // Validation: case_status must not be null
+    if (!caseItem.recommendedActionProtocol) {
       return res.status(400).json({
-        message: "Cannot solve a case with no assigned agent"
+        message: "To solve case must select an action protocol"
       });
     }
 
-    // Apply the update
-    logs.timestamp = new Date();
+    // Must be pending and assigned before solving
+    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+      return res.status(400).json({
+        message: "Only pending cases with assigned agent can be solved"
+      });
+    }
+
+    // Update case
     caseItem.case_status = "solved";
-    caseItem.logs = logs;
     caseItem.updatedAt = new Date();
-    
+
 
     const updated = await caseItem.save();
+    
+    //create log entry (if needed, implement logging here)
+
     res.status(200).json(updated);
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
 export const assignCaseToAgent = async (req, res) => {
     try {
         const { agentId, caseId } = req.params;
@@ -211,6 +208,7 @@ export const assignCaseToAgent = async (req, res) => {
     }
 };
 
+
 export const unassignCaseFromAgent = async (req, res) => {
     try {
         const { agentId, caseId } = req.params;
@@ -245,6 +243,7 @@ export const unassignCaseFromAgent = async (req, res) => {
         res.status(500).json({ message: error.message });
     }   
 };
+
 
 export const getCasesForSupervisor = async (req, res) => {
     try {
@@ -305,10 +304,6 @@ export const getCasesForSupervisor = async (req, res) => {
                     agentName: "$agent.name",
                     agentEmail: "$agent.email",
 
-                    // Client fields
-                    clientID: 1,
-                    clientName: "$client.name",
-                    clientEmail: "$client.email"
                 }
             },
 
