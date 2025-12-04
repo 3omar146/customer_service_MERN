@@ -30,4 +30,19 @@ export const getCasesByClient = async (req, res) => {
   }
 };
 
-
+// Update Client profile details
+export const updateClientProfile = async (req, res) => {
+    try {
+        const client = await Client.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+        if (!client) {
+            return res.status(404).json({ message: "Client not found" });
+        }
+        res.status(200).json(client);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
