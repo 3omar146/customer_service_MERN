@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const agentSchema = new mongoose.Schema({
-  department: String,
   email: String,
   isActive: Boolean,
   name: String,

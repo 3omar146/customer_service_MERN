@@ -307,7 +307,7 @@ export const getCasesForSupervisor = async (req, res) => {
                 }
             },
 
-            { $sort: { createdAt: -1 } }
+            { $sort: { case_status: -1 } }
         ]);
 
         res.status(200).json(cases);
