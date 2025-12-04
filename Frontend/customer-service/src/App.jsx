@@ -1,20 +1,20 @@
-
-import './App.css'
+import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import AgentDashboard from './pages/AgentDashboard.jsx';
-import ClientDashboard from './pages/ClientDashboard.jsx';
-import SupervisorTable from './Components/SupervisorTable.jsx';
-import AgentDetails from './pages/AgentDetails.jsx';
+
+import ClientDashboard from "./pages/ClientDashboard.jsx";
+import ClientProfile from "./pages/ClientProfile.jsx";
+import AgentDetails from "./pages/AgentDetails.jsx";
+import SupervisorTable from "./Components/SupervisorTable.jsx";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/agentDetail" element={<AgentDetails AgentID={"692f59c9a33b1df1ddaff013"} />} />
-        <Route path="/SupervisorTable" element={<SupervisorTable supervisorID={"6931a93378ece62bd5dbbc95"} />} />
-        <Route path="/client-dashboard" element={<ClientDashboard supervisorID={"6911a93378ece62bd5dbbc95"} />} />
+        <Route path="/client/dashboard" element={<ClientDashboard />} />
+        <Route path="/client/profile" element={<ClientProfile />} />
       </Routes>
     </Router>
   );
 }
-export default App
+
+export default App;
