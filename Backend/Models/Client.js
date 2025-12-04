@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const clientSchema = new mongoose.Schema({
   email: String,
@@ -9,4 +9,4 @@ const clientSchema = new mongoose.Schema({
   updatedAt: Date
 });
 
-module.exports = mongoose.model("Client", clientSchema);
+export default mongoose.model("Client", clientSchema);
