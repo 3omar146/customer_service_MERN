@@ -16,11 +16,8 @@ const SupervisorAgents = ({ supervisorId }) => {
     { header: "Last Update", accessor: "updatedAt" },
   ];
 
-  useEffect(() => {
-        const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorId}`;
-
-    fetch()
-
+  useEffect(() => {   
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorId}`;
     axios.get(url)
        .then((res) => setAgents(res.data))
       .catch((err) => console.error("Error fetching agents:", err));
