@@ -16,15 +16,18 @@ export const getClientById = async (req, res) => {
   }
 };
 
-// Get Cases for a specific Client
-export const getCasesByClientId = async (req, res) => {
-    try {
-        const cases = await Case.find({ clientId: req.params.id }).sort({ createdAt: -1 });
+// Get Cases for a specific Client via ID
 
-        res.status(200).json(cases);
+export const getCasesByClient = async (req, res) => {
+  try {
+    const cases = await Case.find({ clientID: req.params.id })
+      .sort({ createdAt: -1 });
 
-    } 
-    catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(cases);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
+
