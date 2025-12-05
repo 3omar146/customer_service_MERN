@@ -26,7 +26,7 @@ function ProfilePage() {
 
   const fieldMap = {
     client: ["firstName", "lastName", "email", "phone"],
-    agent: ["name", "email", "isActive", "role"],
+    agent: ["name", "email", "role"],
     supervisor: ["name", "email", "role"]
   };
 
@@ -105,7 +105,7 @@ function ProfilePage() {
         {!editMode ? (
           <div className="profile-box">
             {fieldMap[type].map((f) => (
-              <p key={f}>
+              <p className="info" key={f}>
                 <strong>{f}:</strong> {String(user[f])}
               </p>
             ))}
@@ -133,17 +133,25 @@ function ProfilePage() {
         ) : (
           /* ---------------- EDIT MODE ---------------- */
           <form className="profile-form" onSubmit={handleSubmit}>
-            {fieldMap[type].map((f) => (
-              <input
-                key={f}
-                type="text"
-                placeholder={f}
-                value={updatedData[f]}
-                onChange={(e) =>
-                  setUpdatedData({ ...updatedData, [f]: e.target.value })
-                }
-              />
-            ))}
+            {fieldMap[type].map((f) => {
+  const isReadOnly = (f === "role");
+
+      return (
+        <input
+          key={f}
+          type="text"
+          placeholder={f}
+          value={updatedData[f]}
+          disabled={isReadOnly}         // ❌ makes it uneditable in edit mode
+          style={isReadOnly ? { background: "#eee", cursor: "not-allowed" } : {}}
+          onChange={(e) =>
+            !isReadOnly &&
+            setUpdatedData({ ...updatedData, [f]: e.target.value })
+          }
+        />
+      );
+    })}
+
 
             {/* ➤ Change password checkbox */}
             <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>

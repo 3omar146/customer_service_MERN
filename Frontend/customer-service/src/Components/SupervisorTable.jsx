@@ -7,13 +7,16 @@ import "../Style/SupervisorTable.css";
 
 const SupervisorTable = ({ supervisorID }) => {
 
-  const navigate =useNavigate();
+  const navigate = useNavigate();
 
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
   const [selectedId, setSelectedId] = useState(null);
   const [caseFilter, setCaseFilter] = useState("all");
+
+  const [agentFilter, setAgentFilter] = useState("all"); // 🔥 NEW
+
   const [filteredAgents, setFilteredAgents] = useState([]);
   const [filteredCases, setFilteredCasesState] = useState([]);
 
@@ -57,10 +60,9 @@ const SupervisorTable = ({ supervisorID }) => {
 
     const body = {
       ...newAgent,
-      //supervisorID: supervisorID
     };
 
-    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body,{withCredentials:true})
+    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body, { withCredentials: true })
       .then(res => {
         setAgents(prev => [...prev, res.data]);
         setFilteredAgents(prev => [...prev, res.data]);
@@ -127,6 +129,16 @@ const SupervisorTable = ({ supervisorID }) => {
   }, []);
 
   // -------------------
+  // Filtering Agents (NEW)
+  // -------------------
+  const filteredAgents2 =
+    agentFilter === "all"
+      ? filteredAgents
+      : agentFilter === "active"
+      ? filteredAgents.filter((a) => a.isActive === true)
+      : filteredAgents.filter((a) => a.isActive === false);
+
+  // -------------------
   // Filtering Cases
   // -------------------
   const filteredCases2 =
@@ -135,7 +147,7 @@ const SupervisorTable = ({ supervisorID }) => {
       : filteredCases.filter((c) => c.case_status?.toLowerCase() === caseFilter);
 
   const ActiveColumns = dataMode === "agents" ? agentColumns : caseColumns;
-  const ActiveData = dataMode === "agents" ? filteredAgents : filteredCases2;
+  const ActiveData = dataMode === "agents" ? filteredAgents2 : filteredCases2;
 
   return (
     <div className="supervisor-container">
@@ -155,6 +167,19 @@ const SupervisorTable = ({ supervisorID }) => {
             <option value="cases">Cases</option>
           </select>
 
+          {/* 🔥 NEW AGENT FILTER */}
+          {dataMode === "agents" && (
+            <select
+              className="supervisor-select"
+              value={agentFilter}
+              onChange={(e) => setAgentFilter(e.target.value)}
+            >
+              <option value="all">All Agents</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          )}
+
           {dataMode === "cases" && (
             <select
               className="supervisor-select"
@@ -169,7 +194,7 @@ const SupervisorTable = ({ supervisorID }) => {
           )}
         </div>
 
-        {/* MIDDLE: SEARCH BAR (NEW) */}
+        {/* MIDDLE: SEARCH BAR */}
         <input
           type="text"
           placeholder="Search..."
@@ -177,17 +202,21 @@ const SupervisorTable = ({ supervisorID }) => {
           onChange={(e) => handleSearch(e.target.value)}
         />
 
-        {/* RIGHT SIDE: BUTTON */}
+        {/* RIGHT SIDE: BUTTONS */}
         <div className="supervisor-right-controls">
           {dataMode === "agents" && (
             <>
-              {/* PLUS BUTTON */}
               <button className="supervisor-btn add-btn" onClick={addAgent}>
                 +
               </button>
 
-              <button disabled={!selectedId} className="supervisor-btn"   onClick={() => navigate("/agentDetail", { state: { AgentID: selectedId } })}
->
+              <button
+                disabled={!selectedId}
+                className="supervisor-btn"
+                onClick={() =>
+                  navigate("/agentDetail", { state: { AgentID: selectedId } })
+                }
+              >
                 Show Details
               </button>
             </>
@@ -199,12 +228,6 @@ const SupervisorTable = ({ supervisorID }) => {
             </button>
           )}
         </div>
-
-        {dataMode === "cases" && (
-          <button disabled={!selectedId} className="supervisor-btn">
-            Show Details
-          </button>
-        )}
       </div>
 
       {/* TABLE */}
@@ -214,7 +237,6 @@ const SupervisorTable = ({ supervisorID }) => {
           data={ActiveData}
           selectedId={selectedId}
           setSelectedId={setSelectedId}
-
         />
       </div>
 
