@@ -1,0 +1,112 @@
+/* Container that holds all case cards */
+.case-list-wrapper {
+  padding: 40px;
+  background-color: #f9fff9; /* mint white background */
+  min-height: 100vh;
+
+  display: flex;            /* arrange cards in a row */
+  flex-wrap: wrap;          /* allow cards to go to next row */
+  gap: 20px;                /* spacing between cards */
+  justify-content: center;  /* center the cards */
+}
+
+/* Case Card */
+.case-card {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  border: 2px solid #7fdc87; /* green outline */
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+
+  width: 300px; /* fixed width for multiple cards */
+}
+
+/* Hover effect */
+.case-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  transform: translateY(-3px);
+}
+
+/* Case Title */
+.case-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* Case Info Text */
+.case-info {
+  font-size: 15px;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 10px;
+  background-color: #92f7a1; /* mint color */
+  color: #333;
+}
+
+/* Solve Button */
+.solve-btn {
+  margin-top: 18px;
+  padding: 12px 16px;
+  font-size: 16px;
+  background-color: #92f7a1; /* mint button */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+  transition: background-color 0.25s;
+}
+
+.solve-btn:hover {
+  background-color: #7edc8c;
+}
+
+/* Client/Agent labels */
+.case-label {
+  font-weight: 600;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .case-card {
+    width: 90%; /* almost full width on mobile */
+  }
+
+  .case-list-wrapper {
+    padding: 20px;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .case-card {
+    width: 100%; /* full width on very small screens */
+    padding: 20px;
+  }
+
+  .case-title {
+    font-size: 20px;
+  }
+
+  .case-info {
+    font-size: 14px;
+  }
+
+  .solve-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}

@@ -6,8 +6,10 @@ import {
     createCase,
     updateCaseById,
     getSolvedCasesByAgent,
+    getSolvedCasesBySpecificAgent,
     getAllUnassignedCases,
     getCasesAssignedToAgent,
+    getCasesAssignedToSpecificAgent,
     solveCase,
     assignCaseToAgent,
     unassignCaseFromAgent,
@@ -18,8 +20,10 @@ const router = express.Router();
 
 // AGENT RELATED
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
+router.get("/assigned/",auth, getCasesAssignedToSpecificAgent);
 router.get("/solved/:agentId", getSolvedCasesByAgent);
-router.patch("/assign/:caseId/agent/:agentId", assignCaseToAgent);
+router.get("/solved",auth, getSolvedCasesBySpecificAgent);
+router.patch("/assign/:caseId",auth, assignCaseToAgent);
 router.patch("/unassign/:caseId/agent/:agentId", unassignCaseFromAgent);
 
 // CASE STATUS

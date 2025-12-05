@@ -4,9 +4,7 @@ import ActionProtocol from "../Models/ActionProtocol.js"
 export const getAllProtocols = async (req, res) => {
   try {
     const protocols = await ActionProtocol.find().sort({ timestamp: -1 });
-    console.log("bayzaaaa");
     res.json(protocols);
-    console.log("ay hagaaa");
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

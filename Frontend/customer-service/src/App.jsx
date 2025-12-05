@@ -8,9 +8,11 @@ import AgentDetails from "./pages/AgentDetails.jsx";
 import AgentDashboard from "./pages/AgentDashboard.jsx";
 import LoginPage from "./Components/Login.jsx";
 import SignUpPage from "./Components/Signup.jsx";
+import CasesTable from "./Components/CasesTable.jsx";
 
 function App() {
-  return (
+ 
+   return (
     <Router>
       <Routes>
         <Route path="/client/dashboard" element={<ClientDashboard />} />
@@ -25,5 +27,6 @@ function App() {
     </Router>
   );
 }
+
 
 export default App;
