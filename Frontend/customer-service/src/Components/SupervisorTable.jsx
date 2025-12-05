@@ -1,10 +1,13 @@
 // pages/SupervisorTable.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DataTable from "./DataTable";
 import axios from "axios";
 import "../Style/SupervisorTable.css";
 
 const SupervisorTable = ({ supervisorID }) => {
+
+  const navigate =useNavigate();
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
@@ -102,7 +105,7 @@ const SupervisorTable = ({ supervisorID }) => {
         {/* RIGHT SIDE: BUTTON */}
         <div className="supervisor-right-controls">
           {dataMode === "agents" && (
-            <button disabled = {!selectedId} className="supervisor-btn">Show Details</button>
+            <button disabled = {!selectedId} className="supervisor-btn" onClick={()=>navigate("/agentDetail")}>Show Details</button>
           )}
 
           {dataMode === "cases" && (

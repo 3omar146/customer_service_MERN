@@ -8,8 +8,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/agentDetail" element={<AgentDetails AgentID={"692f59c9a33b1df1ddaff013"} />} />
-        <Route path="/SupervisorTable" element={<SupervisorTable supervisorID={"692f59c9a33b1df1ddaff001"} />} />
+        <Route path="/agentDetail" element={<AgentDetails AgentID={"6931a8802e4cce32f7f3b38f"} />} />
+        <Route path="/SupervisorTable" element={<SupervisorTable supervisorID={"6931a8802e4cce32f7f3b385"} />} />
       </Routes>
     </Router>
   );
