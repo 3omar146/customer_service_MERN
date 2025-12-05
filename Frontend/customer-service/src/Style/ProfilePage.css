@@ -1,0 +1,159 @@
+/* ----------- CONTAINER ----------- */
+.profile-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  background: linear-gradient(145deg, #f5fdf5, #e8ffe8);
+  animation: fadeIn 0.4s ease;
+}
+
+/* Fade-in animation for smooth entry */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------- TITLE ----------- */
+.profile-title {
+  font-size: 34px;
+  margin-bottom: 30px;
+  color: #1a1a1a;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-shadow: 0px 1px 1px rgba(0,0,0,0.1);
+}
+
+/* ----------- PROFILE CARD / FORM ----------- */
+.profile-box,
+.profile-form {
+  width: 100%;
+  max-width: 550px;
+  background: #ffffff;
+  padding: 32px 36px;
+  border-radius: 18px;
+  border: 2px solid #8fe28f;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+  transition: all 0.25s ease;
+}
+
+.profile-box:hover,
+.profile-form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(0,0,0,0.14);
+}
+
+.profile-box p {
+  font-size: 18px;
+  margin-bottom: 14px;
+  color: #2b2b2b;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef7ee;
+}
+
+/* ----------- INPUTS ----------- */
+.profile-form input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 2px solid #8fe28f;
+  font-size: 16px;
+  background: #fbfffb;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 0 0 rgba(0,0,0,0);
+}
+
+.profile-form input:hover {
+  border-color: #72ca72;
+}
+
+.profile-form input:focus {
+  border-color: #4fb84f;
+  outline: none;
+  box-shadow: 0 0 8px rgba(80,180,80,0.35);
+  background: #ffffff;
+}
+
+/* ----------- BUTTON GROUP ----------- */
+.profile-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+/* ----------- BUTTON BASE STYLE ----------- */
+.profile-btn,
+.logout-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 14px 18px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.25s ease;
+  letter-spacing: 0.4px;
+}
+
+/* ----------- PRIMARY BUTTON ----------- */
+.profile-btn {
+  background: #66c066;
+  color: #fff;
+}
+
+.profile-btn:hover {
+  background: #57ac57;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(87,172,87,0.3);
+}
+
+/* ----------- LOGOUT BUTTON ----------- */
+.logout-btn {
+  background: #ff6464;
+  color: #fff;
+}
+
+.logout-btn:hover {
+  background: #e65555;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(230,85,85,0.3);
+}
+
+/* ----------- CANCEL BUTTON ----------- */
+.cancel-btn {
+  background: #e6e6e6;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background: #d4d4d4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+/* ----------- PASSWORD FIELD ICON ----------- */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.eye-icon:hover {
+  color: #333;
+  transform: translateY(-50%) scale(1.1);
+}

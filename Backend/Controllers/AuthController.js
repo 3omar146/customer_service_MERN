@@ -5,11 +5,7 @@ import Agent from "../Models/Agent.js";
 import Supervisor from "../Models/Supervisor.js";
 import dotenv from "dotenv";
 dotenv.config();
-/*
-USER ,id,type
-jwt->
-ahadehehaexhahbdfbhwfwebhfehbhbdekhbafehbjhafd
-*/
+
 
 // Helper for creating JWT
 const createToken = (payload) => {
@@ -139,3 +135,6 @@ export const logout = (req, res) => {
   res.clearCookie("auth");
   res.json({ message: "Logged out" });
 };
+
+
+

@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/default", getDefaultClient);
 
 router.get("/:id/cases", getCasesByClient);
-router.put("/:id", updateClientProfile);
+router.patch("/:id", updateClientProfile);
 router.get("/:id", getClientById);
 
 export default router;

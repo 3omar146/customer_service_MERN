@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export const getAllSupervisors = async (req, res) => {
   try {
-    const supervisors = await Supervisor.find();    
+    const supervisors = await Supervisor.find().select("-password");    
     res.status(200).json(supervisors);
     } catch (error) {
     res.status(500).json({ message: error.message });
@@ -12,7 +12,7 @@ export const getAllSupervisors = async (req, res) => {
 
 export const getSupervisorById = async (req, res) => {
   try {
-    const supervisor = await Supervisor.findById(req.params.id);
+    const supervisor = await Supervisor.findById(req.params.id).select("-password");
     if (!supervisor) {
       return res.status(404).json({ message: "Supervisor not found" });
     }
@@ -24,19 +24,19 @@ export const getSupervisorById = async (req, res) => {
 export const updateSupervisor = async (req, res) => {
   try {
     if (req.body.password) {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    req.body.password = hashedPassword;
+      req.body.password = await bcrypt.hash(req.body.password, 10);
     }
-    const result = await Supervisor.updateOne(
-      { _id: req.params.id },
-      req.body
+
+    const updated = await Supervisor.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true, select: "-password" }
     );
 
-    if (result.matchedCount === 0) {
+    if (!updated) 
       return res.status(404).json({ message: "Supervisor not found" });
-    }
 
-    res.status(200).json(result);
+    res.status(200).json(updated);
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -46,16 +46,18 @@ export const updateSupervisor = async (req, res) => {
 export const addSupervisor = async (req, res) => {
   try {
     if (req.body.password) {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    req.body.password = hashedPassword;
+      req.body.password = await bcrypt.hash(req.body.password, 10);
     }
-    const newSupervisor = new Supervisor(req.body);
-    const savedSupervisor = await Supervisor.create(newSupervisor);
-    res.status(201).json(savedSupervisor);
+
+    const supervisor = await Supervisor.create(req.body);
+
+    const { password, ...safeSupervisor } = supervisor.toObject();
+    res.status(201).json(safeSupervisor);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 
 export const deleteSupervisor = async (req, res) => {
@@ -73,7 +75,7 @@ export const deleteSupervisor = async (req, res) => {
 };
 export const getSupervisorByEmail = async (req, res) => {
   try {
-    const supervisor = await Supervisor.findOne({ email: req.query.email });
+    const supervisor = await Supervisor.findOne({ email: req.query.email }).select("-password");
 
     if (!supervisor) {
       return res.status(404).json({ message: "Supervisor not found" });

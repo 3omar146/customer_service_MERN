@@ -19,6 +19,8 @@ router.get("/by-email", getSupervisorByEmail);
 // GET supervisor by ID
 router.get("/:id", getSupervisorById);
 
+
+
 // UPDATE supervisor
 router.patch("/:id", updateSupervisor);
 
