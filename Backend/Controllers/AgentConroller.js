@@ -70,13 +70,15 @@ export const getAgentsByRole = async (req, res) => {
 //get specific agents by supervisor id
 export const getAgentsBySupervisor = async (req, res) => {
     try{
-        const { supervisorId } = req.params;
+        const  supervisorId  = req.user.id;
         const agents = await Agent.find({supervisorID: supervisorId});
         if(!agents || agents.length === 0){
             return res.status(404).json({ message: "No agents found for this supervisor" });
         }
         res.status(200).json(agents);
     }catch(error){
+          console.error("getAgentsBySupervisor ERROR:", error);
+
         res.status(500).json({ message: error.message });
 
     }
@@ -85,7 +87,8 @@ export const getAgentsBySupervisor = async (req, res) => {
 //create a new agent
 export const createAgent = async (req, res) => {
 try{
-const {department, email, name, role, password, supervisorID} = req.body;
+const {department, email, name, role, password} = req.body;
+const supervisorID = req.user.id;
 const hashedPassword = await bcrypt.hash(password, 10);
 const newAgent = new Agent({
     department,
@@ -93,10 +96,11 @@ const newAgent = new Agent({
     isActive: true,
     name,
     role,
-    hashedPassword,
+    password: hashedPassword, // <-- FIXED
     supervisorID,
     updatedAt: new Date()
 });
+
 await newAgent.save();
 res.status(201).json(newAgent);
 }catch(error){

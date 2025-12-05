@@ -463,7 +463,7 @@ await mongoose.connection.db.command({
         lastName: { bsonType: "string" },
         phone: {
           bsonType: "string",
-          pattern: "/^\d{13}$/"
+          pattern: "^(\\+20)?\\d{11}$"
         },
         password: { bsonType: "string", minLength: 6 },
         updatedAt: { bsonType: ["date", "null"] }

@@ -4,7 +4,7 @@ import DataTable from "./DataTable";
 import axios from "axios";
 import "../Style/SupervisorTable.css";
 
-const SupervisorTable = ({ supervisorID }) => {
+const SupervisorTable = () => {
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
@@ -53,10 +53,10 @@ const SupervisorTable = ({ supervisorID }) => {
 
     const body = {
       ...newAgent,
-      supervisorID: supervisorID
+      //supervisorID: supervisorID
     };
 
-    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body)
+    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body,{withCredentials:true})
       .then(res => {
         setAgents(prev => [...prev, res.data]);
         setFilteredAgents(prev => [...prev, res.data]);
@@ -96,25 +96,25 @@ const SupervisorTable = ({ supervisorID }) => {
   // Fetch AGENTS
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorID}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor`;
 
     axios
-      .get(url)
+      .get(url, { withCredentials: true })
       .then((res) => {
         setAgents(res.data);
         setFilteredAgents(res.data);
       })
       .catch((err) => console.error("Error fetching agents:", err));
-  }, [supervisorID]);
+  }, []);
 
   // -------------------
   // Fetch CASES
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/${supervisorID}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/`;
 
     axios
-      .get(url)
+      .get(url, { withCredentials: true })
       .then((res) => {
         setCases(res.data);
         setFilteredCasesState(res.data);

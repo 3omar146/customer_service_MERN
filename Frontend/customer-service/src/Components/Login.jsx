@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "../Style/Login.css";
 
 export default function LoginPage() {
@@ -6,46 +7,76 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Email: ${email}\nPassword: ${password}`);
+    setError("");
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_API_URL}/authentication/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+
+      const userType = res.data.type;
+
+      // Redirect based on type
+      if (userType === "client") {
+        window.location.href = "/client/dashboard";
+      } else if (userType === "agent") {
+        window.location.href = "/agent/dashboard";
+      } else if (userType === "supervisor") {
+        window.location.href = "/supervisor/dashboard";
+      } else {
+        setError("Unknown user type.");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
+    }
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
+  <div className="login-wrapper">
+    <div className="login-card">
+      <h2 className="login-title">Login</h2>
 
-        <h2 className="login-title">Login</h2>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter your email..."
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="Enter your email..."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Enter your password..."
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password..."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        {error && <p className="login-error">{error}</p>}
 
-          {error && <p className="login-error">{error}</p>}
+        <button type="submit" className="login-btn">
+          Login
+        </button>
 
-          <button type="submit" className="login-btn">
-            Login
-          </button>
-
-        </form>
-
-      </div>
+        {/* ---- SIGN UP LINK ---- */}
+        <p className="signup-text">
+          Don't have an account?{" "}
+          <a href="/signup" className="signup-link">
+            Sign up
+          </a>
+        </p>
+      </form>
     </div>
-  );
+  </div>
+);
+
 }

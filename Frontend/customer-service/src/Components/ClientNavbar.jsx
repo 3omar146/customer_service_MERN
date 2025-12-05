@@ -1,6 +1,6 @@
 import React from "react";
 import "../Style/ClientNavbar.css";
-
+import axios from "axios";
 function ClientNavbar() {
   return (
     <nav className="client-nav">
@@ -18,8 +18,11 @@ function ClientNavbar() {
         <button
           className="logout"
           onClick={() => {
-            localStorage.removeItem("clientID");
-            window.location.href = "/client/dashboard";
+            axios.post(
+              `${import.meta.env.VITE_BACKEND_API_URL}/authentication/logout`,
+              { withCredentials: true }
+            );
+            window.location.href = "/";
           }}
         >
           Logout

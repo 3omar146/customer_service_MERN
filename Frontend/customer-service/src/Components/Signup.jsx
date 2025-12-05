@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "../Style/Signup.css";
 
 export default function SignUpPage() {
@@ -11,32 +12,41 @@ export default function SignUpPage() {
   });
 
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccessMsg("");
 
-    // Just demo validation
-    if (!form.email || !form.password) {
-      setError("Please fill in all required fields.");
-      return;
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_API_URL}/authentication/signup`,
+        form,
+        { withCredentials: true }
+      );
+
+      setSuccessMsg("Account created successfully!");
+
+      setTimeout(() => {
+        window.location.href = "/client/dashboard";
+      }, 800);
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Signup failed. Try again.");
     }
-
-    alert("Client signed up:\n" + JSON.stringify(form, null, 2));
   };
 
   return (
     <div className="signup-wrapper">
       <div className="signup-card">
-
         <h2 className="signup-title">Client Sign Up</h2>
 
         <form className="signup-form" onSubmit={handleSubmit}>
-
-         
           <label>First Name</label>
           <input
             type="text"
@@ -57,7 +67,6 @@ export default function SignUpPage() {
             required
           />
 
-
           <label>Phone Number</label>
           <input
             type="text"
@@ -68,7 +77,7 @@ export default function SignUpPage() {
             required
           />
 
-           <label>Email</label>
+          <label>Email</label>
           <input
             type="email"
             name="email"
@@ -77,7 +86,6 @@ export default function SignUpPage() {
             onChange={handleChange}
             required
           />
-
 
           <label>Password</label>
           <input
@@ -90,8 +98,19 @@ export default function SignUpPage() {
           />
 
           {error && <p className="signup-error">{error}</p>}
+          {successMsg && <p className="signup-success">{successMsg}</p>}
 
-          <button type="submit" className="signup-btn">Create Account</button>
+          <button type="submit" className="signup-btn">
+            Create Account
+          </button>
+
+          {/* ---- LOGIN LINK ---- */}
+          <p className="login-text">
+            Already have an account?{" "}
+            <a href="/login" className="login-link">
+              Login
+            </a>
+          </p>
         </form>
 
       </div>

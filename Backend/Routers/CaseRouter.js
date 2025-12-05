@@ -1,4 +1,5 @@
 import express from "express";
+import auth from "../Middleware/AuthMiddleware.js";
 import {
     getAllCases,
     getCaseById,
@@ -26,7 +27,7 @@ router.get("/unassigned", getAllUnassignedCases);
 router.patch("/solve/:id", solveCase);
 
 // SUPERVISOR DASHBOARD
-router.get("/supervisor/:id", getCasesForSupervisor);
+router.get("/supervisor",auth, getCasesForSupervisor);
 
 // CLIENT + ADMIN USAGE
 router.get("/", getAllCases);

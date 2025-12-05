@@ -7,13 +7,22 @@ import agentRouter from './Routers/AgentRouter.js';
 import caseRouter from './Routers/CaseRouter.js';
 import protocolRouter from './Routers/ActionProtocolRouter.js'
 import clientRouter from './Routers/ClientRouter.js';
+import authRouter from './Routers/AuthRouter.js';
+import cookieParser from "cookie-parser";
+
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-app.use(express.json());
-app.use(cors());
 
+app.use(cookieParser());
+app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",   // your frontend URL
+    credentials: true                  // allow cookies
+  })
+);
 //mongo db connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -23,6 +32,10 @@ mongoose.connect(process.env.MONGO_URI)
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+//auth routes
+app.use('/authentication', authRouter);
+
 //supervisor routes
 app.use('/supervisors', supervisorRouter);
 //agent routes

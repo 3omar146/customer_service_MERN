@@ -1,22 +1,36 @@
+html, body {
+  overflow: hidden;
+}
+
 /* Overall Background */
 .signup-wrapper {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f9fff9;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 60px;
+  text-align: left;
+  align-items: center;        /* CENTER vertically */
+  padding: 20px;              /* small padding for mobile */
+  box-sizing: border-box;
+
 }
 
 /* Signup Box */
 .signup-card {
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
   padding: 40px;
   background: white;
   border-radius: 14px;
-  border: 2px solid #7fdc87; /* green outline */
+  border: 2px solid #7fdc87;
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
+  /* SHRINK CARD VERTICALLY */
+  height: 80vh;        /* card height is now 80% of screen */
+  overflow-y: auto;    /* scroll inside the card ONLY if needed */
 }
+
+
 
 /* Title */
 .signup-title {
@@ -24,7 +38,7 @@
   font-size: 28px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
 /* Form layout */
@@ -34,7 +48,7 @@
 }
 
 .signup-form label {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   color: #444;
   font-size: 15px;
 }
@@ -42,7 +56,7 @@
 /* Inputs */
 .signup-form input {
   padding: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   font-size: 16px;
   border-radius: 10px;
   border: 2px solid #93e494;    /* green border */
@@ -65,7 +79,7 @@
 
 /* Button */
 .signup-btn {
-  padding: 14px;
+  padding: 12px;
   font-size: 18px;
   background-color: #92f7a1;     /* mint green */
   color: #333;
@@ -78,4 +92,25 @@
 
 .signup-btn:hover {
   background-color: #7edc8c;
+}
+
+.login-text {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+}
+
+.login-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+.signup-,.signup-success {
+  text-align: center;
 }

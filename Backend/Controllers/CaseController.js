@@ -255,31 +255,26 @@ export const unassignCaseFromAgent = async (req, res) => {
 
 export const getCasesForSupervisor = async (req, res) => {
     try {
-        const supervisorId = req.params.id;
+        const supervisorId = req.user.id;
 
-        // 1. Get all agents under this supervisor
-        const agents = await Agent.find(
+        // 1. Fetch all agent IDs under this supervisor
+        const agentIds = await Agent.find(
             { supervisorID: supervisorId },
             { _id: 1 }
-        );
+        ).then(agents => agents.map(a => a._id));
 
-        const agentIds = agents.map(a => a._id);
-
-        // 2. Aggregation
+        // 2. Fetch cases (optimized match)
         const cases = await Case.aggregate([
             {
                 $match: {
                     $or: [
-                        { case_status: "unsolved" },
-                        { case_status: "pending", assignedAgentID: { $in: agentIds }},
-                        { case_status: "solved", assignedAgentID: { $in: agentIds }}
+                        { case_status: "unsolved" },               // Unassigned
+                        { assignedAgentID: { $in: agentIds } }     // Cases handled by supervisor's agents
                     ]
                 }
             },
 
-            // --------------------------
-            // JOIN AGENT INFORMATION
-            // --------------------------
+            // Join agent info
             {
                 $lookup: {
                     from: "agents",
@@ -295,10 +290,7 @@ export const getCasesForSupervisor = async (req, res) => {
                 }
             },
 
-
-            // --------------------------
-            // Final output
-            // --------------------------
+            // Final shape
             {
                 $project: {
                     _id: 1,
@@ -307,15 +299,13 @@ export const getCasesForSupervisor = async (req, res) => {
                     createdAt: 1,
                     updatedAt: 1,
 
-                    // Agent fields
                     assignedAgentID: 1,
                     agentName: "$agent.name",
                     agentEmail: "$agent.email",
-
                 }
             },
 
-            { $sort: { case_status: -1 } }
+            { $sort: { case_status: -1, createdAt: -1 } }
         ]);
 
         res.status(200).json(cases);
@@ -325,3 +315,4 @@ export const getCasesForSupervisor = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+

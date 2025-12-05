@@ -82,3 +82,21 @@
 .login-btn:hover {
   background-color: #7edc8c;
 }
+.signup-text {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+}
+
+.signup-link {
+  color: #007bff;
+  font-weight: 500;
+  text-decoration: none;
+  transition: 0.2s ease-in-out;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
