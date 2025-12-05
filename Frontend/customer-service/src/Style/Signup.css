@@ -1,0 +1,116 @@
+html, body {
+  overflow: hidden;
+}
+
+/* Overall Background */
+.signup-wrapper {
+  min-height: 100vh;
+  background-color: #f9fff9;
+  display: flex;
+  justify-content: center;
+  text-align: left;
+  align-items: center;        /* CENTER vertically */
+  padding: 20px;              /* small padding for mobile */
+  box-sizing: border-box;
+
+}
+
+/* Signup Box */
+.signup-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 40px;
+  background: white;
+  border-radius: 14px;
+  border: 2px solid #7fdc87;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
+  /* SHRINK CARD VERTICALLY */
+  height: 80vh;        /* card height is now 80% of screen */
+  overflow-y: auto;    /* scroll inside the card ONLY if needed */
+}
+
+
+
+/* Title */
+.signup-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Form layout */
+.signup-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.signup-form label {
+  margin-bottom: 5px;
+  color: #444;
+  font-size: 15px;
+}
+
+/* Inputs */
+.signup-form input {
+  padding: 12px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 2px solid #93e494;    /* green border */
+  background-color: #f9fff9;
+  transition: 0.2s;
+}
+
+.signup-form input:focus {
+  outline: none;
+  border-color: #7fdc87;
+  box-shadow: 0 0 6px #7fdc87;
+}
+
+/* Error styling */
+.signup-error {
+  color: red;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Button */
+.signup-btn {
+  padding: 12px;
+  font-size: 18px;
+  background-color: #92f7a1;     /* mint green */
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.25s;
+}
+
+.signup-btn:hover {
+  background-color: #7edc8c;
+}
+
+.login-text {
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+  color: #555;
+}
+
+.login-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+.signup-,.signup-success {
+  text-align: center;
+}

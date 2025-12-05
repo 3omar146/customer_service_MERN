@@ -1,14 +1,39 @@
+/* FORCE SCROLL - Diagnostic */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-y: scroll !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+body {
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  position: relative !important;
+}
+
+#root {
+  overflow-y: visible !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  position: relative !important;
+}
+
 /* Full page container */
 .agent-details-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   width: 100%;
-  padding: 40px;
+  padding: 40px 40px 80px 40px;
   box-sizing: border-box;
   background-color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  align-items: center; /* Center the header */
+  align-items: center; /* Changed from flex-start to center */
+  position: relative;
 }
 
 /* Centered header for the page */
@@ -17,6 +42,7 @@
   font-size: 32px;
   color: #222;
   margin-bottom: 30px;
+  width: 100%;
 }
 
 /* Top row: left agent info, right delete button */
@@ -72,6 +98,7 @@
 /* Report section centered below top row */
 .report {
   margin-top: 40px;
+  margin-bottom: 60px;
   padding: 25px 35px;
   border: 2px solid #90ee90;
   border-radius: 12px;
@@ -80,6 +107,7 @@
   text-align: left;
   max-width: 700px;
   width: 100%;
+  align-self: center; /* This ensures the report is centered */
 }
 
 .report h3 {

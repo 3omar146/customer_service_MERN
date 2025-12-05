@@ -16,7 +16,7 @@ export const getAllAgents = async (req, res) => {
 //get agent by id
 export const getAgentById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const  id  = req.params.id;
         const agent = await Agent.find({ _id: id });
         if(!agent){
             return res.status(404).json({ message: "Agent not found" });
@@ -70,13 +70,15 @@ export const getAgentsByRole = async (req, res) => {
 //get specific agents by supervisor id
 export const getAgentsBySupervisor = async (req, res) => {
     try{
-        const { supervisorId } = req.params;
+        const  supervisorId  = req.user.id;
         const agents = await Agent.find({supervisorID: supervisorId});
         if(!agents || agents.length === 0){
             return res.status(404).json({ message: "No agents found for this supervisor" });
         }
         res.status(200).json(agents);
     }catch(error){
+          console.error("getAgentsBySupervisor ERROR:", error);
+
         res.status(500).json({ message: error.message });
 
     }
@@ -85,7 +87,8 @@ export const getAgentsBySupervisor = async (req, res) => {
 //create a new agent
 export const createAgent = async (req, res) => {
 try{
-const {department, email, name, role, password, supervisorID} = req.body;
+const {department, email, name, role, password} = req.body;
+const supervisorID = req.user.id;
 const hashedPassword = await bcrypt.hash(password, 10);
 const newAgent = new Agent({
     department,
@@ -93,10 +96,11 @@ const newAgent = new Agent({
     isActive: true,
     name,
     role,
-    hashedPassword,
+    password: hashedPassword, // <-- FIXED
     supervisorID,
     updatedAt: new Date()
 });
+
 await newAgent.save();
 res.status(201).json(newAgent);
 }catch(error){
@@ -106,32 +110,56 @@ res.status(201).json(newAgent);
 
 
 }
-//delete agent
+// Delete agent and update assigned cases
+// Delete agent and update assigned cases
 export const deleteAgent = async (req, res) => {
-    try{
-        const {id} = req.params;
-        const agent = await Agent.findOne({ _id: id });
+    try {
+        const { id } = req.params;
+
+        // Find the agent
+        const agent = await Agent.findById(id);
         if (!agent) {
-            console.log("Agent not found");
-            res.status(404).json({ message: "Agent not found" });
-            return;
+            return res.status(404).json({ message: "Agent not found" });
         }
 
         console.log("Found agent:", agent);
 
+        // Update cases assigned to this agent
+        const updatedCases = await Case.updateMany(
+            { assignedAgentID: id },
+            { 
+                $set: { assignedAgentID: null },
+                $currentDate: {}, // optional: for updatedAt if you have timestamp
+            }
+        );
+
+        console.log(`Updated ${updatedCases.modifiedCount} cases to have assignedAgentID = null`);
+
+        // Update case_status from "pending" to "unsolved"
+        const statusUpdatedCases = await Case.updateMany(
+            { assignedAgentID: null, case_status: "pending" },
+            { $set: { case_status: "unsolved" } }
+        );
+
+        console.log(`Updated ${statusUpdatedCases.modifiedCount} cases from pending to unsolved`);
+
+        // Delete the agent
         const result = await Agent.deleteOne({ _id: id });
 
         if (result.deletedCount > 0) {
             console.log("Agent deleted successfully");
-            res.status(200).json({ message: "Agent deleted successfully!" });
+            return res.status(200).json({ message: "Agent deleted successfully!" });
         } else {
             console.log("Failed to delete agent");
+            return res.status(500).json({ message: "Failed to delete agent" });
         }
 
     } catch (err) {
         console.error("Error:", err);
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
-}
+};
+
 //edit agent
 export const updateAgent = async (req, res) => {
     try {
@@ -221,7 +249,9 @@ const report = await Case.aggregate([
 // Generate agent report by ID
 export const getAgentReportById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id  = req.params.id;
+      console.log("Agent report route hit", req.user); // check if auth adds user
+
     const agentId = id.trim(); // remove hidden spaces/newlines
 
     if (!mongoose.Types.ObjectId.isValid(agentId)) {
@@ -284,4 +314,43 @@ export const getAgentReportById = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Error generating agent report" });
   }
+};
+
+export const assignAgentToCase = async (req, res) => {
+    try {
+        const { agentId, caseId } = req.params;
+
+        const agent = await Agent.exists({ _id: agentId });
+        if (!agent) {
+            return res.status(404).json({ message: "Agent not found" });
+        }
+
+        const assignedCase = await Case.findOneAndUpdate(
+            {
+                _id: caseId,
+                case_status: { $nin: ["pending", "solved"] }
+            },
+            {
+                $set: {
+                    assignedAgentID: agentId,
+                    case_status: "pending"
+                }
+            },
+            { new: true }
+        );
+
+        if (!assignedCase) {
+            return res.status(400).json({
+                message: "Case not found OR already assigned/solved"
+            });
+        }
+
+        res.status(200).json({
+            message: "Case assigned successfully",
+            case: assignedCase
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };

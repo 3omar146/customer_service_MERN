@@ -1,7 +1,8 @@
 import React from "react";
 import "../Style/DataTable.css";
-
+import { useNavigate } from "react-router-dom";
 const DataTable = ({ columns, data, selectedId, setSelectedId }) => {
+  const navigate = useNavigate();
   return (
     <div className="data-table-wrapper">
       <table className="data-table">
@@ -22,7 +23,7 @@ const DataTable = ({ columns, data, selectedId, setSelectedId }) => {
                 key={row._id}
                 className={isSelected ? "selected" : ""}
                 onClick={() => {
-  setSelectedId(isSelected ? null : row._id);
+                 setSelectedId(isSelected ? null : row._id);
                   }}
               >
                 {columns.map((col) => {

@@ -1,13 +1,30 @@
 /* app.css */
 
+/* Force scrolling on html and body */
+html {
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Root layout */
 #root {
-  max-width: 1280px;
+  width: 100%;
+  min-height: 100%;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #ffffff; /* light gray background for the app */
+  background-color: #ffffff;
+  overflow-y: auto;
 }
 
 /* Logo styling (optional) */
@@ -26,7 +43,7 @@
 
 /* Card styling (generic for all content sections) */
 .card {
-  background-color: #ffffff; /* white card background */
+  background-color: #ffffff;
   padding: 2rem;
   margin: 2rem auto;
   border-radius: 10px;
@@ -55,7 +72,7 @@
 
 /* Buttons inside cards */
 .card button {
-  background-color: #90ee90; /* light green */
+  background-color: #90ee90;
   color: #ffffff;
   border: none;
   padding: 10px 16px;
@@ -66,7 +83,7 @@
   transition: background-color 0.2s ease;
 }
 .card button:hover {
-  background-color: #76c776; /* slightly darker green on hover */
+  background-color: #76c776;
 }
 
 /* Report section styling */

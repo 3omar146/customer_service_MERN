@@ -1,0 +1,57 @@
+------ISP(internet) customer service------
+
+supervisors {
+  _id: ObjectId,
+  email: String,
+  name: String,
+  role: Reminder,["Head Supervisor","Senior Supervisor","Supervisor"]
+  password: String,
+  updatedAt: Date
+}
+
+agents {
+  _id: ObjectId,
+  email: String,
+  isActive: Boolean,
+  name: String,
+  role: String,["Agent","Senior Agent"]
+  password: String,
+  supervisorID: ObjectId
+  updatedAt: Date
+}
+
+clients {
+  _id: ObjectId,
+  email: String,
+  firstName: String,
+  lastName: String,
+  phone: String,
+  password: String,
+  updatedAt: Date
+}
+
+action_protocols {
+  _id: ObjectId,
+  agentID: ObjectId,->reference to agent
+  steps: String,
+  type: String,[determine a limited set of meaningful types for the problem the protocol solves]
+  timestamp: Date
+}
+
+cases(assigned agent can only be null if unsolved, otherwise has value) {
+  _id: ObjectId,
+  assignedAgentID: ObjectId,->Reference to agentID
+  clientID: ObjectId,->Reference to clientID
+  case_description: String,
+  case_status: String,["unsolved","pending","solved"]
+recommendedActionProtocol:ObjectId->action protocol
+  createdAt: Date,
+  updatedAt: Date,
+}
+
+logs(only reference solved cases): {
+	caseID:ObjectId -> reference to caseID
+    performedBy: ObjectId,->reference to agentID
+    protocolID: ObjectId,->reference to protocolID
+    timestamp: Date
+  }

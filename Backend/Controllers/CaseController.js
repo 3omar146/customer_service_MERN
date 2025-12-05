@@ -6,7 +6,6 @@ import Agent from "../Models/Agent.js";
 // Get cases assigned to an agent (not solved)
 export const getCasesAssignedToAgent = async (req, res) => {
     const { agentId } = req.params;
-
     try {
         const cases = await Case.find({
             assignedAgentID: agentId, 
@@ -51,7 +50,7 @@ export const getAllUnassignedCases = async (req, res) => {
                         { assignedAgentID: { $exists: false } },
                         { assignedAgentID: null }
                     ],
-                    case_status: "unassigned"
+                    case_status: "unsolved"
                 }
             },
             { $sort: { createdAt: -1 } }
@@ -77,20 +76,28 @@ export const getAllCases = async (req, res) => {
 
 // Get case by ID
 export const getCaseById = async (req, res) => {
-    const { id } = req.params;
+  try {
+    const caseInfo = await Case.findById(req.params.id)
+      .populate("assignedAgentID", "name email")
+      .populate("recommendedActionProtocol", "steps type timestamp");
 
-    try {
-        const caseItem = await Case.findById(id);
-
-        if (!caseItem) {
-            return res.status(404).json({ message: "Case not found" });
-        }
-
-        res.status(200).json(caseItem);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!caseInfo) {
+      return res.status(404).json({ message: "Case not found" });
     }
+
+    const response = {
+      ...caseInfo.toObject(),
+      agentName: caseInfo.assignedAgentID?.name || "Not assigned",
+      agentEmail: caseInfo.assignedAgentID?.email || "No email",
+      recommendedActionProtocol: caseInfo.recommendedActionProtocol,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 
 // Create a new case
@@ -123,27 +130,13 @@ export const updateCaseById = async (req, res) => {
 
 // SOLVE a case and set logs
 export const solveCase = async (req, res) => {
-
-    //still need to handle new action protocols
   try {
-    let caseID = req.params.id;
-    
-    const logs  = req.body.logs;
+    const caseID = req.params.id;
 
-    console.log("Solving case:", caseID, "with logs:", logs);
+    console.log("Solving case:", caseID);
 
-    if (!caseID || !logs) {
-      return res.status(400).json({ message: "caseID and logs are required" });
-    }
-
-    // Required log fields
-    const requiredFields = ["performedBy", "protocolID"];
-    const missing = requiredFields.filter((f) => !logs[f]);
-
-    if (missing.length > 0) {
-      return res.status(400).json({
-        message: `Missing log fields: ${missing.join(", ")}`
-      });
+    if (!caseID) {
+      return res.status(400).json({ message: "caseID is required" });
     }
 
     const caseItem = await Case.findById(caseID);
@@ -151,27 +144,38 @@ export const solveCase = async (req, res) => {
       return res.status(404).json({ message: "Case not found" });
     }
 
-    // Solved cases MUST have an assigned agent
-    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+    // Validation: case_status must not be null
+    if (!caseItem.recommendedActionProtocol) {
       return res.status(400).json({
-        message: "Cannot solve a case with no assigned agent"
+        message: "To solve case must select an action protocol"
       });
     }
 
-    // Apply the update
-    logs.timestamp = new Date();
+    // Must be pending and assigned before solving
+    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+      return res.status(400).json({
+        message: "Only pending cases with assigned agent can be solved"
+      });
+    }
+
+    // Update case
     caseItem.case_status = "solved";
-    caseItem.logs = logs;
     caseItem.updatedAt = new Date();
-    
+
 
     const updated = await caseItem.save();
+    
+    //create log entry (if needed, implement logging here)
+
     res.status(200).json(updated);
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
 export const assignCaseToAgent = async (req, res) => {
     try {
         const { agentId, caseId } = req.params;
@@ -211,6 +215,7 @@ export const assignCaseToAgent = async (req, res) => {
     }
 };
 
+
 export const unassignCaseFromAgent = async (req, res) => {
     try {
         const { agentId, caseId } = req.params;
@@ -246,33 +251,29 @@ export const unassignCaseFromAgent = async (req, res) => {
     }   
 };
 
+
 export const getCasesForSupervisor = async (req, res) => {
     try {
-        const supervisorId = req.params.id;
+        const supervisorId = req.user.id;
 
-        // 1. Get all agents under this supervisor
-        const agents = await Agent.find(
+        // 1. Fetch all agent IDs under this supervisor
+        const agentIds = await Agent.find(
             { supervisorID: supervisorId },
             { _id: 1 }
-        );
+        ).then(agents => agents.map(a => a._id));
 
-        const agentIds = agents.map(a => a._id);
-
-        // 2. Aggregation
+        // 2. Fetch cases (optimized match)
         const cases = await Case.aggregate([
             {
                 $match: {
                     $or: [
-                        { case_status: "unsolved" },
-                        { case_status: "pending", assignedAgentID: { $in: agentIds }},
-                        { case_status: "solved", assignedAgentID: { $in: agentIds }}
+                        { case_status: "unsolved" },               // Unassigned
+                        { assignedAgentID: { $in: agentIds } }     // Cases handled by supervisor's agents
                     ]
                 }
             },
 
-            // --------------------------
-            // JOIN AGENT INFORMATION
-            // --------------------------
+            // Join agent info
             {
                 $lookup: {
                     from: "agents",
@@ -288,10 +289,7 @@ export const getCasesForSupervisor = async (req, res) => {
                 }
             },
 
-
-            // --------------------------
-            // Final output
-            // --------------------------
+            // Final shape
             {
                 $project: {
                     _id: 1,
@@ -300,19 +298,13 @@ export const getCasesForSupervisor = async (req, res) => {
                     createdAt: 1,
                     updatedAt: 1,
 
-                    // Agent fields
                     assignedAgentID: 1,
                     agentName: "$agent.name",
                     agentEmail: "$agent.email",
-
-                    // Client fields
-                    clientID: 1,
-                    clientName: "$client.name",
-                    clientEmail: "$client.email"
                 }
             },
 
-            { $sort: { createdAt: -1 } }
+            { $sort: { case_status: -1, createdAt: -1 } }
         ]);
 
         res.status(200).json(cases);
@@ -322,3 +314,4 @@ export const getCasesForSupervisor = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+

@@ -8,11 +8,23 @@ import "../Style/SupervisorTable.css";
 const SupervisorTable = ({ supervisorID }) => {
 
   const navigate =useNavigate();
+
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
   const [selectedId, setSelectedId] = useState(null);
   const [caseFilter, setCaseFilter] = useState("all");
+  const [filteredAgents, setFilteredAgents] = useState([]);
+  const [filteredCases, setFilteredCasesState] = useState([]);
+
+  // NEW STATE FOR ADD AGENT MODAL
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newAgent, setNewAgent] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: ""
+  });
 
   // -------------------
   // Columns Definitions
@@ -20,7 +32,6 @@ const SupervisorTable = ({ supervisorID }) => {
   const agentColumns = [
     { header: "Name", accessor: "name" },
     { header: "Email", accessor: "email" },
-    { header: "Department", accessor: "department" },
     { header: "Role", accessor: "role" },
     { header: "Active", accessor: "isActive" },
     { header: "Last Update", accessor: "updatedAt" },
@@ -35,44 +46,100 @@ const SupervisorTable = ({ supervisorID }) => {
     { header: "Updated At", accessor: "updatedAt" },
   ];
 
+  /////add agent handler///
+  function addAgent() {
+    setShowAddModal(true);
+  }
+
+  // submit handler
+  function handleAddAgentSubmit(e) {
+    e.preventDefault();
+
+    const body = {
+      ...newAgent,
+      //supervisorID: supervisorID
+    };
+
+    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body,{withCredentials:true})
+      .then(res => {
+        setAgents(prev => [...prev, res.data]);
+        setFilteredAgents(prev => [...prev, res.data]);
+        setShowAddModal(false);
+        setNewAgent({ name: "", email: "", password: "", role: "" });
+      })
+      .catch(err => console.error("Error adding agent:", err));
+  }
+
+  ///search handler///
+  function handleSearch(query) {
+    const q = query.toLowerCase();
+
+    if (dataMode === "agents") {
+      setFilteredAgents(
+        agents.filter(
+          (a) =>
+            a.name.toLowerCase().includes(q) ||
+            a.email.toLowerCase().includes(q) ||
+            a.role.toLowerCase().includes(q)
+        )
+      );
+    } else {
+      setFilteredCasesState(
+        cases.filter(
+          (c) =>
+            c.case_description.toLowerCase().includes(q) ||
+            c.case_status.toLowerCase().includes(q) ||
+            (c.agentName && c.agentName.toLowerCase().includes(q)) ||
+            (c.agentEmail && c.agentEmail.toLowerCase().includes(q))
+        )
+      );
+    }
+  }
+
   // -------------------
   // Fetch AGENTS
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor/${supervisorID}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor`;
 
     axios
-      .get(url)
-      .then((res) => setAgents(res.data))
+      .get(url, { withCredentials: true })
+      .then((res) => {
+        setAgents(res.data);
+        setFilteredAgents(res.data);
+      })
       .catch((err) => console.error("Error fetching agents:", err));
-  }, [supervisorID]);
+  }, []);
 
   // -------------------
   // Fetch CASES
   // -------------------
   useEffect(() => {
-    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/${supervisorID}`;
+    const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/`;
 
     axios
-      .get(url)
-      .then((res) => setCases(res.data))
+      .get(url, { withCredentials: true })
+      .then((res) => {
+        setCases(res.data);
+        setFilteredCasesState(res.data);
+      })
       .catch((err) => console.error("Error fetching cases:", err));
   }, []);
 
   // -------------------
   // Filtering Cases
   // -------------------
-  const filteredCases =
+  const filteredCases2 =
     caseFilter === "all"
-      ? cases
-      : cases.filter((c) => c.case_status?.toLowerCase() === caseFilter);
+      ? filteredCases
+      : filteredCases.filter((c) => c.case_status?.toLowerCase() === caseFilter);
 
   const ActiveColumns = dataMode === "agents" ? agentColumns : caseColumns;
-  const ActiveData = dataMode === "agents" ? agents : filteredCases;
+  const ActiveData = dataMode === "agents" ? filteredAgents : filteredCases2;
 
   return (
     <div className="supervisor-container">
-      <h2 className="supervisor-title">{dataMode === "agents"?"My Agents":"Cases"}</h2>
+      <h2 className="supervisor-title">{dataMode === "agents" ? "My Agents" : "Cases"}</h2>
 
       {/* TOP BAR SPLIT LEFT + RIGHT */}
       <div className="supervisor-top-row">
@@ -102,16 +169,42 @@ const SupervisorTable = ({ supervisorID }) => {
           )}
         </div>
 
+        {/* MIDDLE: SEARCH BAR (NEW) */}
+        <input
+          type="text"
+          placeholder="Search..."
+          className="supervisor-search"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+
         {/* RIGHT SIDE: BUTTON */}
         <div className="supervisor-right-controls">
           {dataMode === "agents" && (
-            <button disabled = {!selectedId} className="supervisor-btn" onClick={()=>navigate("/agentDetail")}>Show Details</button>
+            <>
+              {/* PLUS BUTTON */}
+              <button className="supervisor-btn add-btn" onClick={addAgent}>
+                +
+              </button>
+
+              <button disabled={!selectedId} className="supervisor-btn"   onClick={() => navigate("/agentDetail", { state: { AgentID: selectedId } })}
+>
+                Show Details
+              </button>
+            </>
           )}
 
           {dataMode === "cases" && (
-            <button disabled = {!selectedId} className="supervisor-btn">Show Details</button>
+            <button disabled={!selectedId} className="supervisor-btn">
+              Show Details
+            </button>
           )}
         </div>
+
+        {dataMode === "cases" && (
+          <button disabled={!selectedId} className="supervisor-btn">
+            Show Details
+          </button>
+        )}
       </div>
 
       {/* TABLE */}
@@ -121,8 +214,65 @@ const SupervisorTable = ({ supervisorID }) => {
           data={ActiveData}
           selectedId={selectedId}
           setSelectedId={setSelectedId}
+
         />
       </div>
+
+      {/* ADD AGENT MODAL */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Add New Agent</h3>
+
+            <form onSubmit={handleAddAgentSubmit} className="modal-form">
+              <input
+                type="text"
+                placeholder="Name"
+                required
+                value={newAgent.name}
+                onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
+              />
+
+              <input
+                type="email"
+                placeholder="Email"
+                required
+                value={newAgent.email}
+                onChange={(e) => setNewAgent({ ...newAgent, email: e.target.value })}
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                required
+                value={newAgent.password}
+                onChange={(e) => setNewAgent({ ...newAgent, password: e.target.value })}
+              />
+
+              <select
+                required
+                value={newAgent.role}
+                onChange={(e) => setNewAgent({ ...newAgent, role: e.target.value })}
+              >
+                <option value="">Select Role</option>
+                <option value="Agent">Agent</option>
+                <option value="Senior Agent">Senior Agent</option>
+              </select>
+
+              <div className="modal-actions">
+                <button type="button" className="modal-cancel" onClick={() => setShowAddModal(false)}>
+                  Cancel
+                </button>
+
+                <button type="submit" className="modal-submit">
+                  Add Agent
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
