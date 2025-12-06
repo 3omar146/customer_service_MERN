@@ -2,7 +2,7 @@ import express from 'express';
 import auth from "../Middleware/AuthMiddleware.js";
 const router = express.Router();
 
-import {assignAgentToCase, createAgent, deleteAgent, getActiveAgents, getAgentByEmail, getAgentById, getAgentReportById, getAgentsByRole, getAgentsBySupervisor, getAgentsReport, getAllAgents,updateAgent} from '../Controllers/AgentConroller.js';
+import {assignAgentToCase, createAgent, deleteAgent, getActiveAgents, getAgentByEmail, getAgentById, getAgentReportById, getAgentsByRole, getAgentsBySupervisor, getAgentsReport, getAllAgents,updateAgent,getAllAgentsReport} from '../Controllers/AgentConroller.js';
 ;
 
 //get all supervisors
@@ -17,8 +17,10 @@ router.get('/role/:AgentRole', getAgentsByRole)
 router.get('/supervisor',auth, getAgentsBySupervisor);
 //get agent report
 router.get('/report', getAgentsReport);
+//all agents report
+router.get('/supervisor/report',auth, getAllAgentsReport);
 //get agent report by id
-router.get('/Agentreport/:id',getAgentReportById);
+router.get('/Agentreport/:id',auth,getAgentReportById);
 //get agent by id
 router.get('/SpecificAgent/:id',getAgentById);
 //upate agent

@@ -13,7 +13,8 @@ import {
     solveCase,
     assignCaseToAgent,
     unassignCaseFromAgent,
-    getCasesForSupervisor
+    getCasesForSupervisor,
+    getCasesReport
 } from "../Controllers/CaseController.js";
 
 const router = express.Router();
@@ -33,6 +34,7 @@ router.patch("/solve/:id", solveCase);
 
 // SUPERVISOR DASHBOARD
 router.get("/supervisor",auth, getCasesForSupervisor);
+router.get("/supervisor/report",auth, getCasesReport);
 
 // CLIENT + ADMIN USAGE
 router.get("/", getAllCases);

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Case from "../Models/Case.js";
 import Agent from "../Models/Agent.js";
-
+import Supervisor from "../Models/Supervisor.js";
 
 // Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
@@ -406,4 +406,109 @@ export const getCasesForSupervisor = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+////report for supervisor
+
+export const getCasesReport = async (req, res) => {
+  try {
+    const supervisorID = req.user.id;
+
+    const supervisor = await Supervisor.findById(supervisorID);
+    if (!supervisor) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    // Get supervisor's agents
+    const agents = await Agent.find({ supervisorID }, { _id: 1 });
+    const agentIDs = agents.map(a => a._id);
+
+    // CASE COUNTS (supervisor-owned + unassigned)
+    const counts = await Case.aggregate([
+      {
+        $match: {
+          $or: [
+            { assignedAgentID: null },         // unassigned unsolved
+            { assignedAgentID: { $in: agentIDs } } // supervisor agent cases
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: "$case_status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const totals = {
+      totalUnsolved: counts.find(c => c._id === "unsolved")?.count || 0,
+      totalPending:  counts.find(c => c._id === "pending")?.count || 0,
+      totalSolved:   counts.find(c => c._id === "solved")?.count || 0
+    };
+
+    // AVERAGE SOLVE TIME (only supervisor's agents)
+    const avgSolve = await Case.aggregate([
+      {
+        $match: { 
+          case_status: "solved",
+          assignedAgentID: { $in: agentIDs }
+        }
+      },
+      {
+        $project: {
+          diffHours: {
+            $divide: [
+              { $subtract: ["$updatedAt", "$createdAt"] },
+              1000 * 60 * 60
+            ]
+          }
+        }
+      },
+      { $group: { _id: null, avgHours: { $avg: "$diffHours" } } }
+    ]);
+
+    const averageSolvingTime = avgSolve[0]?.avgHours || 0;
+
+    // OLDEST UNSOLVED (only unassigned)
+    const oldestUnsolved = await Case.aggregate([
+      {
+        $match: { 
+          case_status: "unsolved",
+          assignedAgentID: null
+        }
+      },
+      { $sort: { createdAt: 1 } },
+      { $limit: 5 },
+      {
+        $addFields: {
+          hoursSinceCreated: {
+            $divide: [
+              { $subtract: [new Date(), "$createdAt"] },
+              1000 * 60 * 60
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          case_description: 1,
+          hoursSinceCreated: 1
+        }
+      }
+    ]);
+
+    res.json({
+      ...totals,
+      averageSolvingTime,
+      oldestUnsolved
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate cases report" });
+  }
+};
+
+
 

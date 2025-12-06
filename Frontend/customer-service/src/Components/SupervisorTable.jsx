@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "./DataTable";
 import axios from "axios";
+import SupervisorReport from "./SupervisorReport";
 import "../Style/SupervisorTable.css";
 
 const SupervisorTable = ({ supervisorID }) => {
@@ -14,13 +15,12 @@ const SupervisorTable = ({ supervisorID }) => {
   const [dataMode, setDataMode] = useState("agents");
   const [selectedId, setSelectedId] = useState(null);
   const [caseFilter, setCaseFilter] = useState("all");
-
-  const [agentFilter, setAgentFilter] = useState("all"); // 🔥 NEW
+  const [agentFilter, setAgentFilter] = useState("all");
 
   const [filteredAgents, setFilteredAgents] = useState([]);
   const [filteredCases, setFilteredCasesState] = useState([]);
 
-  // NEW STATE FOR ADD AGENT MODAL
+  // Add agent modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [newAgent, setNewAgent] = useState({
     name: "",
@@ -29,8 +29,11 @@ const SupervisorTable = ({ supervisorID }) => {
     role: ""
   });
 
+  // NEW — REPORT MODAL
+  const [showReport, setShowReport] = useState(false);
+
   // -------------------
-  // Columns Definitions
+  // Column Definitions
   // -------------------
   const agentColumns = [
     { header: "Name", accessor: "name" },
@@ -49,18 +52,17 @@ const SupervisorTable = ({ supervisorID }) => {
     { header: "Updated At", accessor: "updatedAt" },
   ];
 
-  /////add agent handler///
+  // -------------------
+  // Add agent
+  // -------------------
   function addAgent() {
     setShowAddModal(true);
   }
 
-  // submit handler
   function handleAddAgentSubmit(e) {
     e.preventDefault();
 
-    const body = {
-      ...newAgent,
-    };
+    const body = { ...newAgent };
 
     axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body, { withCredentials: true })
       .then(res => {
@@ -72,7 +74,9 @@ const SupervisorTable = ({ supervisorID }) => {
       .catch(err => console.error("Error adding agent:", err));
   }
 
-  ///search handler///
+  // -------------------
+  // Search handler
+  // -------------------
   function handleSearch(query) {
     const q = query.toLowerCase();
 
@@ -129,7 +133,7 @@ const SupervisorTable = ({ supervisorID }) => {
   }, []);
 
   // -------------------
-  // Filtering Agents (NEW)
+  // Filters
   // -------------------
   const filteredAgents2 =
     agentFilter === "all"
@@ -138,9 +142,6 @@ const SupervisorTable = ({ supervisorID }) => {
       ? filteredAgents.filter((a) => a.isActive === true)
       : filteredAgents.filter((a) => a.isActive === false);
 
-  // -------------------
-  // Filtering Cases
-  // -------------------
   const filteredCases2 =
     caseFilter === "all"
       ? filteredCases
@@ -151,10 +152,10 @@ const SupervisorTable = ({ supervisorID }) => {
 
   return (
     <div className="supervisor-container">
-      {/* TOP BAR SPLIT LEFT + RIGHT */}
+      {/* TOP BAR */}
       <div className="supervisor-top-row">
 
-        {/* LEFT SIDE: FILTERS */}
+        {/* LEFT SIDE CONTROLS */}
         <div className="supervisor-left-controls">
           <select
             className="supervisor-select"
@@ -165,7 +166,6 @@ const SupervisorTable = ({ supervisorID }) => {
             <option value="cases">Cases</option>
           </select>
 
-          {/*  NEW AGENT FILTER */}
           {dataMode === "agents" && (
             <select
               className="supervisor-select"
@@ -192,7 +192,7 @@ const SupervisorTable = ({ supervisorID }) => {
           )}
         </div>
 
-        {/* MIDDLE: SEARCH BAR */}
+        {/* SEARCH BAR */}
         <input
           type="text"
           placeholder="Search..."
@@ -200,8 +200,17 @@ const SupervisorTable = ({ supervisorID }) => {
           onChange={(e) => handleSearch(e.target.value)}
         />
 
-        {/* RIGHT SIDE: BUTTONS */}
+        {/* RIGHT SIDE CONTROLS */}
         <div className="supervisor-right-controls">
+
+          {/* ALWAYS SHOW REPORT BUTTON */}
+          <button
+            className="supervisor-btn"
+            onClick={() => setShowReport(true)}
+          >
+            Show Report
+          </button>
+
           {dataMode === "agents" && (
             <>
               <button className="supervisor-btn add-btn" onClick={addAgent}>
@@ -291,6 +300,11 @@ const SupervisorTable = ({ supervisorID }) => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* REPORT MODAL */}
+      {showReport && (
+        <SupervisorReport onClose={() => setShowReport(false)} />
       )}
 
     </div>

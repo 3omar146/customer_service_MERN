@@ -4,7 +4,7 @@ html, body {
 
 /* Overall Background */
 .signup-wrapper {
-  min-height: 100vh;
+  min-height: 80vh;
   background-color: #f9fff9;
   display: flex;
   justify-content: center;
@@ -15,8 +15,18 @@ html, body {
 
 }
 
+input{
+  text-align: left;
+}
+label {
+  text-align: left;}
+
+.login-text {
+  text-align: center;
+}
 /* Signup Box */
 .signup-card {
+
   width: 100%;
   max-width: 480px;
   padding-top: 10px;

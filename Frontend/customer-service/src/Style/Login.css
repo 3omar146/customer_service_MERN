@@ -30,6 +30,17 @@
   color: #333;
 }
 
+
+input{
+  text-align: left;
+}
+label {
+  text-align: left;}
+
+.signup-text {
+  text-align: center;
+}
+
 /* Form layout */
 .login-form {
   display: flex;

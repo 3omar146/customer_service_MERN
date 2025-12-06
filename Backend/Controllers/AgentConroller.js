@@ -2,6 +2,7 @@ import Agent from "../Models/Agent.js";
 import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
 import mongoose from "mongoose";
+import Supervisor from "../Models/Supervisor.js";
 
 
 export const getAllAgents = async (req, res) => {
@@ -353,4 +354,115 @@ export const assignAgentToCase = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+
+///report
+export const getAllAgentsReport = async (req, res) => {
+  try {
+    const supervisorID = req.user.id;
+     const supervisor = await Supervisor.findById(supervisorID);
+if (!supervisor) {
+  return res.status(403).json({ error: "Access denied" });
+}
+
+
+    // 1) Get all agents under this supervisor
+    const agents = await Agent.find({ supervisorID });
+    const agentIDs = agents.map(a => a._id);
+
+    // Active vs inactive
+    const activeAgents = agents.filter(a => a.isActive).length;
+    const inactiveAgents = agents.filter(a => !a.isActive).length;
+
+    // 2) Top 3 agents by solved cases (only solved cases of these agents)
+    const topSolved = await Case.aggregate([
+      {
+        $match: {
+          case_status: "solved",
+          assignedAgentID: { $in: agentIDs }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedAgentID",
+          solvedCount: { $sum: 1 }
+        }
+      },
+      { $sort: { solvedCount: -1 } },
+      { $limit: 3 },
+      {
+        $lookup: {
+          from: "agents",
+          localField: "_id",
+          foreignField: "_id",
+          as: "agent"
+        }
+      },
+      { $unwind: "$agent" },
+      {
+        $project: {
+          agentName: "$agent.name",
+          email: "$agent.email",
+          solvedCount: 1
+        }
+      }
+    ]);
+
+    // 3) Top 3 agents by average solving time
+    const topAvgSolve = await Case.aggregate([
+      {
+        $match: {
+          case_status: "solved",
+          assignedAgentID: { $in: agentIDs }
+        }
+      },
+      {
+        $project: {
+          assignedAgentID: 1,
+          diffHours: {
+            $divide: [
+              { $subtract: ["$updatedAt", "$createdAt"] },
+              1000 * 60 * 60
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$assignedAgentID",
+          avgSolveTime: { $avg: "$diffHours" }
+        }
+      },
+      { $sort: { avgSolveTime: 1 } },
+      { $limit: 3 },
+      {
+        $lookup: {
+          from: "agents",
+          localField: "_id",
+          foreignField: "_id",
+          as: "agent"
+        }
+      },
+      { $unwind: "$agent" },
+      {
+        $project: {
+          agentName: "$agent.name",
+          email: "$agent.email",
+          avgSolveTime: 1
+        }
+      }
+    ]);
+
+    res.json({
+      activeAgents,
+      inactiveAgents,
+      topSolved,
+      topAvgSolve
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate agents report" });
+  }
 };

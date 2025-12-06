@@ -1,0 +1,72 @@
+/* ====== REPORT MODAL IMPROVEMENTS ====== */
+/* ===== REPORT CONTENT WRAPPER ===== */
+.report-content {
+  padding: 20px;
+}
+
+/* ===== HEADERS ===== */
+.report-header {
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  color: #222;
+}
+
+/* ===== BLOCK SECTIONS ===== */
+.report-block {
+  margin-left: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.report-block p {
+  margin: 2px 0;
+}
+
+/* ===== LISTS ===== */
+.report-list {
+  padding-left: 24px;
+  margin: 6px 0 14px 0;
+}
+
+.report-list li {
+  margin-bottom: 6px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* Item title (bold) */
+.item-title {
+  font-weight: 600;
+  color: #222;
+}
+
+/* Sub info (hours, counts) */
+.item-sub {
+  color: #666;
+  margin-left: 4px;
+  font-size: 14px;
+}
+
+/* Empty messages */
+.empty-msg {
+  color: #777;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+/* Make text nicely left-aligned but keep button centered */
+.report-box,
+.report-box *:not(.modal-cancel):not(.modal-cancel *) {
+  text-align: left !important;
+  align-items: flex-start !important;
+}
+
+/* Button stays centered */
+.report-box .modal-cancel {
+  text-align: center !important;
+  align-self: center !important;
+  width: 100%;
+  margin-top: 10px;
+}
