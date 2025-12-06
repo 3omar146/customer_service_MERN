@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CaseCard from "./CaseCard.jsx";
-import "../Style/ListofCases.css";
+import "../Style/agentdashboard.css";
 
 export default function CasesTable({
   title = "Cases",

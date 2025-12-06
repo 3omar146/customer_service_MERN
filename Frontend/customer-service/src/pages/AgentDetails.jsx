@@ -40,7 +40,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
 
   // Fetch agent report
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/agents/Agentreport/${AgentID}`)
+    axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/agents/Agentreport/${AgentID}`,{withCredentials:true})
       .then(res => setReport(res.data))
       .catch(err => console.error("Error fetching report:", err));
   }, [AgentID]);
@@ -49,7 +49,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
   useEffect(() => {
     const fetchPendingCases = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/assigned/${AgentID}`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/pending/${AgentID}`,{withCredentials:true});
         setPendingCases(res.data);
       } catch (err) {
         console.error("Error fetching pending cases:", err);
@@ -78,7 +78,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
   useEffect(() => {
     const fetchUnSolvedCases = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/unassigned/`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/unassigned/`,{withCredentials:true});
         setUnsolvedCases(res.data);
       } catch (err) {
         console.error("Error fetching solved cases:", err);
@@ -99,6 +99,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
     );
 
     alert("Case assigned successfully!");
+window.location.reload();
 
     // Remove assigned case from unsolved list
     setUnsolvedCases(prev => prev.filter(c => c._id !== selectedId));
@@ -108,6 +109,28 @@ export default function AgentDetails({ isSupervisorView = true }) {
     console.error("Error assigning case:", error);
   }
 }
+async function unassignCase(caseId){
+  if (!caseId) return;
+
+  try {
+    await axios.patch(
+
+      `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassign/${caseId}/agent/${AgentID}`,
+      { agentId: null } // or just remove agentId from payload
+    );
+
+    // Update local state
+    setPendingCases(prev => prev.map(c =>
+      c._id === caseId ? { ...c, assignedAgentID: null, agentEmail: null } : c
+    ));
+
+    alert("Case unassigned successfully!");
+window.location.reload();
+  } catch (error) {
+    console.error("Error unassigning case:", error);
+  }
+}
+
   // Handle solving a case (only in agent view)
   // const handleSolve = async (caseId) => {
   //   try {
@@ -153,7 +176,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
       </div>
 
       <div className="report">
-        <h3>Report</h3>
+        <h3>{agent.name} Report</h3>
         {!report ? (
           <p>Loading report...</p>
         ) : (
@@ -173,12 +196,13 @@ export default function AgentDetails({ isSupervisorView = true }) {
         ) : (
           <div className="cases-grid">
             {pendingCases.map(caseItem => (
-              <CaseCard
-                key={caseItem._id}
-                caseItem={caseItem}
-                onSolve={!isSupervisorView ? handleSolve : undefined}
-                isSupervisorView={isSupervisorView}
-              />
+      <CaseCard
+  key={caseItem._id}
+  caseItem={caseItem}
+  onUnassign={isSupervisorView ? unassignCase : undefined}
+  isSupervisorView={isSupervisorView}
+/>
+
             ))}
           </div>
         )}

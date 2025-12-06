@@ -101,7 +101,7 @@ export const login = async (req, res) => {
           message: "User password is missing in the database."
         });
       }
-
+      user.updatedAt = new Date();
       user.password = await bcrypt.hash(user.password, 10);
       await user.save();
     }

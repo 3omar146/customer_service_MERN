@@ -5,6 +5,7 @@ import axios from "axios";
 import AgentCaseSidebar from "../Components/AgentCaseSidebar.jsx";
 
 
+
 export default function AgentDashboard() {
   const [unsolvedCases, setUnsolvedCases] = useState([]);
   const [loadingUnsolvedCases, setLoadingUnsolvedCases] = useState(true);
@@ -47,26 +48,48 @@ export default function AgentDashboard() {
 
 
   return (
-    <div style={{ display: "flex", gap: "20px" }}>   {/* ⭐ LAYOUT FIX */}
+    <>    <Navbar type="agent" />
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          alignItems: "flex-start",
+          padding: "20px",
+        }}
+      >
+
+        {/* LEFT — Unassigned Cases */}
+        <div style={{ flex: 1 }}>
+          <h2>Unassigned Cases</h2>
+
+          <CasesTable
+            title="Unassigned Cases"
+            cases={unsolvedCases}
+            loading={loadingUnsolvedCases}
+            isSupervisorView={false}
+            onAssign={handleAssign}
+            layout="grid"
+          />
+        </div>
 
 
-      <div style={{ flex: 1 }}>
-        <h2>Unassigned Cases</h2>
-        <CasesTable
-          title="Unassigned Cases"
-          cases={unsolvedCases}
-          loading={loadingUnsolvedCases}
-          isSupervisorView={false}
-          onAssign={handleAssign}
-        />
+        {/* ⭐⭐ RIGHT — Pending Cases Sidebar (WITH SEPARATOR) ⭐⭐ */}
+        <div
+          style={{
+            width: "350px",
+            paddingLeft: "20px",
+            borderLeft: "3px solid #e6e6e6",   // <-- THIS IS THE SEPARATOR
+            background: "#fafafa",
+            borderRadius: "8px",
+            boxShadow: "0 0 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <h2>Pending Cases</h2>
+          <AgentCaseSidebar />
+        </div>
+
       </div>
-
-      {/* RIGHT SIDE – SIDEBAR */}
-      <div style={{ width: "300px" }}>
-        <AgentCaseSidebar />
-      </div>
-
-    </div>
+    </>
   );
 };
 

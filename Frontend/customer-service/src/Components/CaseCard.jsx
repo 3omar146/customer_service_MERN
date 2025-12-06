@@ -2,14 +2,18 @@
 import "../Style/CaseCard.css";
 import { useNavigate } from "react-router-dom";
 
-function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
-  const navigate = useNavigate();
 
+function CaseCard({ caseItem, onSolve, onAssign, onUnassign, isSupervisorView = false }) {
+  const navigate = useNavigate();
   function handleSolve(e) {
     e.stopPropagation();
     navigate(`/action-protocol/${caseItem._id}`);
   }
+  function handleUnassign(e) {
+    e.stopPropagation()
+    onUnassign && onUnassign(caseItem._id)
 
+  }
   function handleAssign(e) {
     e.stopPropagation();
     console.log("Assign clicked INSIDE CaseCard for:", caseItem._id); // 
@@ -28,6 +32,18 @@ function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
         {caseItem.assignedAgentID || "Unassigned"}
 
       </p>
+
+      {isSupervisorView && (
+        <>
+          {caseItem.case_status === "pending" && (
+            <button className="solve-btn" onClick={handleUnassign}>
+              unassign
+            </button>
+          )}
+        </>
+      )
+
+      }
 
       {/* Render buttons only if not supervisor view */}
       {!isSupervisorView && (

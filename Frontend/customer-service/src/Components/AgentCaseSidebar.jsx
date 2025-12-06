@@ -29,10 +29,11 @@ const AgentCaseSidebar = () => {
     return (
         <div className="agent-cases-sidebar">
             <CasesTable
-                title="Assigned Cases"
+                title="pending  Cases"
                 cases={assignedCases}
                 loading={loading}
                 isSupervisorView={false}
+                layout="list"
             />
         </div>
     );

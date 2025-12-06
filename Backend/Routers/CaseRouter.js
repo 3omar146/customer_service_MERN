@@ -14,13 +14,15 @@ import {
     assignCaseToAgent,
     unassignCaseFromAgent,
     getCasesForSupervisor,
-    getCasesReport
+    getCasesReport,
+    getPendingCasesByAgent
 } from "../Controllers/CaseController.js";
 
 const router = express.Router();
 
 // AGENT RELATED
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
+router.get("/pending/:agentId",auth,getPendingCasesByAgent)
 router.get("/assigned/",auth, getCasesAssignedToSpecificAgent);
 router.get("/assigned/:agentId",getCasesAssignedToAgent);
 router.get("/solved/:agentId", getSolvedCasesByAgent);

@@ -85,6 +85,53 @@ export const getSolvedCasesByAgent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Get Pending cases by agent (supervisor view)
+export const getPendingCasesByAgent = async (req, res) => {
+  const { agentId } = req.params;
+
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: "pending",
+        },
+      },
+      {
+        // Join with Agent collection to get agent info
+        $lookup: {
+          from: "agents",
+          localField: "assignedAgentID",
+          foreignField: "_id",
+          as: "agentInfo",
+        },
+      },
+      {
+        // Unwind array from $lookup
+        $unwind: "$agentInfo",
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        // Optional: project only needed fields
+        $project: {
+          case_description: 1,
+          case_status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          assignedAgentID: 1,
+          agentName: "$agentInfo.name", // add agent name here
+          agentEmail: "$agentInfo.email", // optional if you want email too
+        },
+      },
+    ]);
+
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -318,6 +365,7 @@ export const unassignCaseFromAgent = async (req, res) => {
     if (!agent) {
       return res.status(404).json({ message: "Agent not found" });
     }
+
     const unassignedCase = await Case.findOneAndUpdate(
       {
         _id: caseId,
@@ -327,7 +375,7 @@ export const unassignCaseFromAgent = async (req, res) => {
       {
         $set: {
           assignedAgentID: null,
-          case_status: "unassigned"
+          case_status: "unsolved"
         }
       },
       { new: true }
