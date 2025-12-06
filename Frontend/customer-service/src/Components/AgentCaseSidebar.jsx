@@ -9,9 +9,11 @@ const AgentCaseSidebar = () => {
     useEffect(() => {
         async function fetchCases() {
             try {
-                        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/pending/${AgentID}`,{withCredentials:true});
 
-          
+                const res = await axios.get(
+                    `${import.meta.env.VITE_BACKEND_API_URL}/cases/assigned`,
+                    { withCredentials: true }
+                );
 
                 setAssignedCases(res.data);
             } catch (error) {
