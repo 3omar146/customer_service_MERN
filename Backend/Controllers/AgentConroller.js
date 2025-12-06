@@ -269,34 +269,89 @@ export const getAgentReportById = async (req, res) => {
           as: "cases"
         }
       },
-      { $unwind: { path: "$cases", preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: { agentId: "$_id", agentName: "$name" },
-          solvedCases: {
-            $sum: { $cond: [{ $eq: ["$cases.case_status", "solved"] }, 1, 0] }
-          },
-          pendingCases: {
-            $sum: { $cond: [{ $eq: ["$cases.case_status", "pending"] }, 1, 0] }
-          },
-          totalCases: {
-            $sum: { $cond: [{ $ifNull: ["$cases", false] }, 1, 0] }
-          }
+    
+  { 
+    $unwind: { 
+      path: "$cases", 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {
+    $group: {
+      _id: {
+        agentId: "$_id",
+        agentName: "$name"
+      },
+      solvedCases: {
+        $sum: {
+          $cond: [{ $eq: ["$cases.case_status", "solved"] }, 1, 0]
         }
       },
-      {
-        $project: {
-          _id: 0,
-     
-          agentName: "$_id.agentName",
-          solvedCases: 1,
-          pendingCases: 1,
-          totalCases: 1
+      pendingCases: {
+        $sum: {
+          $cond: [{ $eq: ["$cases.case_status", "pending"] }, 1, 0]
+        }
+      },
+      totalCases: {
+        $sum: {
+          $cond: [{ $ifNull: ["$cases", false] }, 1, 0]
         }
       }
-    ]);
+    }
+  },
+  {
+    $addFields: {
+      solvedPercentage: {
+        $cond: [
+          { $eq: ["$totalCases", 0] },
+          0,
+          {
+            $round:[
+              {
+            $multiply: [
+              { $divide: ["$solvedCases", "$totalCases"] },
+              100
+            ]
+          },2]
+          }
+        ]
+      }
+    }
+  },
+  {
+    $addFields: {
+      PendingPercentage: {
+        $cond: [
+          { $eq: ["$totalCases", 0] },
+          0,
+          {
+            $round:[
+              {
+            $multiply: [
+              { $divide: ["$pendingCases", "$totalCases"] },
+              100
+            ]
+          },2]
+          }
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      agentName: "$_id.agentName",
+      solvedCases: 1,
+      pendingCases: 1,
+      totalCases: 1,
+      solvedPercentage: 1,
+      PendingPercentage:1
+    }
+  }
+]);
 
-    // Handle agent with no cases
+    
+      // Handle agent with no cases
     if (report.length === 0) {
       const agent = await Agent.findById(agentId);
       if (!agent) return res.status(404).json({ message: "Agent not found" });

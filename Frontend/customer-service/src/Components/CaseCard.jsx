@@ -1,13 +1,17 @@
 
 import "../Style/CaseCard.css";
 
-function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
+function CaseCard({ caseItem, onSolve, onAssign,onUnassign, isSupervisorView = false }) {
 
   function handleSolve(e) {
     e.stopPropagation();
     onSolve && onSolve(caseItem._id);
   }
+  function handleUnassign(e){
+    e.stopPropagation()
+    onUnassign&&onUnassign(caseItem._id)
 
+  }
   function handleAssign(e) {
     e.stopPropagation();
     onAssign && onAssign(caseItem._id);
@@ -24,6 +28,18 @@ function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
         <span className="case-label">Assigned Agent:</span>{" "}
         {caseItem.agentEmail || "Unassigned"}
       </p>
+    
+    {isSupervisorView&&(
+      <>
+      {caseItem.case_status === "pending" && (
+            <button className="solve-btn" onClick={handleUnassign}>
+              unassign
+            </button>
+          )}
+          </>
+    )
+
+    }
 
       {/* Render buttons only if not supervisor view */}
       {!isSupervisorView && (
