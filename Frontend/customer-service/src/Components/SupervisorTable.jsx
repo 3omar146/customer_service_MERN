@@ -204,18 +204,21 @@ const SupervisorTable = ({ supervisorID }) => {
         <div className="supervisor-right-controls">
 
           {/* ALWAYS SHOW REPORT BUTTON */}
-          <button
-            className="supervisor-btn"
-            onClick={() => setShowReport(true)}
-          >
-            Show Report
-          </button>
+          
 
           {dataMode === "agents" && (
             <>
+            
               <button className="supervisor-btn add-btn" onClick={addAgent}>
                 +
               </button>
+
+              <button
+            className="supervisor-btn"
+            onClick={() => setShowReport(true)}
+          >
+            Generate Report
+          </button>
 
               <button
                 disabled={!selectedId}
@@ -230,9 +233,17 @@ const SupervisorTable = ({ supervisorID }) => {
           )}
 
           {dataMode === "cases" && (
+            <>
+            <button
+            className="supervisor-btn"
+            onClick={() => setShowReport(true)}
+          >
+            Generate Report
+          </button>
             <button disabled={!selectedId} className="supervisor-btn">
               Show Details
             </button>
+            </>
           )}
         </div>
       </div>
