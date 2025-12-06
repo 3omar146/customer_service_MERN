@@ -9,7 +9,9 @@ export default function CasesTable({
   cases = [],
   loading = false,
   isSupervisorView = false,
-  onSolve = () => {},
+  onSolve,
+  onAssign,
+  layout = "grid",
 }) {
   return (
     <div className="assigned-cases">
@@ -18,12 +20,14 @@ export default function CasesTable({
       ) : cases.length === 0 ? (
         <p>No {title.toLowerCase()} found.</p>
       ) : (
-        <div className="cases-grid">
+        <div className={layout === "list" ? "case-list" : "case-grid"}>
           {cases.map((caseItem) => (
             <CaseCard
               key={caseItem._id}
               caseItem={caseItem}
-              onSolve={!isSupervisorView ? () => onSolve(caseItem._id) : undefined}
+              onAssign={!isSupervisorView ? onAssign : undefined}
+              onSolve={!isSupervisorView ? onSolve : undefined}
+
               isSupervisorView={isSupervisorView}
             />
           ))}
