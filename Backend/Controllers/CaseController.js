@@ -22,23 +22,76 @@ export const getCasesAssignedToAgent = async (req, res) => {
 
 // Get solved cases by agent
 export const getSolvedCasesByAgent = async (req, res) => {
-    const { agentId } = req.params;
-    try {
-        const cases = await Case.aggregate([
-            {
-                $match: {
-                    assignedAgentID: new mongoose.Types.ObjectId(agentId),
-                    case_status: "solved"
-                }
-            },
-            { $sort: { createdAt: -1 } }
-        ]);
+  const { agentId } = req.params;
 
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: "solved",
+        },
+      },
+      {
+        // Join with Agent collection to get agent info
+        $lookup: {
+          from: "agents", // MongoDB collection name (usually lowercase plural)
+          localField: "assignedAgentID",
+          foreignField: "_id",
+          as: "agentInfo",
+        },
+      },
+      {
+        // Unwind array from $lookup
+        $unwind: "$agentInfo",
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        // Optional: project only needed fields
+        $project: {
+          case_description: 1,
+          case_status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          assignedAgentID: 1,
+          agentName: "$agentInfo.name", // add agent name here
+          agentEmail: "$agentInfo.email", // optional if you want email too
+        },
+      },
+    ]);
+
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
+
+
+
+
+
+// export const getSolvedCasesByAgent = async (req, res) => {
+//     const { agentId } = req.params;
+//     try {
+//         const cases = await Case.aggregate([
+//             {
+//                 $match: {
+//                     assignedAgentID: new mongoose.Types.ObjectId(agentId),
+//                     case_status: "solved"
+//                 }
+//             },
+//             { $sort: { createdAt: -1 } }
+//         ]);
+
+//         res.status(200).json(cases);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
 
 // Get all unassigned cases
 export const getAllUnassignedCases = async (req, res) => {
