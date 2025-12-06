@@ -45,6 +45,21 @@ export default function AgentDashboard() {
       console.error("Error assigning case:", err);
     }
   };
+  const handleMarkSolved = async (caseId) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_BACKEND_API_URL}/cases/solve/${caseId}`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (window.refreshSidebar) window.refreshSidebar();
+
+    } catch (err) {
+      console.error("Error marking case solved:", err);
+    }
+  };
+
 
 
   return (
@@ -68,6 +83,8 @@ export default function AgentDashboard() {
             loading={loadingUnsolvedCases}
             isSupervisorView={false}
             onAssign={handleAssign}
+            onMarkSolved={handleMarkSolved}
+
             layout="grid"
           />
         </div>

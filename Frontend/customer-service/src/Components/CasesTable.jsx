@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React from "react";
 import CaseCard from "./CaseCard.jsx";
 import "../Style/agentdashboard.css";
 
@@ -9,8 +7,9 @@ export default function CasesTable({
   cases = [],
   loading = false,
   isSupervisorView = false,
-  onSolve,
   onAssign,
+  onUnassign,
+  onMarkSolved,
   layout = "grid",
 }) {
   return (
@@ -25,9 +24,9 @@ export default function CasesTable({
             <CaseCard
               key={caseItem._id}
               caseItem={caseItem}
-              onAssign={!isSupervisorView ? onAssign : undefined}
-              onSolve={!isSupervisorView ? onSolve : undefined}
-
+              onAssign={onAssign}
+              onUnassign={onUnassign}
+              onMarkSolved={onMarkSolved}
               isSupervisorView={isSupervisorView}
             />
           ))}

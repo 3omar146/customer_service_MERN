@@ -1,62 +1,92 @@
-
 import "../Style/CaseCard.css";
 import { useNavigate } from "react-router-dom";
 
-
-function CaseCard({ caseItem, onSolve, onAssign, onUnassign, isSupervisorView = false }) {
+function CaseCard({
+  caseItem,
+  onAssign,
+  onUnassign,
+  onMarkSolved,
+  isSupervisorView = false
+}) {
   const navigate = useNavigate();
-  function handleSolve(e) {
-    e.stopPropagation();
-    navigate(`/action-protocol/${caseItem._id}`);
-  }
-  function handleUnassign(e) {
-    e.stopPropagation()
-    onUnassign && onUnassign(caseItem._id)
 
+  // DOES THIS CASE HAVE A PROTOCOL?
+  const hasProtocol = !!caseItem.recommendedActionProtocol;
+
+  function goToProtocolPage(e) {
+    e.stopPropagation();
+    navigate(`/protocols/${caseItem._id}`);
   }
+
   function handleAssign(e) {
     e.stopPropagation();
-    console.log("Assign clicked INSIDE CaseCard for:", caseItem._id); // 
     onAssign && onAssign(caseItem._id);
+  }
+
+  function handleUnassign(e) {
+    e.stopPropagation();
+    onUnassign && onUnassign(caseItem._id);
+  }
+
+  function handleMarkSolved(e) {
+    e.stopPropagation();
+    onMarkSolved && onMarkSolved(caseItem._id);
   }
 
   return (
     <div className="case-card">
-      <span className="case-label">Description:</span> <strong>{caseItem.case_description}</strong>
+      <span className="case-label">Description:</span>
+      <strong>{caseItem.case_description}</strong>
 
       <p className="case-info">
         <span className="case-label">Status:</span> {caseItem.case_status}
       </p>
+
       <p className="case-info">
         <span className="case-label">Assigned Agent:</span>{" "}
         {caseItem.assignedAgentID || "Unassigned"}
-
       </p>
 
-      {isSupervisorView && (
-        <>
-          {caseItem.case_status === "pending" && (
-            <button className="solve-btn" onClick={handleUnassign}>
-              unassign
-            </button>
-          )}
-        </>
-      )
+      {/* SUPERVISOR VIEW */}
+      {isSupervisorView && caseItem.case_status === "pending" && (
+        <button className="solve-btn" onClick={handleUnassign}>
+          Unassign
+        </button>
+      )}
 
-      }
-
-      {/* Render buttons only if not supervisor view */}
+      {/* AGENT VIEW */}
       {!isSupervisorView && (
         <>
-          {caseItem.case_status === "pending" && (
-            <button className="solve-btn" onClick={handleSolve}>
-              Solve
-            </button>
-          )}
+          {/* UNSOLVED CASE → ONLY ASSIGN */}
           {caseItem.case_status === "unsolved" && (
             <button className="solve-btn" onClick={handleAssign}>
               Assign
             </button>
+          )}
+
+          {/* PENDING CASES */}
+          {caseItem.case_status === "pending" && (
+            <>
+              {/* PENDING + NO PROTOCOL → SHOW SOLVE */}
+              {!hasProtocol && (
+                <button className="solve-btn" onClick={goToProtocolPage}>
+                  Solve
+                </button>
+              )}
+
+              {/* PENDING + HAS PROTOCOL SELECTED */}
+              {hasProtocol && (
+                <>
+                  <button className="solve-btn" onClick={goToProtocolPage}>
+                    Change Action Protocol
+                  </button>
+
+                  <button className="solve-btn" onClick={handleMarkSolved}>
+                    Mark as Solved
+                  </button>
+                </>
+              )}
+            </>
           )}
         </>
       )}
