@@ -3,7 +3,7 @@ import Case from "../Models/Case.js";
 import Agent from "../Models/Agent.js";
 
 
-// Get cases assigned to an agent (not solved)
+// Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
     const { agentId } = req.params;
     try {
@@ -19,8 +19,26 @@ export const getCasesAssignedToAgent = async (req, res) => {
     }
 };
 
+// agent wants to get his assigned cases (Agent view)
+export const getCasesAssignedToSpecificAgent = async (req, res) => {
+    const agentId = req.user.id;
 
-// Get solved cases by agent
+    try {
+        const cases = await Case.find({
+            assignedAgentID: agentId, 
+            case_status: { $ne: "solved" }
+        }).sort({ createdAt: -1 });
+
+
+        res.status(200).json(cases);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+// Get solved cases by agent (supervisor view)
 export const getSolvedCasesByAgent = async (req, res) => {
   const { agentId } = req.params;
 
@@ -92,6 +110,25 @@ export const getSolvedCasesByAgent = async (req, res) => {
 //     }
 // };
 
+// Get solved cases by agent (agent view)
+export const getSolvedCasesBySpecificAgent = async (req, res) => {
+    const agentId = req.user.id;
+    try {
+        const cases = await Case.aggregate([
+            {
+                $match: {
+                    assignedAgentID: new mongoose.Types.ObjectId(agentId),
+                    case_status: "solved"
+                }
+            },
+            { $sort: { createdAt: -1 } }
+        ]);
+
+        res.status(200).json(cases);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // Get all unassigned cases
 export const getAllUnassignedCases = async (req, res) => {
@@ -106,7 +143,8 @@ export const getAllUnassignedCases = async (req, res) => {
                     case_status: "unsolved"
                 }
             },
-            { $sort: { createdAt: -1 } }
+            { $sort: { createdAt: -1 } },
+           { $project : { assignedAgentID:0 } }
         ]);
 
         res.status(200).json(cases);
@@ -231,7 +269,8 @@ export const solveCase = async (req, res) => {
 
 export const assignCaseToAgent = async (req, res) => {
     try {
-        const { agentId, caseId } = req.params;
+        const agentId = req.user.id;
+        const  caseId  = req.params.id;
 
         const agent = await Agent.exists({ _id: agentId });
         if (!agent) {

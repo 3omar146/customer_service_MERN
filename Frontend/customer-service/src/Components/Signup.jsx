@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Style/Signup.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function SignUpPage() {
     password: ""
   });
 
+  const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -90,14 +92,23 @@ export default function SignUpPage() {
           />
 
           <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            placeholder="Create a password..."
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="signup-password-field">
+            <input
+              type={showPwd ? "text" : "password"}
+              name="password"
+              placeholder="Create a password..."
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+
+            <span
+              className="signup-eye-icon"
+              onClick={() => setShowPwd(!showPwd)}
+            >
+              {showPwd ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
 
           {error && <p className="signup-error">{error}</p>}
           {successMsg && <p className="signup-success">{successMsg}</p>}
@@ -106,7 +117,6 @@ export default function SignUpPage() {
             Create Account
           </button>
 
-          {/* ---- LOGIN LINK ---- */}
           <p className="login-text">
             Already have an account?{" "}
             <a href="/login" className="login-link">

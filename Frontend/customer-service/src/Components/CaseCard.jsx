@@ -1,3 +1,4 @@
+
 import "../Style/CaseCard.css";
 
 function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
@@ -19,7 +20,6 @@ function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
       <p className="case-info">
         <span className="case-label">Status:</span> {caseItem.case_status}
       </p>
-
       <p className="case-info">
         <span className="case-label">Assigned Agent:</span>{" "}
         {caseItem.agentEmail || "Unassigned"}

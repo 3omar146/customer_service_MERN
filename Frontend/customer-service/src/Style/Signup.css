@@ -19,14 +19,17 @@ html, body {
 .signup-card {
   width: 100%;
   max-width: 480px;
-  padding: 40px;
+  padding-top: 10px;
+    padding-bottom: 10px;
+padding-right: 30px;
+    padding-left: 30px;
   background: white;
   border-radius: 14px;
   border: 2px solid #7fdc87;
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 
   /* SHRINK CARD VERTICALLY */
-  height: 80vh;        /* card height is now 80% of screen */
+  height: 85vh;        /* card height is now 80% of screen */
   overflow-y: auto;    /* scroll inside the card ONLY if needed */
 }
 
@@ -94,23 +97,47 @@ html, body {
   background-color: #7edc8c;
 }
 
-.login-text {
+.signup-text {
   margin-top: 12px;
   font-size: 14px;
   text-align: center;
   color: #555;
 }
 
-.login-link {
+.signup-link {
   color: #007bff;
   text-decoration: none;
   font-weight: 500;
 }
 
-.login-link:hover {
+.signup-link:hover {
   text-decoration: underline;
 }
 
 .signup-,.signup-success {
   text-align: center;
+}
+.signup-password-field {
+  position: relative;
+  width: 100%;
+}
+
+.signup-password-field input {
+  width: 100%;
+  padding-right: 40px; /* space for icon */
+}
+
+.signup-eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  color: #555;
+  transition: 0.2s ease;
+}
+
+.signup-eye-icon:hover {
+  color: #222;
 }

@@ -1,0 +1,110 @@
+/* FORCE SCROLL - Diagnostic */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-y: scroll !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+body {
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  position: relative !important;
+}
+
+#root {
+  overflow-y: visible !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  position: relative !important;
+}
+
+/* Full page container */
+.agent-details-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 40px 40px 80px 40px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  align-items: center; /* Changed from flex-start to center */
+  position: relative;
+}
+
+/* Centered header for the page */
+.agent-details-container h2.page-title {
+  text-align: center;
+  font-size: 32px;
+  color: #222;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+/* Top row: left agent info, right delete button */
+.agent-details-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 700px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Left side: agent info */
+.agent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.agent-info p {
+  font-size: 17px;
+  line-height: 1.5;
+  color: #444;
+}
+
+.agent-info p strong {
+  width: 140px;
+  display: inline-block;
+  color: #111;
+}
+
+/* Delete button top-right */
+.delete-button {
+  background-color: #90ee90;
+  color: #ffffff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  height: fit-content;
+}
+
+.delete-button:hover {
+  background-color: #76c776;
+  transform: translateY(-2px);
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .agent-details-top {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .delete-button {
+    align-self: flex-start;
+  }
+}
