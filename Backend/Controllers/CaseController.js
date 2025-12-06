@@ -3,7 +3,7 @@ import Case from "../Models/Case.js";
 import Agent from "../Models/Agent.js";
 
 
-// Get cases assigned to an agent (not solved)
+// Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
     const { agentId } = req.params;
     try {
@@ -19,10 +19,100 @@ export const getCasesAssignedToAgent = async (req, res) => {
     }
 };
 
+// agent wants to get his assigned cases (Agent view)
+export const getCasesAssignedToSpecificAgent = async (req, res) => {
+    const agentId = req.user.id;
 
-// Get solved cases by agent
+    try {
+        const cases = await Case.find({
+            assignedAgentID: agentId, 
+            case_status: { $ne: "solved" }
+        }).sort({ createdAt: -1 });
+
+
+        res.status(200).json(cases);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+// Get solved cases by agent (supervisor view)
 export const getSolvedCasesByAgent = async (req, res) => {
-    const { agentId } = req.params;
+  const { agentId } = req.params;
+
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: "solved",
+        },
+      },
+      {
+        // Join with Agent collection to get agent info
+        $lookup: {
+          from: "agents", // MongoDB collection name (usually lowercase plural)
+          localField: "assignedAgentID",
+          foreignField: "_id",
+          as: "agentInfo",
+        },
+      },
+      {
+        // Unwind array from $lookup
+        $unwind: "$agentInfo",
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        // Optional: project only needed fields
+        $project: {
+          case_description: 1,
+          case_status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          assignedAgentID: 1,
+          agentName: "$agentInfo.name", // add agent name here
+          agentEmail: "$agentInfo.email", // optional if you want email too
+        },
+      },
+    ]);
+
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+
+
+// export const getSolvedCasesByAgent = async (req, res) => {
+//     const { agentId } = req.params;
+//     try {
+//         const cases = await Case.aggregate([
+//             {
+//                 $match: {
+//                     assignedAgentID: new mongoose.Types.ObjectId(agentId),
+//                     case_status: "solved"
+//                 }
+//             },
+//             { $sort: { createdAt: -1 } }
+//         ]);
+
+//         res.status(200).json(cases);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// Get solved cases by agent (agent view)
+export const getSolvedCasesBySpecificAgent = async (req, res) => {
+    const agentId = req.user.id;
     try {
         const cases = await Case.aggregate([
             {
@@ -53,7 +143,8 @@ export const getAllUnassignedCases = async (req, res) => {
                     case_status: "unsolved"
                 }
             },
-            { $sort: { createdAt: -1 } }
+            { $sort: { createdAt: -1 } },
+           { $project : { assignedAgentID:0 } }
         ]);
 
         res.status(200).json(cases);
@@ -178,7 +269,8 @@ export const solveCase = async (req, res) => {
 
 export const assignCaseToAgent = async (req, res) => {
     try {
-        const { agentId, caseId } = req.params;
+        const agentId = req.user.id;
+        const  caseId  = req.params.id;
 
         const agent = await Agent.exists({ _id: agentId });
         if (!agent) {

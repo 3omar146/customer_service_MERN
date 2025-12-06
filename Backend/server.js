@@ -10,6 +10,7 @@ import clientRouter from './Routers/ClientRouter.js';
 import authRouter from './Routers/AuthRouter.js';
 import cookieParser from "cookie-parser";
 import userRouter from './Routers/UserRouter.js';
+import logRouter from './Routers/LogRouter.js';
 
 
 dotenv.config();
@@ -20,7 +21,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",   // your frontend URL
+    origin: ["http://localhost:5173",
+      "http://localhost:5174"], // your frontend URL
     credentials: true                  // allow cookies
   })
 );
@@ -45,7 +47,8 @@ app.use('/cases', caseRouter);
 app.use('/protocols', protocolRouter);
 // client routes
 app.use('/clients', clientRouter);
-
+// log routes
+app.use('/logs', logRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

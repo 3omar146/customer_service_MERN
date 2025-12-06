@@ -1,3 +1,4 @@
+
 import "../Style/CaseCard.css";
 
 function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
@@ -19,10 +20,9 @@ function CaseCard({ caseItem, onSolve, onAssign, isSupervisorView = false }) {
       <p className="case-info">
         <span className="case-label">Status:</span> {caseItem.case_status}
       </p>
-
       <p className="case-info">
         <span className="case-label">Assigned Agent:</span>{" "}
-        {caseItem.assignedAgentID || "Unassigned"}
+        {caseItem.agentEmail || "Unassigned"}
       </p>
 
       {/* Render buttons only if not supervisor view */}

@@ -12,7 +12,8 @@ import SuperDashboard from "./pages/SupervisorDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 
 function App() {
-  return (
+ 
+   return (
     <Router>
       <Routes>
         <Route path="/agentDetail" element={<AgentDetails />} />

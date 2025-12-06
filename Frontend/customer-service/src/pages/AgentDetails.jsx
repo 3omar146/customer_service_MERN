@@ -4,6 +4,7 @@ import axios from "axios";
 import CaseCard from "../Components/CaseCard";
 import DataTable from "../Components/DataTable";
 import "../Style/AgentDetails.css";
+import Navbar from "../Components/Navbar";
 
 export default function AgentDetails({ isSupervisorView = true }) {
   const navigate = useNavigate();
@@ -122,6 +123,8 @@ export default function AgentDetails({ isSupervisorView = true }) {
   if (!agent) return <p>Loading agent details...</p>;
 
   return (
+    <>
+    <Navbar type="supervisor"/>
     <div className="agent-details-container">
       <h2 className="page-title">Agent Details</h2>
 
@@ -129,7 +132,6 @@ export default function AgentDetails({ isSupervisorView = true }) {
         <div className="agent-info">
           <p><strong>Name:</strong> {agent.name || "N/A"}</p>
           <p><strong>Email:</strong> {agent.email || "N/A"}</p>
-          <p><strong>Department:</strong> {agent.department || "N/A"}</p>
           <p><strong>Role:</strong> {agent.role || "N/A"}</p>
           <p><strong>Active:</strong> {agent.isActive ? "Yes" : "No"}</p>
           <p><strong>Last Update:</strong> {agent.updatedAt ? new Date(agent.updatedAt).toLocaleString() : "N/A"}</p>
@@ -235,5 +237,6 @@ export default function AgentDetails({ isSupervisorView = true }) {
 </div>
 
     </div>
+    </>
   );
 }
