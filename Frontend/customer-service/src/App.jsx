@@ -10,13 +10,15 @@ import LoginPage from "./Components/Login.jsx";
 import SignUpPage from "./Components/Signup.jsx";
 import SuperDashboard from "./pages/SupervisorDashboard.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
-
+import CaseDetails from "./pages/CaseDetail.jsx";
 function App() {
  
    return (
     <Router>
       <Routes>
         <Route path="/agentDetail" element={<AgentDetails />} />
+        <Route path="/caseDetail" element={<CaseDetails />} />
+        
         <Route path="/client/dashboard" element={<ClientDashboard />} />
         <Route path="/" element={<LoginPage />} />
                 <Route path="/login" element={<LoginPage />} />

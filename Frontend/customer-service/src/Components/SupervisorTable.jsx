@@ -240,7 +240,9 @@ const SupervisorTable = ({ supervisorID }) => {
           >
             Generate Report
           </button>
-            <button disabled={!selectedId} className="supervisor-btn">
+            <button disabled={!selectedId} className="supervisor-btn"    onClick={() =>
+                  navigate("/CaseDetail", { state: { CaseID: selectedId } })
+                }>
               Show Details
             </button>
             </>

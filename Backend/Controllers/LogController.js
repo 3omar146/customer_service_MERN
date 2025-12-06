@@ -1,5 +1,5 @@
 import Log from '../Models/Log.js'
-
+import Case from "../Models/Case.js"
 
 // get all Logs
 export const getAllLogs = async (req,res)=>{
@@ -94,3 +94,25 @@ export const deleteLog = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+export const getLogByCase = async (req, res) => {
+  try {
+    const caseID  = req.params.caseID;
+
+    const caseItem = await Case.findById(caseID);
+    if (!caseItem) {
+      return res.status(404).json({ message: "Case not found!" });
+    }
+
+    if (caseItem.case_status !== "solved") {
+      return res.status(403).json({ message: "Case not solved yet" });
+    }
+
+    const log = await Log.find({ caseID });
+
+    return res.status(200).json(log);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
