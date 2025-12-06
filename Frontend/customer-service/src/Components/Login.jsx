@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../Style/Login.css";
-
+import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,11 +23,11 @@ export default function LoginPage() {
 
       // Redirect based on type
       if (userType === "client") {
-        window.location.href = "/client/dashboard";
+        navigate("/client/dashboard");
       } else if (userType === "agent") {
-        window.location.href = "/agent/dashboard";
+        navigate("/agent/dashboard");
       } else if (userType === "supervisor") {
-        window.location.href = "/supervisor/dashboard";
+        navigate("/supervisor/dashboard");
       } else {
         setError("Unknown user type.");
       }

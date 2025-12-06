@@ -21,6 +21,7 @@ const router = express.Router();
 // AGENT RELATED
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
 router.get("/assigned/",auth, getCasesAssignedToSpecificAgent);
+router.get("/assigned/:agentId",getCasesAssignedToAgent);
 router.get("/solved/:agentId", getSolvedCasesByAgent);
 router.get("/solved",auth, getSolvedCasesBySpecificAgent);
 router.patch("/assign/:caseId",auth, assignCaseToAgent);

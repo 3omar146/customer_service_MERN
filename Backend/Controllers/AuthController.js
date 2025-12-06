@@ -135,3 +135,6 @@ export const logout = (req, res) => {
   res.clearCookie("auth");
   res.json({ message: "Logged out" });
 };
+
+
+

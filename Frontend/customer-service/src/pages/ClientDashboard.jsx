@@ -27,11 +27,11 @@ function ClientDashboard() {
 
   // Load client ID
   useEffect(() => {
-    let id = localStorage.getItem("clientID");
+    let id = cookieStore.get("clientID")?.value;
 
     if (!id) {
       axios
-        .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/default`)
+        .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/${id}`)
         .then((res) => {
           id = res.data._id;
           localStorage.setItem("clientID", id);

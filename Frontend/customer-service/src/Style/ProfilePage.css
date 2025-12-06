@@ -1,0 +1,183 @@
+/* ------------------------------------
+   GLOBAL FIXES — prevent page scrolling
+------------------------------------ */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+  position: fixed;        /* prevents any scroll restoration */
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none; /* prevents bounce scrolling */
+}
+
+/* ------------------------------------
+   PROFILE PAGE CONTAINER (always fits screen)
+------------------------------------ */
+.profile-container {
+  position: fixed;          /* LOCK IT IN PLACE */
+  top: 0px;                /* EXACT navbar height */
+  left: 0;
+
+  width: 100vw;
+  height: calc(100vh - 80px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(145deg, #f5fdf5, #e8ffe8);
+
+  overflow: hidden;         /* no scroll, no overflow */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;   /* fix subpixel overflow issues */
+}
+
+
+
+
+/* ------------------------------------
+   PAGE TITLE
+------------------------------------ */
+.profile-title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+/* ------------------------------------
+   FORM + BOX (prevent overflow)
+------------------------------------ */
+.profile-box,
+.profile-form {
+  width: 480px;
+  max-height: calc(100vh - 160px); /* fits perfectly in screen */
+  overflow-y: auto; /* internal scroll if absolutely needed */
+
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 18px;
+  border: 2px solid #8fe28f;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ------------------------------------
+   VIEW MODE TEXT
+------------------------------------ */
+.profile-box p {
+  font-size: 18px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eef7ee;
+}
+
+/* ------------------------------------
+   INPUT FIX — do NOT style checkboxes!
+------------------------------------ */
+.profile-form input:not([type="checkbox"]) {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #8fe28f;
+  font-size: 16px;
+  background: #fbfffb;
+  transition: all 0.2s ease;
+}
+
+/* Fix hover for normal inputs only */
+.profile-form input:not([type="checkbox"]):hover {
+  border-color: #72ca72;
+}
+
+/* Fix focus for normal inputs only */
+.profile-form input:not([type="checkbox"]):focus {
+  border-color: #4fb84f;
+  outline: none;
+  box-shadow: 0 0 8px rgba(80,180,80,0.3);
+}
+
+/* ------------------------------------
+   CHECKBOX FIXED 100%
+------------------------------------ */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-form input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0;
+  border: none !important;
+  box-shadow: none !important;
+  accent-color: #4fb84f;
+  background: transparent !important;
+}
+
+/* ------------------------------------
+   PASSWORD FIELD ICON
+------------------------------------ */
+.password-field {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* ------------------------------------
+   ACTION BUTTONS
+------------------------------------ */
+.profile-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-btn,
+.logout-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+/* Save */
+.profile-btn {
+  background: #66c066;
+  color: white;
+}
+.profile-btn:hover {
+  background: #57ac57;
+}
+
+/* Logout */
+.logout-btn {
+  background: #ff6464;
+  color: white;
+}
+
+/* Cancel */
+.cancel-btn {
+  background: #dcdcdc;
+  color: #333;
+}

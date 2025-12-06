@@ -6,7 +6,6 @@ import Agent from "../Models/Agent.js";
 // Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
     const { agentId } = req.params;
-
     try {
         const cases = await Case.find({
             assignedAgentID: agentId, 

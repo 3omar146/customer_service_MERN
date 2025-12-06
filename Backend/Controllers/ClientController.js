@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 
 // Get any default client (used for testing/demo)
 export const getDefaultClient = async (req, res) => {
+  
+  
   try {
     const client = await Client.findOne();
     if (!client) {

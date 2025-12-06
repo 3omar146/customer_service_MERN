@@ -9,7 +9,8 @@ import protocolRouter from './Routers/ActionProtocolRouter.js'
 import clientRouter from './Routers/ClientRouter.js';
 import authRouter from './Routers/AuthRouter.js';
 import cookieParser from "cookie-parser";
-import logRouter from "./Routers/LogRouter.js"
+import userRouter from './Routers/UserRouter.js';
+import logRouter from './Routers/LogRouter.js';
 
 
 dotenv.config();
@@ -30,13 +31,11 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log("MongoDB connection error:", err));
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
 
 //auth routes
 app.use('/authentication', authRouter);
-
+//user
+app.use('/user', userRouter);
 //supervisor routes
 app.use('/supervisors', supervisorRouter);
 //agent routes

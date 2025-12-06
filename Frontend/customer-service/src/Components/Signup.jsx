@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Style/Signup.css";
 
 export default function SignUpPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: "",
     firstName: "",
@@ -33,7 +35,7 @@ export default function SignUpPage() {
       setSuccessMsg("Account created successfully!");
 
       setTimeout(() => {
-        window.location.href = "/client/dashboard";
+        navigate('/client/dashboard');
       }, 800);
 
     } catch (err) {
