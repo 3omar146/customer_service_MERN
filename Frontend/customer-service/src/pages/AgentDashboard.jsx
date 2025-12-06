@@ -1,35 +1,59 @@
 import React, { useEffect, useState } from "react";
-import { fetchCases } from "../api/cases";
-import CaseCard from "../Components/CaseCard";
+import Navbar from '../Components/Navbar.jsx';
+import CasesTable from "../Components/CasesTable.jsx";
+import axios from "axios";
 
-const AgentDashboard = () => {
-    const [cases, setCases] = useState([]);
-    const [loading, setLoading] = useState(true);
+
+export default function AgentDashboard(){
+const [unsolvedCases, setUnsolvedCases] = useState([]);
+const [loadingUnsolvedCases, setLoadingUnsolvedCases] = useState(true);
 
     useEffect(() => {
-        const getCases = async () => {
-            try {
-                const data = await fetchCases();
-                setCases(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        getCases();
-    }, []);
+  const fetchUnsolvedCases = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassigned`);
+      setUnsolvedCases(res.data);
+    } catch (err) {
+      console.error("Error fetching unassigned cases:", err);
+    } finally {
+      setLoadingUnsolvedCases(false);
+    }
+  };
 
-    if (loading) return <p>Loading cases...</p>;
-    if (cases.length === 0) return <p>No cases assigned yet.</p>;
+  fetchUnsolvedCases();
+}, []);
 
+  const handleAssign = async (caseId) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_BACKEND_API_URL}/cases/assign/${caseId}`,
+        { withCredentials: true }
+      );
+
+      setUnsolvedCases((prev) =>
+        prev.map((c) =>
+          c._id === caseId ? { ...c, case_status: "pending" } : c
+        )
+      );
+    } catch (err) {
+      console.error("Error assigning case:", err);
+    }
+  };
+
+   
     return (
-        <div className="p-6 grid grid-cols-3 gap-4">
-            {cases.map((caseItem) => (
-                <CaseCard key={caseItem._id} caseItem={caseItem} />
-            ))}
-        </div>
+       <div>
+        {/* <Navbar type = {"agent"}></Navbar> */}
+      <h2>Unassigned Cases</h2>
+      <CasesTable
+        title="Unassigned Cases"
+        cases={unsolvedCases}
+        loading={loadingUnsolvedCases}
+        isSupervisorView={false}
+        onSolve={handleAssign}
+      />
+    </div>
     );
 };
 
-export default AgentDashboard;
