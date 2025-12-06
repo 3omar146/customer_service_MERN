@@ -5,35 +5,35 @@ import Supervisor from "../Models/Supervisor.js";
 
 // Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
-    const { agentId } = req.params;
-    try {
-        const cases = await Case.find({
-            assignedAgentID: agentId, 
-            case_status: { $ne: "solved" }
-        }).sort({ createdAt: -1 });
+  const { agentId } = req.params;
+  try {
+    const cases = await Case.find({
+      assignedAgentID: agentId,
+      case_status: { $ne: "solved" }
+    }).sort({ createdAt: -1 });
 
 
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // agent wants to get his assigned cases (Agent view)
 export const getCasesAssignedToSpecificAgent = async (req, res) => {
-    const agentId = req.user.id;
+  const agentId = req.user.id;
 
-    try {
-        const cases = await Case.find({
-            assignedAgentID: agentId, 
-            case_status: { $ne: "solved" }
-        }).sort({ createdAt: -1 });
+  try {
+    const cases = await Case.find({
+      assignedAgentID: agentId,
+      case_status: { $ne: "solved" }
+    }).sort({ createdAt: -1 });
 
 
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
@@ -100,7 +100,7 @@ export const getPendingCasesByAgent = async (req, res) => {
       {
         // Join with Agent collection to get agent info
         $lookup: {
-          from: "agents", 
+          from: "agents",
           localField: "assignedAgentID",
           foreignField: "_id",
           as: "agentInfo",
@@ -159,56 +159,56 @@ export const getPendingCasesByAgent = async (req, res) => {
 
 // Get solved cases by agent (agent view)
 export const getSolvedCasesBySpecificAgent = async (req, res) => {
-    const agentId = req.user.id;
-    try {
-        const cases = await Case.aggregate([
-            {
-                $match: {
-                    assignedAgentID: new mongoose.Types.ObjectId(agentId),
-                    case_status: "solved"
-                }
-            },
-            { $sort: { createdAt: -1 } }
-        ]);
+  const agentId = req.user.id;
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: "solved"
+        }
+      },
+      { $sort: { createdAt: -1 } }
+    ]);
 
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // Get all unassigned cases
 export const getAllUnassignedCases = async (req, res) => {
-    try {
-        const cases = await Case.aggregate([
-            {
-                $match: {
-                    $or: [
-                        { assignedAgentID: { $exists: false } },
-                        { assignedAgentID: null }
-                    ],
-                    case_status: "unsolved"
-                }
-            },
-            { $sort: { createdAt: -1 } },
-           { $project : { assignedAgentID:0 } }
-        ]);
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          $or: [
+            { assignedAgentID: { $exists: false } },
+            { assignedAgentID: null }
+          ],
+          case_status: "unsolved"
+        }
+      },
+      { $sort: { createdAt: -1 } },
+      { $project: { assignedAgentID: 0 } }
+    ]);
 
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
 // Get all cases
 export const getAllCases = async (req, res) => {
-    try {
-        const cases = await Case.find().sort({ createdAt: -1 });
-        res.status(200).json(cases);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const cases = await Case.find().sort({ createdAt: -1 });
+    res.status(200).json(cases);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
@@ -240,30 +240,30 @@ export const getCaseById = async (req, res) => {
 
 // Create a new case
 export const createCase = async (req, res) => {
-    try {
-        const newCase = new Case(req.body);
-        const savedCase = await newCase.save();
-        res.status(201).json(savedCase);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const newCase = new Case(req.body);
+    const savedCase = await newCase.save();
+    res.status(201).json(savedCase);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
 // Update case by ID
 export const updateCaseById = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        const updatedCase = await Case.findByIdAndUpdate(id, req.body, { new: true });
+  try {
+    const updatedCase = await Case.findByIdAndUpdate(id, req.body, { new: true });
 
-        if (!updatedCase) {
-            return res.status(404).json({ message: "Case not found" });
-        }
-        res.status(200).json(updatedCase);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!updatedCase) {
+      return res.status(404).json({ message: "Case not found" });
     }
+    res.status(200).json(updatedCase);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // SOLVE a case and set logs
@@ -302,7 +302,7 @@ export const solveCase = async (req, res) => {
 
 
     const updated = await caseItem.save();
-    
+
     //create log entry (if needed, implement logging here)
 
     res.status(200).json(updated);
@@ -315,143 +315,147 @@ export const solveCase = async (req, res) => {
 
 
 export const assignCaseToAgent = async (req, res) => {
-    try {
-        const agentId = req.user.id;
-        const  caseId  = req.params.id;
+  try {
+    const agentId = req.user.id;        // logged-in agent
+    const caseId = req.params.caseId;   // correct parameter
 
-        const agent = await Agent.exists({ _id: agentId });
-        if (!agent) {
-            return res.status(404).json({ message: "Agent not found" });
-        }
-
-        const assignedCase = await Case.findOneAndUpdate(
-            {
-                _id: caseId,
-                case_status: { $nin: ["pending", "solved"] }
-            },
-            {
-                $set: {
-                    assignedAgentID: agentId,
-                    case_status: "pending"
-                }
-            },
-            { new: true }
-        );
-
-        if (!assignedCase) {
-            return res.status(400).json({
-                message: "Case not found OR already assigned/solved"
-            });
-        }
-
-        res.status(200).json({
-            message: "Case assigned successfully",
-            case: assignedCase
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    // Optional: verify agent exists
+    const agent = await Agent.exists({ _id: agentId });
+    if (!agent) {
+      return res.status(404).json({ message: "Agent not found" });
     }
+
+    // Assign case only if not pending or solved
+    const assignedCase = await Case.findOneAndUpdate(
+      {
+        _id: caseId,
+        case_status: { $nin: ["pending", "solved"] }
+      },
+      {
+        $set: {
+          assignedAgentID: agentId,
+          case_status: "pending"
+        }
+      },
+      { new: true }
+    );
+
+    if (!assignedCase) {
+      return res.status(400).json({
+        message: "Case not found OR already assigned/solved"
+      });
+    }
+
+    // SUCCESS RESPONSE (ONLY ONE)
+    return res.status(200).json({
+      message: "Case assigned successfully",
+      case: assignedCase
+    });
+
+  } catch (error) {
+    console.error("Error assigning case:", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
-
 export const unassignCaseFromAgent = async (req, res) => {
-    try {
-        const { agentId, caseId } = req.params;
-        const agent = await Agent.exists({ _id: agentId });
-        if (!agent) {
-            return res.status(404).json({ message: "Agent not found" });
+  try {
+    const { agentId, caseId } = req.params;
+    const agent = await Agent.exists({ _id: agentId });
+    if (!agent) {
+      return res.status(404).json({ message: "Agent not found" });
+    }
+
+    const unassignedCase = await Case.findOneAndUpdate(
+      {
+        _id: caseId,
+        assignedAgentID: agentId,
+        case_status: "pending"
+      },
+      {
+        $set: {
+          assignedAgentID: null,
+          case_status: "unsolved"
         }
-        const unassignedCase = await Case.findOneAndUpdate(
-            {
-                _id: caseId,
-                assignedAgentID: agentId,
-                case_status: "pending"
-            },
-            {
-                $set: {
-                    assignedAgentID: null,
-                    case_status: "unsolved"
-                }
-            },
-            { new: true }
-        );
-        if (!unassignedCase) {
-            return res.status(400).json({
-                message: "Case not found OR not assigned to this agent OR already solved"
-            });
-        }
-        res.status(200).json({
-            message: "Case unassigned successfully",
-            case: unassignedCase
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }   
+      },
+      { new: true }
+    );
+    if (!unassignedCase) {
+      return res.status(400).json({
+        message: "Case not found OR not assigned to this agent OR already solved"
+      });
+    }
+    res.status(200).json({
+      message: "Case unassigned successfully",
+      case: unassignedCase
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 
 export const getCasesForSupervisor = async (req, res) => {
-    try {
-        const supervisorId = req.user.id;
+  try {
+    const supervisorId = req.user.id;
 
-        // 1. Fetch all agent IDs under this supervisor
-        const agentIds = await Agent.find(
-            { supervisorID: supervisorId },
-            { _id: 1 }
-        ).then(agents => agents.map(a => a._id));
+    // 1. Fetch all agent IDs under this supervisor
+    const agentIds = await Agent.find(
+      { supervisorID: supervisorId },
+      { _id: 1 }
+    ).then(agents => agents.map(a => a._id));
 
-        // 2. Fetch cases (optimized match)
-        const cases = await Case.aggregate([
-            {
-                $match: {
-                    $or: [
-                        { case_status: "unsolved" },               // Unassigned
-                        { assignedAgentID: { $in: agentIds } }     // Cases handled by supervisor's agents
-                    ]
-                }
-            },
+    // 2. Fetch cases (optimized match)
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          $or: [
+            { case_status: "unsolved" },               // Unassigned
+            { assignedAgentID: { $in: agentIds } }     // Cases handled by supervisor's agents
+          ]
+        }
+      },
 
-            // Join agent info
-            {
-                $lookup: {
-                    from: "agents",
-                    localField: "assignedAgentID",
-                    foreignField: "_id",
-                    as: "agent"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$agent",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
+      // Join agent info
+      {
+        $lookup: {
+          from: "agents",
+          localField: "assignedAgentID",
+          foreignField: "_id",
+          as: "agent"
+        }
+      },
+      {
+        $unwind: {
+          path: "$agent",
+          preserveNullAndEmptyArrays: true
+        }
+      },
 
-            // Final shape
-            {
-                $project: {
-                    _id: 1,
-                    case_description: 1,
-                    case_status: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
+      // Final shape
+      {
+        $project: {
+          _id: 1,
+          case_description: 1,
+          case_status: 1,
+          createdAt: 1,
+          updatedAt: 1,
 
-                    assignedAgentID: 1,
-                    agentName: "$agent.name",
-                    agentEmail: "$agent.email",
-                }
-            },
+          assignedAgentID: 1,
+          agentName: "$agent.name",
+          agentEmail: "$agent.email",
+        }
+      },
 
-            { $sort: { case_status: -1, createdAt: -1 } }
-        ]);
+      { $sort: { case_status: -1, createdAt: -1 } }
+    ]);
 
-        res.status(200).json(cases);
+    res.status(200).json(cases);
 
-    } catch (error) {
-        console.error("Error in getCasesForSupervisor:", error);
-        res.status(500).json({ message: error.message });
-    }
+  } catch (error) {
+    console.error("Error in getCasesForSupervisor:", error);
+    res.status(500).json({ message: error.message });
+  }
 };
 
 ////report for supervisor
@@ -489,14 +493,14 @@ export const getCasesReport = async (req, res) => {
 
     const totals = {
       totalUnsolved: counts.find(c => c._id === "unsolved")?.count || 0,
-      totalPending:  counts.find(c => c._id === "pending")?.count || 0,
-      totalSolved:   counts.find(c => c._id === "solved")?.count || 0
+      totalPending: counts.find(c => c._id === "pending")?.count || 0,
+      totalSolved: counts.find(c => c._id === "solved")?.count || 0
     };
 
     // AVERAGE SOLVE TIME (only supervisor's agents)
     const avgSolve = await Case.aggregate([
       {
-        $match: { 
+        $match: {
           case_status: "solved",
           assignedAgentID: { $in: agentIDs }
         }
@@ -519,7 +523,7 @@ export const getCasesReport = async (req, res) => {
     // OLDEST UNSOLVED (only unassigned)
     const oldestUnsolved = await Case.aggregate([
       {
-        $match: { 
+        $match: {
           case_status: "unsolved",
           assignedAgentID: null
         }
