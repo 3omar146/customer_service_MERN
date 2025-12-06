@@ -4,8 +4,6 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow: hidden !important;
-  position: fixed;        /* prevents any scroll restoration */
   margin: 0;
   padding: 0;
   overscroll-behavior: none; /* prevents bounce scrolling */
@@ -19,6 +17,8 @@ html, body {
   top: 0px;                /* EXACT navbar height */
   left: 0;
 
+overflow: hidden !important;
+  position: fixed;  
   width: 100vw;
   height: calc(100vh - 80px);
 
