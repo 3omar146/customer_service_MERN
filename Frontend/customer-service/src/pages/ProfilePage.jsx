@@ -61,7 +61,7 @@ function ProfilePage() {
     e.preventDefault();
 
     try {
-      // 1️⃣ ALWAYS UPDATE NORMAL FIELDS
+      //ALWAYS UPDATE NORMAL FIELDS
       const res1 = await axios.patch(
         `${import.meta.env.VITE_BACKEND_API_URL}/user`,
         updatedData,
@@ -70,7 +70,7 @@ function ProfilePage() {
 
       let updatedUser = res1.data.user;
 
-      // 2️⃣ OPTIONAL PASSWORD UPDATE
+      //OPTIONAL PASSWORD UPDATE
       if (changePassword) {
         await axios.patch(
           `${import.meta.env.VITE_BACKEND_API_URL}/user/password`,
@@ -142,7 +142,7 @@ function ProfilePage() {
           type="text"
           placeholder={f}
           value={updatedData[f]}
-          disabled={isReadOnly}         // ❌ makes it uneditable in edit mode
+          disabled={isReadOnly}         
           style={isReadOnly ? { background: "#eee", cursor: "not-allowed" } : {}}
           onChange={(e) =>
             !isReadOnly &&
@@ -153,7 +153,7 @@ function ProfilePage() {
     })}
 
 
-            {/* ➤ Change password checkbox */}
+            {/*  Change password checkbox */}
             <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
               <input
                 type="checkbox"

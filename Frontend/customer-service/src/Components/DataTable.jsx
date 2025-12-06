@@ -9,7 +9,9 @@ const DataTable = ({ columns, data, selectedId, setSelectedId }) => {
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.accessor}>{col.header}</th>
+            <th key={col.accessor} style={{ textAlign: "center" }}>
+              {col.header}
+            </th>
             ))}
           </tr>
         </thead>

@@ -151,8 +151,6 @@ const SupervisorTable = ({ supervisorID }) => {
 
   return (
     <div className="supervisor-container">
-      <h2 className="supervisor-title">{dataMode === "agents" ? "My Agents" : "Cases"}</h2>
-
       {/* TOP BAR SPLIT LEFT + RIGHT */}
       <div className="supervisor-top-row">
 
@@ -167,7 +165,7 @@ const SupervisorTable = ({ supervisorID }) => {
             <option value="cases">Cases</option>
           </select>
 
-          {/* 🔥 NEW AGENT FILTER */}
+          {/*  NEW AGENT FILTER */}
           {dataMode === "agents" && (
             <select
               className="supervisor-select"
