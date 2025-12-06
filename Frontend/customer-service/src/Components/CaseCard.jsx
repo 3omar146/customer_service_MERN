@@ -29,7 +29,7 @@ function CaseCard({ caseItem, onSolve, onAssign, onUnassign, isSupervisorView = 
       </p>
       <p className="case-info">
         <span className="case-label">Assigned Agent:</span>{" "}
-        {caseItem.assignedAgentID || "Unassigned"}
+        {caseItem.agentEmail || "Unassigned"}
 
       </p>
 
