@@ -114,6 +114,12 @@ async function assignAgent() {
             <p><strong>Description:</strong> {caseItem.case_description}</p>
             <p><strong>Status:</strong> {caseItem.case_status}</p>
             <p><strong>Created At:</strong> {new Date(caseItem.createdAt).toLocaleString()}</p>
+{caseItem.recommendedActionProtocolType && (
+  <p>
+    <strong>Recommended Action Protocol:</strong>{" "}
+    {caseItem.recommendedActionProtocolType}
+  </p>
+)}
           </div>
 
           {isSupervisorView && (

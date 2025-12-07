@@ -210,8 +210,6 @@ export const getAllCases = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 // Get case by ID
 export const getCaseById = async (req, res) => {
   try {
@@ -225,9 +223,12 @@ export const getCaseById = async (req, res) => {
 
     const response = {
       ...caseInfo.toObject(),
+
       agentName: caseInfo.assignedAgentID?.name || "Not assigned",
       agentEmail: caseInfo.assignedAgentID?.email || "No email",
-      recommendedActionProtocol: caseInfo.recommendedActionProtocol,
+
+      recommendedActionProtocolType:
+        caseInfo.recommendedActionProtocol?.type || null
     };
 
     res.status(200).json(response);
@@ -235,6 +236,7 @@ export const getCaseById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
