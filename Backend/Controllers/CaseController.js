@@ -375,6 +375,7 @@ export const unassignCaseFromAgent = async (req, res) => {
       {
         $set: {
           assignedAgentID: null,
+          recommendedActionProtocol:null,
           case_status: "unsolved"
         }
       },

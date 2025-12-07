@@ -93,11 +93,13 @@ export const deleteLog = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+};import mongoose from "mongoose";
+
 export const getLogByCase = async (req, res) => {
   try {
-    const caseID  = req.params.caseID;
+    const { caseID } = req.params;
 
+    // Validate case
     const caseItem = await Case.findById(caseID);
     if (!caseItem) {
       return res.status(404).json({ message: "Case not found!" });
@@ -107,7 +109,52 @@ export const getLogByCase = async (req, res) => {
       return res.status(403).json({ message: "Case not solved yet" });
     }
 
-    const log = await Log.find({ caseID });
+    //Aggregate logs
+    const log = await Log.aggregate([
+      {
+        $match: {
+          caseID: new mongoose.Types.ObjectId(caseID)
+        }
+      },
+
+      // Join Agent
+      {
+        $lookup: {
+          from: "agents",
+          localField: "performedBy",
+          foreignField: "_id",
+          as: "agent"
+        }
+      },
+      { $unwind: "$agent" },
+
+      // Join Action Protocol
+      {
+        $lookup: {
+          from: "action_protocols",
+          localField: "protocolID",
+          foreignField: "_id",
+          as: "protocol"
+        }
+      },
+      { $unwind: "$protocol" },
+
+      {
+        $sort: { timestamp: -1 }
+      },
+      { $limit: 1 },
+
+      {
+        $project: {
+          _id: 0,
+          agentEmail: "$agent.email",
+          agentName: "$agent.name",
+          actionProtocol: "$protocol.steps",
+          actionType: "$protocol.type",
+          timestamp: "$protocol.timestamp"
+        }
+      }
+    ]);
 
     return res.status(200).json(log);
 
@@ -115,4 +162,3 @@ export const getLogByCase = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-

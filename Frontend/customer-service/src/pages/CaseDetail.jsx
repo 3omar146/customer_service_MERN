@@ -134,37 +134,41 @@ async function assignAgent() {
         </div>
 
         {/* -------------------- CASE REPORT -------------------- */}
-        {caseItem.case_status === "solved" && (
-          <div className="report">
-            <h3>Case Report</h3>
+       {caseItem.case_status === "solved" && (
+  <div className="report">
+    <h3>Case Log</h3>
 
-            {report.length === 0 ? (
-              <p>No report available.</p>
-            ) : (
-              report.map((log, index) => (
-                <div key={index}>
-                  <p><strong>Type:</strong> {log.type}</p>
-                  <p><strong>Message:</strong> {log.message}</p>
-                  <p><strong>Time:</strong> {new Date(log.createdAt).toLocaleString()}</p>
-                  <hr />
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
+    {report.length === 0 ? (
+      <p>No Log available.</p>
+    ) : (
+      report.map((log, index) => (
+        <div key={index}>
+          <p><strong>Agent:</strong> {log.agentName}</p>
+          <p><strong>Email:</strong> {log.agentEmail}</p>
+          <p><strong>Action Type:</strong> {log.actionType}</p>
+          <p><strong>Protocol:</strong> {log.actionProtocol}</p>
+          <p>
+            <strong>Time:</strong>{" "}
+            {new Date(log.timestamp).toLocaleString()}
+          </p>
+          <hr />
+        </div>
+      ))
+    )}
+  </div>
+)}
         {/* -------------------- ASSIGNED AGENT -------------------- */}
         <div className="assigned-cases">
           <h3>Assigned Agent</h3>
 
-          {!caseItem.assignedAgentID ? (
+          {!caseItem.assignedAgentID  ? (
             <p>No agent assigned.</p>
           ) : (
             <div className="agent-info">
               <p><strong>Name:</strong> {caseItem.assignedAgentID.name}</p>
               <p><strong>Email:</strong> {caseItem.assignedAgentID.email}</p>
 
-              {isSupervisorView && (
+              {isSupervisorView&&caseItem.case_status!=="solved"&& (
                 <button className="solve-btn" onClick={unassignAgent}>
                   Unassign Agent
                 </button>
