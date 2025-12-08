@@ -122,7 +122,7 @@ async function assignAgent() {
 )}
           </div>
 
-          {isSupervisorView && (
+          {/* {isSupervisorView && (
             <button
               className="delete-button"
               onClick={() => {
@@ -136,7 +136,7 @@ async function assignAgent() {
             >
               Delete Case
             </button>
-          )}
+          )} */}
         </div>
 
         {/* -------------------- CASE REPORT -------------------- */}
