@@ -27,14 +27,14 @@ function CaseCard({ caseItem, onSolve, onAssign, onUnassign, isSupervisorView = 
       <p className="case-info">
         <span className="case-label">Status:</span> {caseItem.case_status}
       </p>
-      <p className="case-info">
-        <span className="case-label">Assigned Agent:</span>{" "}
-        {caseItem.agentEmail || "Unassigned"}
-
-      </p>
+      
 
       {isSupervisorView && (
         <>
+        <p className="case-info">
+        <span className="case-label">Assigned Agent:</span>{" "}
+        {caseItem.agentEmail || "Unassigned"}
+      </p>
           {caseItem.case_status === "pending" && (
             <button className="solve-btn" onClick={handleUnassign}>
               unassign
