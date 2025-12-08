@@ -3,7 +3,7 @@ import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
 import mongoose from "mongoose";
 import Supervisor from "../Models/Supervisor.js";
-
+import Client from "../Models/Client.js";
 
 export const getAllAgents = async (req, res) => {
     try {
@@ -89,12 +89,28 @@ export const getAgentsBySupervisor = async (req, res) => {
 export const createAgent = async (req, res) => {
 try{
 const {department, email, name, role, password} = req.body;
+
+    //check if email already exists
+    // Check in clients
+    const clientExists = await Client.findOne({ email });
+    if (clientExists)
+      return res.status(400).json({ message: "Email already in use" });
+    // Check in agents
+    const agentExists = await Agent.findOne({ email });
+    if (agentExists)
+      return res.status(400).json({ message: "Email is already registered" });
+
+    // Check in supervisors
+    const supervisorExists = await Supervisor.findOne({ email });
+    if (supervisorExists)
+      return res.status(400).json({ message: "Email is already registered" });
+
 const supervisorID = req.user.id;
 const hashedPassword = await bcrypt.hash(password, 10);
 const newAgent = new Agent({
     department,
     email,
-    isActive: true,
+    isActive: false, // New agents are inactive by default
     name,
     role,
     password: hashedPassword, // <-- FIXED

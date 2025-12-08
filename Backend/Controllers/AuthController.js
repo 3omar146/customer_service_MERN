@@ -25,12 +25,12 @@ export const signupClient = async (req, res) => {
     // Check in agents
     const agentExists = await Agent.findOne({ email });
     if (agentExists)
-      return res.status(400).json({ message: "Email is already registered to an agent" });
+      return res.status(400).json({ message: "Email is already registered" });
 
     // Check in supervisors
     const supervisorExists = await Supervisor.findOne({ email });
     if (supervisorExists)
-      return res.status(400).json({ message: "Email is already registered to a supervisor" });
+      return res.status(400).json({ message: "Email is already registered" });
 
     // Everything OK → create client
     const hashed = await bcrypt.hash(password, 10);
@@ -72,7 +72,8 @@ export const login = async (req, res) => {
     let type = "client";
 
     if (!user) {
-      user = await Agent.findOne({ email });
+      await Agent.findOneAndUpdate({ email },{isActive: true});
+      user = await Agent.findOneAndUpdate({ email }); // Mark agent as active on login
       type = "agent";
     }
 
@@ -132,6 +133,11 @@ res.status(200).json({ message: "Logged in", type, user });
 
 // ------------------ LOGOUT ------------------
 export const logout = (req, res) => {
+  if(req.user && req.user.type === "agent") {
+    // Mark agent as inactive on logout
+    Agent.findByIdAndUpdate(req.user.id, { isActive: false })
+      .catch(err => console.error("Error updating agent status on logout:", err));
+  }
   res.clearCookie("auth");
   res.json({ message: "Logged out" });
 };
