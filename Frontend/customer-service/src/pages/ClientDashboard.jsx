@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DataTable from "../Components/DataTable";
-import ClientNavbar from "../Components/ClientNavbar";
+import Navbar from "../Components/Navbar.jsx";
 import "../Style/ClientDashboard.css";
-import { useNavigate } from "react-router-dom";
 
 function ClientDashboard() {
-  const [clientID, setClientID] = useState(null);
+  const [client, setClient] = useState(null);
   const [cases, setCases] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [caseFilter, setCaseFilter] = useState("all");
@@ -15,9 +14,6 @@ function ClientDashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCaseDescription, setNewCaseDescription] = useState("");
 
-  const navigate = useNavigate();
-
-  // Common pre-written case descriptions
   const commonIssues = [
     "Internet is slow or unstable.",
     "No internet connection at all.",
@@ -25,36 +21,39 @@ function ClientDashboard() {
     "Router keeps restarting or disconnecting."
   ];
 
-  // Load client ID
+  // Load authenticated client from session
   useEffect(() => {
-    let id = cookieStore.get("clientID")?.value;
+    async function fetchClient() {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_API_URL}/clients/default`,
+          { withCredentials: true }
+        );
 
-    if (!id) {
-      axios
-        .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/${id}`)
-        .then((res) => {
-          id = res.data._id;
-          localStorage.setItem("clientID", id);
-          setClientID(id);
-        })
-        .catch((err) => console.error("Client load error", err));
-    } else {
-      setClientID(id);
+        setClient(res.data);
+      } catch (err) {
+        console.error("Failed to load client:", err);
+      }
     }
+
+    fetchClient();
   }, []);
 
-  // Load cases
+  // Load cases when client loads
   useEffect(() => {
-    if (!clientID) return;
+    if (!client?._id) return;
 
     axios
-      .get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/${clientID}/cases`)
+      .get(
+        `${import.meta.env.VITE_BACKEND_API_URL}/clients/${client._id}/cases`,
+        { withCredentials: true }
+      )
       .then((res) => {
         setCases(res.data);
         setFiltered(res.data);
       })
-      .catch((err) => console.error(err));
-  }, [clientID]);
+      .catch((err) => console.error("Failed to load cases:", err));
+  }, [client]);
 
   function handleSearch(query) {
     const q = query.toLowerCase();
@@ -71,7 +70,7 @@ function ClientDashboard() {
     e.preventDefault();
 
     const body = {
-      clientID: clientID,
+      clientID: client._id,
       case_description: newCaseDescription,
       case_status: "unsolved",
       createdAt: new Date(),
@@ -79,14 +78,16 @@ function ClientDashboard() {
     };
 
     axios
-      .post(`${import.meta.env.VITE_BACKEND_API_URL}/cases`, body)
-      .then(res => {
-        setCases(prev => [...prev, res.data]);
-        setFiltered(prev => [...prev, res.data]);
+      .post(`${import.meta.env.VITE_BACKEND_API_URL}/cases`, body, {
+        withCredentials: true
+      })
+      .then((res) => {
+        setCases((prev) => [...prev, res.data]);
+        setFiltered((prev) => [...prev, res.data]);
         setShowCreateModal(false);
         setNewCaseDescription("");
       })
-      .catch(err => console.log("Case creation error:", err));
+      .catch((err) => console.log("Case creation error:", err));
   }
 
   const visibleCases =
@@ -103,13 +104,12 @@ function ClientDashboard() {
 
   return (
     <>
-      <ClientNavbar />
+      <Navbar type="client" />
 
       <div className="client-container">
         <h2>Your Cases</h2>
 
         <div className="client-top-row">
-
           <select
             className="client-select"
             value={caseFilter}
@@ -134,7 +134,6 @@ function ClientDashboard() {
           >
             + New Case
           </button>
-
         </div>
 
         <div className="client-table">
@@ -147,22 +146,22 @@ function ClientDashboard() {
         </div>
       </div>
 
-      {/* CREATE CASE MODAL */}
+      {/* Modal */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-box">
             <h3>Create New Case</h3>
 
             <form className="modal-form" onSubmit={createNewCase}>
-
-              {/* Dropdown that autofills issue */}
               <select
                 className="modal-select"
                 onChange={(e) => setNewCaseDescription(e.target.value)}
               >
                 <option value="">Select a common issue...</option>
                 {commonIssues.map((issue, idx) => (
-                  <option key={idx} value={issue}>{issue}</option>
+                  <option key={idx} value={issue}>
+                    {issue}
+                  </option>
                 ))}
               </select>
 
@@ -186,12 +185,10 @@ function ClientDashboard() {
                   Submit
                 </button>
               </div>
-
             </form>
           </div>
         </div>
       )}
-
     </>
   );
 }
