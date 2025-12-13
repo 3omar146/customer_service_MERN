@@ -11,8 +11,14 @@ function ClientDashboard() {
   const [caseFilter, setCaseFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
 
+  // CREATE MODAL
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCaseDescription, setNewCaseDescription] = useState("");
+
+  // EDIT MODAL
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editCaseDescription, setEditCaseDescription] = useState("");
+  const [caseToEdit, setCaseToEdit] = useState(null);
 
   const commonIssues = [
     "Internet is slow or unstable.",
@@ -21,7 +27,9 @@ function ClientDashboard() {
     "Router keeps restarting or disconnecting."
   ];
 
-  // Load authenticated client from session
+  // -------------------------------
+  // LOAD AUTHENTICATED CLIENT
+  // -------------------------------
   useEffect(() => {
     async function fetchClient() {
       try {
@@ -39,7 +47,9 @@ function ClientDashboard() {
     fetchClient();
   }, []);
 
-  // Load cases when client loads
+  // -------------------------------
+  // LOAD CASES AFTER CLIENT LOADS
+  // -------------------------------
   useEffect(() => {
     if (!client?._id) return;
 
@@ -55,6 +65,9 @@ function ClientDashboard() {
       .catch((err) => console.error("Failed to load cases:", err));
   }, [client]);
 
+  // -------------------------------
+  // SEARCH FILTER
+  // -------------------------------
   function handleSearch(query) {
     const q = query.toLowerCase();
     setFiltered(
@@ -66,6 +79,9 @@ function ClientDashboard() {
     );
   }
 
+  // -------------------------------
+  // CREATE CASE
+  // -------------------------------
   function createNewCase(e) {
     e.preventDefault();
 
@@ -90,6 +106,51 @@ function ClientDashboard() {
       .catch((err) => console.log("Case creation error:", err));
   }
 
+  // -------------------------------
+  // EDIT CASE (ONLY UNSOLVED)
+  // -------------------------------
+  function openEditCase() {
+    const selected = cases.find((c) => c._id === selectedId);
+    if (!selected || selected.case_status !== "unsolved") return;
+
+    setCaseToEdit(selected);
+    setEditCaseDescription(selected.case_description);
+    setShowEditModal(true);
+  }
+
+function submitEditCase(e) {
+  e.preventDefault();
+  axios
+    .put(
+      `${import.meta.env.VITE_BACKEND_API_URL}/cases/${caseToEdit._id}`,
+      {
+        case_description: editCaseDescription,
+        updatedAt: new Date()
+      },
+      { withCredentials: true }
+    )
+    .then((res) => {
+      const updated = res.data;
+
+      // Update UI state
+      setCases((prev) =>
+        prev.map((c) => (c._id === updated._id ? updated : c))
+      );
+
+      setFiltered((prev) =>
+        prev.map((c) => (c._id === updated._id ? updated : c))
+      );
+
+      setShowEditModal(false);
+      setCaseToEdit(null);
+    })
+    .catch((err) => {
+      console.error("Error updating case:", err);
+      alert("Case update failed");
+    });
+}
+
+
   const visibleCases =
     caseFilter === "all"
       ? filtered
@@ -110,6 +171,7 @@ function ClientDashboard() {
         <h2>Your Cases</h2>
 
         <div className="client-top-row">
+          {/* FILTER */}
           <select
             className="client-select"
             value={caseFilter}
@@ -121,6 +183,7 @@ function ClientDashboard() {
             <option value="solved">Solved</option>
           </select>
 
+          {/* SEARCH */}
           <input
             className="client-search"
             type="text"
@@ -128,14 +191,25 @@ function ClientDashboard() {
             onChange={(e) => handleSearch(e.target.value)}
           />
 
+          {/* NEW CASE */}
           <button
             className="client-btn add-btn"
             onClick={() => setShowCreateModal(true)}
           >
             + New Case
           </button>
+
+          {/* EDIT CASE — ONLY IF SELECTED & UNSOLVED */}
+          {selectedId &&
+            cases.find((c) => c._id === selectedId)?.case_status ===
+              "unsolved" && (
+              <button className="client-btn edit-btn" onClick={openEditCase}>
+                Edit Case
+              </button>
+            )}
         </div>
 
+        {/* TABLE */}
         <div className="client-table">
           <DataTable
             columns={columns}
@@ -146,7 +220,9 @@ function ClientDashboard() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* --------------------------------------------------- */}
+      {/* CREATE CASE MODAL */}
+      {/* --------------------------------------------------- */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -183,6 +259,42 @@ function ClientDashboard() {
 
                 <button type="submit" className="modal-submit">
                   Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --------------------------------------------------- */}
+      {/* EDIT CASE MODAL */}
+      {/* --------------------------------------------------- */}
+      {showEditModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Edit Case</h3>
+
+            <form className="modal-form" onSubmit={submitEditCase}>
+              <textarea
+                required
+                value={editCaseDescription}
+                onChange={(e) => setEditCaseDescription(e.target.value)}
+              />
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setCaseToEdit(null);
+                  }}
+                >
+                  Cancel
+                </button>
+
+                <button type="submit" className="modal-submit">
+                  Save Changes
                 </button>
               </div>
             </form>
