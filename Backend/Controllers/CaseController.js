@@ -204,12 +204,21 @@ export const getAllUnassignedCases = async (req, res) => {
 // Get all cases
 export const getAllCases = async (req, res) => {
   try {
-    const cases = await Case.find().sort({ createdAt: -1 });
+    let query = {};
+
+    // CLIENT: only their own cases
+    if (req.user.type === "client") {
+      query.clientID = req.user.id;
+    }
+
+    // Agent & Supervisor: sees all cases (no filter)
+    const cases = await Case.find(query).sort({ createdAt: -1 });
     res.status(200).json(cases);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Get case by ID
 export const getCaseById = async (req, res) => {
   try {
@@ -243,7 +252,14 @@ export const getCaseById = async (req, res) => {
 // Create a new case
 export const createCase = async (req, res) => {
   try {
-    const newCase = new Case(req.body);
+    const newCase = new Case({
+      case_description: req.body.case_description,
+      case_status: "unsolved",
+      clientID: req.user.id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
     const savedCase = await newCase.save();
     res.status(201).json(savedCase);
   } catch (error) {
