@@ -136,10 +136,11 @@ function ProfilePage() {
                 className="logout-btn"
                 onClick={async () => {
                   await axios.post(
-                    `${import.meta.env.VITE_BACKEND_API_URL}/logout`,
+                    `${import.meta.env.VITE_BACKEND_API_URL}/authentication/logout`,
                     {},
                     { withCredentials: true }
                   );
+
                   navigate("/login");
                 }}
               >
