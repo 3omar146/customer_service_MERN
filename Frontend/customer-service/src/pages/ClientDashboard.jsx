@@ -5,7 +5,6 @@ import Navbar from "../Components/Navbar.jsx";
 import "../Style/ClientDashboard.css";
 
 function ClientDashboard() {
-  const [client, setClient] = useState(null);
   const [cases, setCases] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [caseFilter, setCaseFilter] = useState("all");
@@ -25,36 +24,26 @@ function ClientDashboard() {
     "Router keeps restarting or disconnecting."
   ];
 
+
   useEffect(() => {
-    async function fetchClient() {
+    async function fetchCases() {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_API_URL}/clients/default`,
+          `${import.meta.env.VITE_BACKEND_API_URL}/cases`,
           { withCredentials: true }
         );
-        setClient(res.data);
-      } catch (err) {
-        console.error("Failed to load client:", err);
-      }
-    }
-    fetchClient();
-  }, []);
 
-  useEffect(() => {
-    if (!client?._id) return;
-
-    axios
-      .get(
-        `${import.meta.env.VITE_BACKEND_API_URL}/clients/${client._id}/cases`,
-        { withCredentials: true }
-      )
-      .then((res) => {
         setCases(res.data);
         setFiltered(res.data);
-      })
-      .catch((err) => console.error("Failed to load cases:", err));
-  }, [client]);
+      } catch (err) {
+        console.error("Failed to load cases:", err);
+      }
+    }
 
+    fetchCases();
+  }, []);
+
+  // ================= SEARCH =================
   function handleSearch(query) {
     const q = query.toLowerCase();
     setFiltered(
@@ -66,15 +55,13 @@ function ClientDashboard() {
     );
   }
 
+  // ================= CREATE CASE =================
   function createNewCase(e) {
     e.preventDefault();
 
     const body = {
-      clientID: client._id,
       case_description: newCaseDescription,
-      case_status: "unsolved",
-      createdAt: new Date(),
-      updatedAt: new Date()
+      case_status: "unsolved"
     };
 
     axios
@@ -87,9 +74,10 @@ function ClientDashboard() {
         setShowCreateModal(false);
         setNewCaseDescription("");
       })
-      .catch((err) => console.log("Case creation error:", err));
+      .catch((err) => console.error("Case creation error:", err));
   }
 
+  // ================= EDIT CASE =================
   function openEditCase() {
     const selected = cases.find((c) => c._id === selectedId);
     if (!selected || selected.case_status !== "unsolved") return;
@@ -105,7 +93,7 @@ function ClientDashboard() {
     axios
       .put(
         `${import.meta.env.VITE_BACKEND_API_URL}/cases/${caseToEdit._id}`,
-        { case_description: editCaseDescription, updatedAt: new Date() },
+        { case_description: editCaseDescription },
         { withCredentials: true }
       )
       .then((res) => {
@@ -122,11 +110,10 @@ function ClientDashboard() {
         setShowEditModal(false);
         setCaseToEdit(null);
       })
-      .catch((err) => {
-        console.error("Error updating case:", err);
-      });
+      .catch((err) => console.error("Error updating case:", err));
   }
 
+  // ================= FILTERING =================
   const visibleCases =
     caseFilter === "all"
       ? filtered
@@ -138,6 +125,7 @@ function ClientDashboard() {
 
   const isUnsolved = selectedCase?.case_status === "unsolved";
 
+  // ================= UI =================
   return (
     <>
       <Navbar type="client" />
@@ -146,49 +134,45 @@ function ClientDashboard() {
         <h2>Your Cases</h2>
 
         <div className="client-top-row">
+          <div className="client-left-controls">
+            <select
+              className="client-select"
+              value={caseFilter}
+              onChange={(e) => setCaseFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="unsolved">Unsolved</option>
+              <option value="pending">Pending</option>
+              <option value="solved">Solved</option>
+            </select>
+          </div>
 
-  {/* LEFT SIDE FILTERS */}
-  <div className="client-left-controls">
-    <select
-      className="client-select"
-      value={caseFilter}
-      onChange={(e) => setCaseFilter(e.target.value)}
-    >
-      <option value="all">All</option>
-      <option value="unsolved">Unsolved</option>
-      <option value="pending">Pending</option>
-      <option value="solved">Solved</option>
-    </select>
-  </div>
+          <input
+            className="client-search center-search"
+            type="text"
+            placeholder="Search cases..."
+            onChange={(e) => handleSearch(e.target.value)}
+          />
 
-  {/* CENTER SEARCH */}
-  <input
-    className="client-search center-search"
-    type="text"
-    placeholder="Search cases..."
-    onChange={(e) => handleSearch(e.target.value)}
-  />
+          <div className="client-right-controls">
+            <button
+              className="client-btn add-btn"
+              onClick={() => setShowCreateModal(true)}
+            >
+              + New Case
+            </button>
 
-  {/* RIGHT SIDE BUTTONS */}
-  <div className="client-right-controls">
-    <button
-      className="client-btn add-btn"
-      onClick={() => setShowCreateModal(true)}
-    >
-      + New Case
-    </button>
-
-    <button
-      className={`client-btn edit-btn ${!isUnsolved ? "disabled-btn" : ""}`}
-      disabled={!selectedId || !isUnsolved}
-      onClick={() => isUnsolved && openEditCase()}
-    >
-      Edit Case
-    </button>
-  </div>
-
-</div>
-
+            <button
+              className={`client-btn edit-btn ${
+                !isUnsolved ? "disabled-btn" : ""
+              }`}
+              disabled={!selectedId || !isUnsolved}
+              onClick={openEditCase}
+            >
+              Edit Case
+            </button>
+          </div>
+        </div>
 
         <div className="client-table">
           <DataTable
@@ -205,6 +189,7 @@ function ClientDashboard() {
         </div>
       </div>
 
+      {/* CREATE MODAL */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -248,6 +233,7 @@ function ClientDashboard() {
         </div>
       )}
 
+      {/* EDIT MODAL */}
       {showEditModal && (
         <div className="modal-overlay">
           <div className="modal-box">
