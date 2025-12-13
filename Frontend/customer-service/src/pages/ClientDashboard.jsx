@@ -11,11 +11,9 @@ function ClientDashboard() {
   const [caseFilter, setCaseFilter] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
 
-  // CREATE MODAL
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCaseDescription, setNewCaseDescription] = useState("");
 
-  // EDIT MODAL
   const [showEditModal, setShowEditModal] = useState(false);
   const [editCaseDescription, setEditCaseDescription] = useState("");
   const [caseToEdit, setCaseToEdit] = useState(null);
@@ -27,9 +25,6 @@ function ClientDashboard() {
     "Router keeps restarting or disconnecting."
   ];
 
-  // -------------------------------
-  // LOAD AUTHENTICATED CLIENT
-  // -------------------------------
   useEffect(() => {
     async function fetchClient() {
       try {
@@ -37,19 +32,14 @@ function ClientDashboard() {
           `${import.meta.env.VITE_BACKEND_API_URL}/clients/default`,
           { withCredentials: true }
         );
-
         setClient(res.data);
       } catch (err) {
         console.error("Failed to load client:", err);
       }
     }
-
     fetchClient();
   }, []);
 
-  // -------------------------------
-  // LOAD CASES AFTER CLIENT LOADS
-  // -------------------------------
   useEffect(() => {
     if (!client?._id) return;
 
@@ -65,9 +55,6 @@ function ClientDashboard() {
       .catch((err) => console.error("Failed to load cases:", err));
   }, [client]);
 
-  // -------------------------------
-  // SEARCH FILTER
-  // -------------------------------
   function handleSearch(query) {
     const q = query.toLowerCase();
     setFiltered(
@@ -79,9 +66,6 @@ function ClientDashboard() {
     );
   }
 
-  // -------------------------------
-  // CREATE CASE
-  // -------------------------------
   function createNewCase(e) {
     e.preventDefault();
 
@@ -106,9 +90,6 @@ function ClientDashboard() {
       .catch((err) => console.log("Case creation error:", err));
   }
 
-  // -------------------------------
-  // EDIT CASE (ONLY UNSOLVED)
-  // -------------------------------
   function openEditCase() {
     const selected = cases.find((c) => c._id === selectedId);
     if (!selected || selected.case_status !== "unsolved") return;
@@ -118,50 +99,44 @@ function ClientDashboard() {
     setShowEditModal(true);
   }
 
-function submitEditCase(e) {
-  e.preventDefault();
-  axios
-    .put(
-      `${import.meta.env.VITE_BACKEND_API_URL}/cases/${caseToEdit._id}`,
-      {
-        case_description: editCaseDescription,
-        updatedAt: new Date()
-      },
-      { withCredentials: true }
-    )
-    .then((res) => {
-      const updated = res.data;
+  function submitEditCase(e) {
+    e.preventDefault();
 
-      // Update UI state
-      setCases((prev) =>
-        prev.map((c) => (c._id === updated._id ? updated : c))
-      );
+    axios
+      .put(
+        `${import.meta.env.VITE_BACKEND_API_URL}/cases/${caseToEdit._id}`,
+        { case_description: editCaseDescription, updatedAt: new Date() },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        const updated = res.data;
 
-      setFiltered((prev) =>
-        prev.map((c) => (c._id === updated._id ? updated : c))
-      );
+        setCases((prev) =>
+          prev.map((c) => (c._id === updated._id ? updated : c))
+        );
 
-      setShowEditModal(false);
-      setCaseToEdit(null);
-    })
-    .catch((err) => {
-      console.error("Error updating case:", err);
-      alert("Case update failed");
-    });
-}
+        setFiltered((prev) =>
+          prev.map((c) => (c._id === updated._id ? updated : c))
+        );
 
+        setShowEditModal(false);
+        setCaseToEdit(null);
+      })
+      .catch((err) => {
+        console.error("Error updating case:", err);
+      });
+  }
 
   const visibleCases =
     caseFilter === "all"
       ? filtered
       : filtered.filter((c) => c.case_status.toLowerCase() === caseFilter);
 
-  const columns = [
-    { header: "Description", accessor: "case_description" },
-    { header: "Status", accessor: "case_status" },
-    { header: "Requested", accessor: "createdAt" },
-    { header: "Last Update", accessor: "updatedAt" }
-  ];
+  const selectedCase = selectedId
+    ? cases.find((c) => c._id === selectedId)
+    : null;
+
+  const isUnsolved = selectedCase?.case_status === "unsolved";
 
   return (
     <>
@@ -171,48 +146,58 @@ function submitEditCase(e) {
         <h2>Your Cases</h2>
 
         <div className="client-top-row">
-          {/* FILTER */}
-          <select
-            className="client-select"
-            value={caseFilter}
-            onChange={(e) => setCaseFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="unsolved">Unsolved</option>
-            <option value="pending">Pending</option>
-            <option value="solved">Solved</option>
-          </select>
 
-          {/* SEARCH */}
-          <input
-            className="client-search"
-            type="text"
-            placeholder="Search cases..."
-            onChange={(e) => handleSearch(e.target.value)}
-          />
+  {/* LEFT SIDE FILTERS */}
+  <div className="client-left-controls">
+    <select
+      className="client-select"
+      value={caseFilter}
+      onChange={(e) => setCaseFilter(e.target.value)}
+    >
+      <option value="all">All</option>
+      <option value="unsolved">Unsolved</option>
+      <option value="pending">Pending</option>
+      <option value="solved">Solved</option>
+    </select>
+  </div>
 
-          {/* NEW CASE */}
-          <button
-            className="client-btn add-btn"
-            onClick={() => setShowCreateModal(true)}
-          >
-            + New Case
-          </button>
+  {/* CENTER SEARCH */}
+  <input
+    className="client-search center-search"
+    type="text"
+    placeholder="Search cases..."
+    onChange={(e) => handleSearch(e.target.value)}
+  />
 
-          {/* EDIT CASE — ONLY IF SELECTED & UNSOLVED */}
-          {selectedId &&
-            cases.find((c) => c._id === selectedId)?.case_status ===
-              "unsolved" && (
-              <button className="client-btn edit-btn" onClick={openEditCase}>
-                Edit Case
-              </button>
-            )}
-        </div>
+  {/* RIGHT SIDE BUTTONS */}
+  <div className="client-right-controls">
+    <button
+      className="client-btn add-btn"
+      onClick={() => setShowCreateModal(true)}
+    >
+      + New Case
+    </button>
 
-        {/* TABLE */}
+    <button
+      className={`client-btn edit-btn ${!isUnsolved ? "disabled-btn" : ""}`}
+      disabled={!selectedId || !isUnsolved}
+      onClick={() => isUnsolved && openEditCase()}
+    >
+      Edit Case
+    </button>
+  </div>
+
+</div>
+
+
         <div className="client-table">
           <DataTable
-            columns={columns}
+            columns={[
+              { header: "Description", accessor: "case_description" },
+              { header: "Status", accessor: "case_status" },
+              { header: "Requested", accessor: "createdAt" },
+              { header: "Last Update", accessor: "updatedAt" }
+            ]}
             data={visibleCases}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
@@ -220,9 +205,6 @@ function submitEditCase(e) {
         </div>
       </div>
 
-      {/* --------------------------------------------------- */}
-      {/* CREATE CASE MODAL */}
-      {/* --------------------------------------------------- */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -257,7 +239,7 @@ function submitEditCase(e) {
                   Cancel
                 </button>
 
-                <button type="submit" className="modal-submit">
+                <button className="modal-submit" type="submit">
                   Submit
                 </button>
               </div>
@@ -266,9 +248,6 @@ function submitEditCase(e) {
         </div>
       )}
 
-      {/* --------------------------------------------------- */}
-      {/* EDIT CASE MODAL */}
-      {/* --------------------------------------------------- */}
       {showEditModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -293,7 +272,7 @@ function submitEditCase(e) {
                   Cancel
                 </button>
 
-                <button type="submit" className="modal-submit">
+                <button className="modal-submit" type="submit">
                   Save Changes
                 </button>
               </div>
