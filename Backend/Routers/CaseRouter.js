@@ -39,9 +39,9 @@ router.get("/supervisor",auth, getCasesForSupervisor);
 router.get("/supervisor/report",auth, getCasesReport);
 
 // CLIENT + ADMIN USAGE
-router.get("/", getAllCases);
+router.get("/",auth ,getAllCases);
 router.get("/:id", getCaseById);
-router.post("/", createCase);
+router.post("/",auth, createCase);
 router.put("/:id", updateCaseById);
 
 export default router;
