@@ -10,18 +10,7 @@ const ensureClientSelfAccess = (req, res) => {
   return null;
 };
 
-// Get default client (no change unless you want to enforce roles)
-export const getDefaultClient = async (req, res) => {
-  try {
-    const client = await Client.findOne();
-    if (!client) {
-      return res.status(404).json({ message: "No client found in DB" });
-    }
-    res.status(200).json(client);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+
 
 // Get client details by ID
 export const getClientById = async (req, res) => {
