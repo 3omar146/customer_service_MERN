@@ -811,6 +811,124 @@ const topIssues = await Case.aggregate([
 
 console.log("Top issue types:", topIssues); //find issue types with most action protocols
 
+const agentId = agents[0]._id; // sample agent from inserted data
+
+const activeCasesForAgent = await Case.aggregate([
+  {
+    $match: {
+      assignedAgentID: agentId,
+      case_status: { $ne: "solved" }
+    }
+  },
+  {
+    $lookup: {
+      from: "action_protocols",
+      localField: "recommendedActionProtocol",
+      foreignField: "_id",
+      as: "protocol"
+    }
+  },
+  {
+    $unwind: {
+      path: "$protocol",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $addFields: {
+      recommendedActionProtocolType: "$protocol.type"
+    }
+  },
+  {
+    $project: {
+      protocol: 0
+    }
+  },
+  {
+    $sort: { createdAt: -1 }
+  }
+]);
+
+console.log("Active cases for agent:", activeCasesForAgent); //list active cases for a specific agent along with recommended action protocol type
+
+
+const solvedCasesByAgent = await Case.aggregate([
+  {
+    $match: {
+      assignedAgentID: agents[1]._id,
+      case_status: "solved"
+    }
+  },
+  {
+    $lookup: {
+      from: "agents",
+      localField: "assignedAgentID",
+      foreignField: "_id",
+      as: "agentInfo"
+    }
+  },
+  { $unwind: "$agentInfo" },
+  {
+    $project: {
+      case_description: 1,
+      case_status: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      agentName: "$agentInfo.name",
+      agentEmail: "$agentInfo.email"
+    }
+  },
+  {
+    $sort: { createdAt: -1 }
+  }
+]);
+
+console.log("Solved cases by agent:", solvedCasesByAgent);
+
+
+const unassignedCases = await Case.aggregate([
+  {
+    $match: {
+      assignedAgentID: null,
+      case_status: "unsolved"
+    }
+  },
+  {
+    $sort: { createdAt: -1 }
+  },
+  {
+    $project: {
+      assignedAgentID: 0
+    }
+  }
+]);
+
+console.log("Unassigned unsolved cases:", unassignedCases);
+
+
+const supervisorAgentIds = agents
+  .filter(a => a.supervisorID.equals(supervisors[0]._id))
+  .map(a => a._id);
+
+const caseStatusCounts = await Case.aggregate([
+  {
+    $match: {
+      $or: [
+        { assignedAgentID: null },
+        { assignedAgentID: { $in: supervisorAgentIds } }
+      ]
+    }
+  },
+  {
+    $group: {
+      _id: "$case_status",
+      count: { $sum: 1 }
+    }
+  }
+]);
+
+console.log("Case counts for supervisor:", caseStatusCounts);
+
 
 //////validation//////
 await mongoose.connection.db.command({
