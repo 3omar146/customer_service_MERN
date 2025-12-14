@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const protocolSchema = new mongoose.Schema({
   agentID: {
-    type: String,
-    required: true,
+    type: String
+   
   },
   steps: {
     type: String,
