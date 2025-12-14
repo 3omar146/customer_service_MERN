@@ -70,7 +70,7 @@ function CaseCard({
           {/* UNSOLVED CASE → ONLY ASSIGN */}
           {caseItem.case_status === "unsolved" && (
             <button className="solve-btn" onClick={handleAssign}>
-              Assign
+              Take Case
             </button>
           )}
                     {caseItem.recommendedActionProtocol && (
