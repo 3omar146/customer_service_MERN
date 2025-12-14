@@ -253,6 +253,7 @@ export const getCaseById = async (req, res) => {
 // Create a new case
 export const createCase = async (req, res) => {
   try {
+    console.log(req.body);
     const newCase = new Case({
       case_description: req.body.case_description,
       case_status: "unsolved",

@@ -30,7 +30,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
 
   // Fetch agent details
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/agents/SpecificAgent/${AgentID}`)
+    axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/agents/SpecificAgent/${AgentID}`,{withCredentials:true})
       .then(res => {
         const data = res.data.agent ?? (Array.isArray(res.data) ? res.data[0] : res.data);
         setAgent(data);
@@ -64,7 +64,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
   useEffect(() => {
     const fetchSolvedCases = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/solved/${AgentID}`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/solved/${AgentID}`,{withCredentials:true});
         setSolvedCases(res.data);
       } catch (err) {
         console.error("Error fetching solved cases:", err);
@@ -95,7 +95,7 @@ export default function AgentDetails({ isSupervisorView = true }) {
   try {
     await axios.patch(
       `${import.meta.env.VITE_BACKEND_API_URL}/agents/assign/${selectedId}/agent/${AgentID}`,
-      { agentId: AgentID }
+      { agentId: AgentID },{withCredentials:true}
     );
 
     alert("Case assigned successfully!");
@@ -162,7 +162,7 @@ window.location.reload();
         <button
           className="delete-button"
           onClick={() =>
-            axios.delete(`${import.meta.env.VITE_BACKEND_API_URL}/agents/${AgentID}`)
+            axios.delete(`${import.meta.env.VITE_BACKEND_API_URL}/agents/${AgentID}`,{withCredentials:true})
               .then(() => { 
                 alert("Agent deleted");
                 navigate(-1);

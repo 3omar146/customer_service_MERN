@@ -14,7 +14,7 @@ export default function AgentDashboard() {
     const fetchUnsolvedCases = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassigned`);
+          `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassigned`,{ withCredentials: true });
         setUnsolvedCases(res.data);
       } catch (err) {
         console.error("Error fetching unassigned cases:", err);

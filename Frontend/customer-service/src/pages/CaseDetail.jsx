@@ -33,7 +33,7 @@ export default function CaseDetails({ isSupervisorView = true }) {
     }
 
     axios
-      .get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/${CaseID}`)
+      .get(`${import.meta.env.VITE_BACKEND_API_URL}/cases/${CaseID}`,{withCredentials:true})
       .then(res => setCaseItem(res.data))
       .catch(err => {
         console.error(err);
@@ -46,7 +46,7 @@ export default function CaseDetails({ isSupervisorView = true }) {
     if (!caseItem || caseItem.case_status !== "solved") return;
 
     axios
-      .get(`${import.meta.env.VITE_BACKEND_API_URL}/logs/case/${CaseID}`)
+      .get(`${import.meta.env.VITE_BACKEND_API_URL}/logs/case/${CaseID}`,{withCredentials:true})
       .then(res => setReport(res.data))
       .catch(err => console.error("Error fetching report:", err));
   }, [caseItem, CaseID]);
@@ -66,7 +66,7 @@ async function assignAgent() {
 
   try {
     await axios.patch(
-      `${import.meta.env.VITE_BACKEND_API_URL}/agents/assign/${CaseID}/agent/${selectedAgentId}`
+      `${import.meta.env.VITE_BACKEND_API_URL}/agents/assign/${CaseID}/agent/${selectedAgentId}`,{},{withCredentials:true}
     );
 
     // Update UI without reload
@@ -89,7 +89,7 @@ async function assignAgent() {
     try {
 
       await axios.patch(
-        `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassign/${CaseID}/agent/${caseItem.assignedAgentID._id}`
+        `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassign/${CaseID}/agent/${caseItem.assignedAgentID._id}`,{},{withCredentials:true}
       );
 
       setCaseItem({ ...caseItem, assignedAgentID: null });

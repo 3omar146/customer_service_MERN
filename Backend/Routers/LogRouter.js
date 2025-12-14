@@ -13,22 +13,22 @@ import {
 const router = express.Router();
 
 // GET all logs
-router.get("/", getAllLogs);
+router.get("/",auth, getAllLogs);
 //get log by case
-router.get("/case/:caseID",getLogByCase)
+router.get("/case/:caseID",auth,getLogByCase)
 // GET log by ID
-router.get("/:id", getLogById);
+router.get("/:id",auth, getLogById);
 
 // GET logs by agent ID
 router.get("/agent",auth, getLogsMadeByagent);
 
 // CREATE a log
-router.post("/", createLog);
+router.post("/",auth, createLog);
 
 // UPDATE a log
-router.put("/:logId", updateLog);
+router.put("/:logId",auth, updateLog);
 
 // DELETE a log
-router.delete("/:logId", deleteLog);
+router.delete("/:logId",auth, deleteLog);
 
 export default router;
