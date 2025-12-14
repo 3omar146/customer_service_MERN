@@ -7,12 +7,44 @@ import Log from "../Models/Log.js";
 // Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
   const { agentId } = req.params;
-  try {
-    const cases = await Case.find({
-      assignedAgentID: agentId,
-      case_status: { $ne: "solved" }
-    }).populate("recommendedActionProtocol", "type").sort({ createdAt: -1 });
 
+  try {
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: { $ne: "solved" }
+        }
+      },
+
+      {
+        $lookup: {
+          from: "action_protocols",
+          localField: "recommendedActionProtocol",
+          foreignField: "_id",
+          as: "protocol"
+        }
+      },
+      {
+        $unwind: {
+          path: "$protocol",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          recommendedActionProtocolType: "$protocol.type"
+        }
+      },
+      {
+        $project: {
+          protocol: 0
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
 
     res.status(200).json(cases);
   } catch (error) {
@@ -20,16 +52,47 @@ export const getCasesAssignedToAgent = async (req, res) => {
   }
 };
 
+
 // agent wants to get his assigned cases (Agent view)
 export const getCasesAssignedToSpecificAgent = async (req, res) => {
   const agentId = req.user.id;
 
   try {
-    const cases = await Case.find({
-      assignedAgentID: agentId,
-      case_status: { $ne: "solved" }
-    }).populate("recommendedActionProtocol", "type").sort({ createdAt: -1 });
-
+    const cases = await Case.aggregate([
+      {
+        $match: {
+          assignedAgentID: new mongoose.Types.ObjectId(agentId),
+          case_status: { $ne: "solved" }
+        }
+      },
+      {
+        $lookup: {
+          from: "action_protocols",
+          localField: "recommendedActionProtocol",
+          foreignField: "_id",
+          as: "protocol"
+        }
+      },
+      {
+        $unwind: {
+          path: "$protocol",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          recommendedActionProtocolType: "$protocol.type"
+        }
+      },
+      {
+        $project: {
+          protocol: 0
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
 
     res.status(200).json(cases);
   } catch (error) {
@@ -86,6 +149,7 @@ export const getSolvedCasesByAgent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Get Pending cases by agent (supervisor view)
 export const getPendingCasesByAgent = async (req, res) => {
   const { agentId } = req.params;
@@ -133,30 +197,6 @@ export const getPendingCasesByAgent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
-
-
-
-
-// export const getSolvedCasesByAgent = async (req, res) => {
-//     const { agentId } = req.params;
-//     try {
-//         const cases = await Case.aggregate([
-//             {
-//                 $match: {
-//                     assignedAgentID: new mongoose.Types.ObjectId(agentId),
-//                     case_status: "solved"
-//                 }
-//             },
-//             { $sort: { createdAt: -1 } }
-//         ]);
-
-//         res.status(200).json(cases);
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
 
 // Get solved cases by agent (agent view)
 export const getSolvedCasesBySpecificAgent = async (req, res) => {
@@ -220,32 +260,69 @@ export const getAllCases = async (req, res) => {
   }
 };
 
-// Get case by ID
+// Get case by ID for agent and supervisor
 export const getCaseById = async (req, res) => {
   try {
-    const caseInfo = await Case.findById(req.params.id)
-      .populate("assignedAgentID", "name email")
-      .populate("recommendedActionProtocol", "steps type timestamp");
+    const caseId = new mongoose.Types.ObjectId(req.params.id);
+    const result = await Case.aggregate([
+      {
+        $match: { _id: caseId }
+      },
+      {
+        $lookup: {
+          from: "agents",
+          localField: "assignedAgentID",
+          foreignField: "_id",
+          as: "agent"
+        }
+      },
+      {
+        $lookup: {
+          from: "action_protocols",
+          localField: "recommendedActionProtocol",
+          foreignField: "_id",
+          as: "protocol"
+        }
+      },
+      {
+        $unwind: {
+          path: "$agent",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: "$protocol",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          agentName: { $ifNull: ["$agent.name", "Not assigned"] },
+          agentEmail: { $ifNull: ["$agent.email", "No email"] },
+          recommendedActionProtocolType: {
+            $ifNull: ["$protocol.type", null]
+          }
+        }
+      },
+      {
+        $project: {
+          agent: 0,
+          protocol: 0
+        }
+      }
+    ]);
 
-    if (!caseInfo) {
+    if (!result.length) {
       return res.status(404).json({ message: "Case not found" });
     }
 
-    const response = {
-      ...caseInfo.toObject(),
-
-      agentName: caseInfo.assignedAgentID?.name || "Not assigned",
-      agentEmail: caseInfo.assignedAgentID?.email || "No email",
-
-      recommendedActionProtocolType:
-        caseInfo.recommendedActionProtocol?.type || null
-    };
-
-    res.status(200).json(response);
+    res.status(200).json(result[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
