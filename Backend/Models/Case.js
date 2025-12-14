@@ -22,7 +22,7 @@ const caseSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ FIXED: added ref so populate works
+   
     recommendedActionProtocol: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ActionProtocol",
@@ -30,7 +30,7 @@ const caseSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // ✅ let mongoose handle createdAt & updatedAt
+    timestamps: true, //  let mongoose handle createdAt & updatedAt
   }
 );
 
