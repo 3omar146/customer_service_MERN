@@ -30,6 +30,7 @@ export const getProtocolById = async (req, res) => {
 export const createProtocol = async (req, res) => {
   const agentID = req.user.id;
   const { steps, type } = req.body;
+  console.log("Creating Protocol:", agentID, steps, type);
 
   try {
     const addedProtocol = await ActionProtocol.create({
@@ -38,6 +39,7 @@ export const createProtocol = async (req, res) => {
       type,
       timestamp: new Date()
     });
+
 
     res.status(201).json(addedProtocol);
   } catch (err) {

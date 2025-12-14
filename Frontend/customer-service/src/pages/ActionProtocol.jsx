@@ -59,8 +59,8 @@ export default function ActionProtocol() {
                 `${import.meta.env.VITE_BACKEND_API_URL}/protocols`,
                 {
 
-                    type: newType,
                     steps: newSteps,
+                    type: newType
                 },
                 { withCredentials: true }
             );
