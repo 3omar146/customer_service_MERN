@@ -8,13 +8,30 @@ const { Schema, Types } = mongoose;
 const MONGODB_URI = "mongodb+srv://ActivityTrackerUser:ActivityTrackerPass@cluster0.2sjmnf6.mongodb.net/";
 const DB_NAME = "customer-service";
 
+async function dropAllIndexesSafely(model, collectionName) {
+  try {
+    const indexes = await model.collection.indexes();
+
+    if (indexes.length <= 1) {
+      console.log(`No secondary indexes to drop for ${collectionName}`);
+      return;
+    }
+
+    await model.collection.dropIndexes();
+    console.log(`Dropped all indexes for ${collectionName}`);
+  } catch (err) {
+    console.error(`Failed to drop indexes for ${collectionName}:`, err.message);
+  }
+}
+
+
 async function main() {
   try {
     await mongoose.connect(MONGODB_URI, { dbName: DB_NAME });
     console.log("Connected to MongoDB via Mongoose.");
 
     // ------------------------
-    // SCHEMAS (updated to match new schema)
+    // SCHEMAS 
     // ------------------------
 
     const supervisorSchema = new Schema({
@@ -38,23 +55,23 @@ async function main() {
 
 const clientSchema = new Schema({
   email: { 
-    type: String, 
+    type: String
   },
 
   firstName: { 
-    type: String,  
+    type: String 
   },
 
   lastName: { 
-    type: String, 
+    type: String 
   },
 
   phone: { 
-    type: String,
+    type: String
   },
 
   password: { 
-    type: String,
+    type: String
   },
 
   updatedAt: { 
@@ -74,6 +91,8 @@ const clientSchema = new Schema({
       timestamp: Date
     }, { collection: "action_protocols" });
     actionProtocolSchema.index( {type:1} );
+    actionProtocolSchema.index( {agentID:1} );
+
 
     const caseSchema = new Schema({
       assignedAgentID: { type: Schema.Types.ObjectId, ref: "Agent" },
@@ -83,9 +102,9 @@ const clientSchema = new Schema({
       recommendedActionProtocol: { type: Schema.Types.ObjectId, ref: "ActionProtocol" },
       createdAt: Date,
       updatedAt: Date
-      // logs REMOVED (now a separate collection)
     }, { collection: "cases" });
-    caseSchema.index( {assignedAgentID: 1, case_status:1});
+    caseSchema.index( {assignedAgentID: 1});
+    caseSchema.index({clientID:1});
 
     const logSchema = new Schema({
       caseID: { type: Schema.Types.ObjectId, ref: "Case" },
@@ -93,7 +112,9 @@ const clientSchema = new Schema({
       protocolID: { type: Schema.Types.ObjectId, ref: "ActionProtocol" },
       timestamp: Date
     }, { collection: "logs" });
-    logSchema.index( {perfomedBy:1} );
+    logSchema.index( {perfomedBy:1});
+    logSchema.index({caseID:1});
+    logSchema.index({protocolID:1});
 
 
     // MODELS
@@ -134,7 +155,17 @@ const clientSchema = new Schema({
       { _id: genId(), email: "yasmin.nabil@company.com", name: "Yasmin Nabil", role: 'Supervisor', password: "passYasmin1", updatedAt: new Date("2025-11-08T09:40:00Z") },
       { _id: genId(), email: "tamer.hassan@company.com", name: "Tamer Hassan", role: 'Senior Supervisor', password: "passTamer1", updatedAt: new Date("2025-11-09T16:00:00Z") },
       { _id: genId(), email: "mona.elkhateeb@company.com", name: "Mona El-Khateeb", role: 'Head Supervisor', password: "passMona1", updatedAt: new Date("2025-11-10T12:30:00Z") },
-      { _id: genId(), email: "omar.eldeeb@company.com", name: "Omar El-Deeb", role: 'Senior Supervisor', password: "passOmar1", updatedAt: new Date("2025-11-11T07:20:00Z") }
+      { _id: genId(), email: "omar.eldeeb@company.com", name: "Omar El-Deeb", role: 'Senior Supervisor', password: "passOmar1", updatedAt: new Date("2025-11-11T07:20:00Z") },
+      { _id: genId(), email: "ahmed.salem@company.com", name: "Ahmed Salem", role: "Supervisor", password: "passAhmed1", updatedAt: new Date("2025-11-12T09:10:00Z") },
+    { _id: genId(), email: "nour.ali@company.com", name: "Nour Ali", role: "Senior Supervisor", password: "passNour1", updatedAt: new Date("2025-11-12T11:00:00Z") },
+    { _id: genId(), email: "karim.fouad@company.com", name: "Karim Fouad", role: "Supervisor", password: "passKarim1", updatedAt: new Date("2025-11-13T08:45:00Z") },
+    { _id: genId(), email: "hanaa.youssef@company.com", name: "Hanaa Youssef", role: "Head Supervisor", password: "passHanaa1", updatedAt: new Date("2025-11-13T14:20:00Z") },
+    { _id: genId(), email: "mostafa.ibrahim@company.com", name: "Mostafa Ibrahim", role: "Senior Supervisor", password: "passMostafa1", updatedAt: new Date("2025-11-14T10:05:00Z") },
+    { _id: genId(), email: "reem.sherif@company.com", name: "Reem Sherif", role: "Supervisor", password: "passReem1", updatedAt: new Date("2025-11-14T15:40:00Z") },
+    { _id: genId(), email: "adel.mansour@company.com", name: "Adel Mansour", role: "Head Supervisor", password: "passAdel1", updatedAt: new Date("2025-11-15T09:30:00Z") },
+    { _id: genId(), email: "farah.mostafa@company.com", name: "Farah Mostafa", role: "Supervisor", password: "passFarah1", updatedAt: new Date("2025-11-15T13:55:00Z") },
+    { _id: genId(), email: "youssef.hamed@company.com", name: "Youssef Hamed", role: "Senior Supervisor", password: "passYoussef1", updatedAt: new Date("2025-11-16T08:25:00Z") },
+    { _id: genId(), email: "salma.abdelrahman@company.com", name: "Salma Abdelrahman", role: "Supervisor", password: "passSalma1", updatedAt: new Date("2025-11-16T16:10:00Z") }
     ];
 
     // Agents (10) — ONLY schema adjustments done
@@ -148,179 +179,465 @@ const clientSchema = new Schema({
       { _id: genId(), email: "hoda.mostafa@company.com", isActive: true, name: "Hoda Mostafa", role: "Agent", password: "agentHo1", updatedAt: new Date("2025-11-26T14:00:00Z"), supervisorID: supervisors[8]._id },
       { _id: genId(), email: "yasser.mohamed@company.com", isActive: false, name: "Yasser Mohamed", role: "Agent", password: "agentY1", updatedAt: new Date("2025-11-27T15:00:00Z"), supervisorID: supervisors[0]._id },
       { _id: genId(), email: "salma.nagy@company.com", isActive: true, name: "Salma Nagy", role: "Agent", password: "agentS1", updatedAt: new Date("2025-11-28T16:00:00Z"), supervisorID: supervisors[1]._id },
-      { _id: genId(), email: "mostafa.a@company.com", isActive: true, name: "Mostafa Ahmed", role: "Agent", password: "agentM1", updatedAt: new Date("2025-11-29T17:00:00Z"), supervisorID: supervisors[7]._id }
+      { _id: genId(), email: "mostafa.a@company.com", isActive: true, name: "Mostafa Ahmed", role: "Agent", password: "agentM1", updatedAt: new Date("2025-11-29T17:00:00Z"), supervisorID: supervisors[7]._id },
+       { _id: genId(), email: "ali.mahmoud@company.com", isActive: true, name: "Ali Mahmoud", role: "Agent", password: "agentAli1", updatedAt: new Date("2025-11-30T09:10:00Z"), supervisorID: supervisors[10]._id },
+  { _id: genId(), email: "menna.ahmed@company.com", isActive: true, name: "Menna Ahmed", role: "Agent", password: "agentMenna1", updatedAt: new Date("2025-12-01T10:00:00Z"), supervisorID: supervisors[11]._id },
+  { _id: genId(), email: "ibrahim.sayed@company.com", isActive: false, name: "Ibrahim Sayed", role: "Agent", password: "agentIbrahim1", updatedAt: new Date("2025-12-02T11:30:00Z"), supervisorID: supervisors[12]._id },
+  { _id: genId(), email: "rana.hassan@company.com", isActive: true, name: "Rana Hassan", role: "Senior Agent", password: "agentRana1", updatedAt: new Date("2025-12-03T12:15:00Z"), supervisorID: supervisors[13]._id },
+  { _id: genId(), email: "osama.farouk@company.com", isActive: true, name: "Osama Farouk", role: "Agent", password: "agentOsama1", updatedAt: new Date("2025-12-04T13:45:00Z"), supervisorID: supervisors[14]._id },
+  { _id: genId(), email: "dalia.sherif@company.com", isActive: true, name: "Dalia Sherif", role: "Agent", password: "agentDalia1", updatedAt: new Date("2025-12-05T09:25:00Z"), supervisorID: supervisors[15]._id },
+  { _id: genId(), email: "wael.atef@company.com", isActive: false, name: "Wael Atef", role: "Agent", password: "agentWael1", updatedAt: new Date("2025-12-06T10:50:00Z"), supervisorID: supervisors[16]._id },
+  { _id: genId(), email: "marina.nabil@company.com", isActive: true, name: "Marina Nabil", role: "Agent", password: "agentMarina1", updatedAt: new Date("2025-12-07T14:05:00Z"), supervisorID: supervisors[17]._id },
+  { _id: genId(), email: "ahmed.younes@company.com", isActive: true, name: "Ahmed Younes", role: "Agent", password: "agentYounes1", updatedAt: new Date("2025-12-08T15:40:00Z"), supervisorID: supervisors[18]._id },
+  { _id: genId(), email: "shimaa.kamal@company.com", isActive: true, name: "Shimaa Kamal", role: "Agent", password: "agentShimaa1", updatedAt: new Date("2025-12-09T16:30:00Z"), supervisorID: supervisors[19]._id }
     ];
 
     // Clients (unchanged)
     const clients = [
-      { _id: genId(), email: "client1@example.com", firstName: "Omar", lastName: "Ali", phone: "+201001234567", password: "client1pw", updatedAt: new Date("2025-11-01T09:00:00Z") },
-      { _id: genId(), email: "client2@example.com", firstName: "Mariam", lastName: "Hassan", phone: "+201002345678", password: "client2pw", updatedAt: new Date("2025-11-02T10:00:00Z") },
-      { _id: genId(), email: "client3@example.com", firstName: "Khaled", lastName: "Ibrahim", phone: "+201003456789", password: "client3pw", updatedAt: new Date("2025-11-03T11:00:00Z") },
-      { _id: genId(), email: "client4@example.com", firstName: "Dalia", lastName: "Nour", phone: "+201004567890", password: "client4pw", updatedAt: new Date("2025-11-04T12:00:00Z") },
-      { _id: genId(), email: "client5@example.com", firstName: "Hatem", lastName: "Fekry", phone: "+201005678901", password: "client5pw", updatedAt: new Date("2025-11-05T13:00:00Z") },
-      { _id: genId(), email: "client6@example.com", firstName: "Rania", lastName: "Saeed", phone: "+201006789012", password: "client6pw", updatedAt: new Date("2025-11-06T14:00:00Z") },
-      { _id: genId(), email: "client7@example.com", firstName: "Tamer", lastName: "Gamal", phone: "+201007890123", password: "client7pw", updatedAt: new Date("2025-11-07T15:00:00Z") },
-      { _id: genId(), email: "client8@example.com", firstName: "Lina", lastName: "Youssef", phone: "+201008901234", password: "client8pw", updatedAt: new Date("2025-11-08T16:00:00Z") },
-      { _id: genId(), email: "client9@example.com", firstName: "Walid", lastName: "Hafez", phone: "+201009012345", password: "client9pw", updatedAt: new Date("2025-11-09T17:00:00Z") },
-      { _id: genId(), email: "client10@example.com", firstName: "Heba", lastName: "Nabil", phone: "+201010123456", password: "client10pw", updatedAt: new Date("2025-11-10T18:00:00Z") }
+ { _id: genId(), email: "ahmed.nasser@gmail.com", firstName: "Ahmed", lastName: "Nasser", phone: "+201011234567", password: "clientAhmed1", updatedAt: new Date("2025-11-11T09:00:00Z") },
+  { _id: genId(), email: "sara.ahmed@yahoo.com", firstName: "Sara", lastName: "Ahmed", phone: "+201012345678", password: "clientSara1", updatedAt: new Date("2025-11-12T10:00:00Z") },
+  { _id: genId(), email: "mohamed.elsayed@gmail.com", firstName: "Mohamed", lastName: "Elsayed", phone: "+201013456789", password: "clientMohamed1", updatedAt: new Date("2025-11-13T11:00:00Z") },
+  { _id: genId(), email: "nour.hassan@hotmail.com", firstName: "Nour", lastName: "Hassan", phone: "+201014567890", password: "clientNour1", updatedAt: new Date("2025-11-14T12:00:00Z") },
+  { _id: genId(), email: "karim.fouad@gmail.com", firstName: "Karim", lastName: "Fouad", phone: "+201015678901", password: "clientKarim1", updatedAt: new Date("2025-11-15T13:00:00Z") },
+  { _id: genId(), email: "dina.sherif@yahoo.com", firstName: "Dina", lastName: "Sherif", phone: "+201016789012", password: "clientDina1", updatedAt: new Date("2025-11-16T14:00:00Z") },
+  { _id: genId(), email: "mostafa.ali@gmail.com", firstName: "Mostafa", lastName: "Ali", phone: "+201017890123", password: "clientMostafa1", updatedAt: new Date("2025-11-17T15:00:00Z") },
+  { _id: genId(), email: "hala.mahmoud@hotmail.com", firstName: "Hala", lastName: "Mahmoud", phone: "+201018901234", password: "clientHala1", updatedAt: new Date("2025-11-18T16:00:00Z") },
+  { _id: genId(), email: "youssef.mansour@gmail.com", firstName: "Youssef", lastName: "Mansour", phone: "+201019012345", password: "clientYoussef1", updatedAt: new Date("2025-11-19T17:00:00Z") },
+  { _id: genId(), email: "reem.kamal@yahoo.com", firstName: "Reem", lastName: "Kamal", phone: "+201020123456", password: "clientReem1", updatedAt: new Date("2025-11-20T18:00:00Z") },
+  { _id: genId(), email: "omar.abdelrahman@gmail.com", firstName: "Omar", lastName: "Abdelrahman", phone: "+201021234567", password: "clientOmar1", updatedAt: new Date("2025-11-21T09:30:00Z") },
+  { _id: genId(), email: "salma.atef@hotmail.com", firstName: "Salma", lastName: "Atef", phone: "+201022345678", password: "clientSalma1", updatedAt: new Date("2025-11-22T10:30:00Z") },
+  { _id: genId(), email: "ibrahim.hassan@gmail.com", firstName: "Ibrahim", lastName: "Hassan", phone: "+201023456789", password: "clientIbrahim1", updatedAt: new Date("2025-11-23T11:30:00Z") },
+  { _id: genId(), email: "farah.samy@yahoo.com", firstName: "Farah", lastName: "Samy", phone: "+201024567890", password: "clientFarah1", updatedAt: new Date("2025-11-24T12:30:00Z") },
+  { _id: genId(), email: "adel.shawky@gmail.com", firstName: "Adel", lastName: "Shawky", phone: "+201025678901", password: "clientAdel1", updatedAt: new Date("2025-11-25T13:30:00Z") },
+  { _id: genId(), email: "menna.fathy@hotmail.com", firstName: "Menna", lastName: "Fathy", phone: "+201026789012", password: "clientMenna1", updatedAt: new Date("2025-11-26T14:30:00Z") },
+  { _id: genId(), email: "tarek.saad@gmail.com", firstName: "Tarek", lastName: "Saad", phone: "+201027890123", password: "clientTarek1", updatedAt: new Date("2025-11-27T15:30:00Z") },
+  { _id: genId(), email: "nadia.ragab@yahoo.com", firstName: "Nadia", lastName: "Ragab", phone: "+201028901234", password: "clientNadia1", updatedAt: new Date("2025-11-28T16:30:00Z") },
+  { _id: genId(), email: "hossam.younes@gmail.com", firstName: "Hossam", lastName: "Younes", phone: "+201029012345", password: "clientHossam1", updatedAt: new Date("2025-11-29T17:30:00Z") },
+  { _id: genId(), email: "asmaa.said@hotmail.com", firstName: "Asmaa", lastName: "Said", phone: "+201030123456", password: "clientAsmaa1", updatedAt: new Date("2025-11-30T18:30:00Z") }
     ];
 
     // Action Protocols (steps field fixed)
-    const protocols = [
-      { _id: genId(), agentID: agents[0]._id, steps: "Initial contact with client", type: "call", timestamp: new Date("2025-11-20T09:05:00Z") },
-      { _id: genId(), agentID: agents[1]._id, steps: "Issue escalated to supervisor", type: "email", timestamp: new Date("2025-11-21T10:15:00Z") },
-      { _id: genId(), agentID: agents[2]._id, steps: "Security review conducted", type: "review", timestamp: new Date("2025-11-22T11:30:00Z") },
-      { _id: genId(), agentID: agents[3]._id, steps: "Resolved account error", type: "update", timestamp: new Date("2025-11-23T12:45:00Z") },
-      { _id: genId(), agentID: agents[4]._id, steps: "Follow-up call with client", type: "call", timestamp: new Date("2025-11-24T13:00:00Z") },
-      { _id: genId(), agentID: agents[5]._id, steps: "Uploaded missing documents", type: "upload", timestamp: new Date("2025-11-25T14:20:00Z") },
-      { _id: genId(), agentID: agents[6]._id, steps: "Completed onboarding meeting", type: "meeting", timestamp: new Date("2025-11-26T15:40:00Z") },
-      { _id: genId(), agentID: agents[7]._id, steps: "Completed account review", type: "review", timestamp: new Date("2025-11-27T16:10:00Z") },
-      { _id: genId(), agentID: agents[8]._id, steps: "Performed security audit", type: "audit", timestamp: new Date("2025-11-28T17:25:00Z") },
-      { _id: genId(), agentID: agents[9]._id, steps: "Finalized account closure", type: "close", timestamp: new Date("2025-11-29T18:35:00Z") }
-    ];
+    const protocols =[
+  {
+    _id: genId(),
+    agentID: agents[0]._id,
+    type: "Connection Issue",
+    steps: "Verified client account and service area\nChecked ISP outage monitoring dashboard\nReset client port from core router\nConfirmed internet connectivity with client",
+    timestamp: new Date("2025-12-02T09:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[1]._id,
+    type: "Slow Internet Speed",
+    steps: "Ran remote line quality test\nReviewed bandwidth usage statistics\nReapplied correct speed profile\nGuided client to reboot router and retest speed",
+    timestamp: new Date("2025-12-02T09:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[2]._id,
+    type: "Router Malfunction",
+    steps: "Verified router model and firmware version\nPushed firmware update remotely\nReset router configuration from ISP system\nConfirmed stable connection",
+    timestamp: new Date("2025-12-02T10:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[3]._id,
+    type: "Authentication Failure",
+    steps: "Checked PPPoE credentials in ISP system\nReset authentication session\nRegenerated client login credentials\nConfirmed successful reconnection",
+    timestamp: new Date("2025-12-02T10:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[4]._id,
+    type: "Billing Discrepancy",
+    steps: "Reviewed invoices and payment history\nIdentified billing error\nApplied billing adjustment or refund\nNotified client of resolution",
+    timestamp: new Date("2025-12-02T11:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[5]._id,
+    type: "Service Suspension",
+    steps: "Confirmed suspension reason in system\nValidated payment or required documents\nReactivated service from ISP control panel\nTested line availability",
+    timestamp: new Date("2025-12-02T11:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[6]._id,
+    type: "Packet Loss",
+    steps: "Performed end-to-end packet loss diagnostics\nIdentified faulty network segment\nRerouted traffic through stable path\nMonitored connection stability",
+    timestamp: new Date("2025-12-02T12:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[7]._id,
+    type: "High Latency",
+    steps: "Analyzed routing paths to major destinations\nOptimized routing tables\nCleared congested network routes\nConfirmed latency improvement",
+    timestamp: new Date("2025-12-02T12:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[8]._id,
+    type: "DNS Resolution Issue",
+    steps: "Tested DNS resolution from ISP servers\nSwitched client to alternative ISP DNS\nFlushed DNS cache remotely\nVerified website accessibility",
+    timestamp: new Date("2025-12-02T13:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[9]._id,
+    type: "Blocked IP Address",
+    steps: "Checked IP blacklist status\nReleased and renewed client IP address\nAssigned new public IP\nTested external connectivity",
+    timestamp: new Date("2025-12-02T13:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[10]._id,
+    type: "Service Upgrade Request",
+    steps: "Confirmed requested service upgrade\nApplied new speed and quota profile\nRestarted client session\nVerified upgraded internet speed",
+    timestamp: new Date("2025-12-02T14:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[11]._id,
+    type: "Service Downgrade Request",
+    steps: "Validated downgrade request\nAdjusted billing cycle accordingly\nApplied downgraded service profile\nInformed client of new plan details",
+    timestamp: new Date("2025-12-02T14:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[12]._id,
+    type: "Frequent Disconnections",
+    steps: "Reviewed connection logs\nDetected line instability\nApplied stability profile\nMonitored reconnection frequency",
+    timestamp: new Date("2025-12-02T15:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[13]._id,
+    type: "Installation Delay",
+    steps: "Checked installation schedule\nCoordinated with field technician\nRescheduled installation appointment\nConfirmed new date with client",
+    timestamp: new Date("2025-12-02T15:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[14]._id,
+    type: "Physical Line Fault",
+    steps: "Ran physical line diagnostics\nDetected signal degradation\nOpened repair ticket for field team\nConfirmed line repair completion",
+    timestamp: new Date("2025-12-02T16:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[15]._id,
+    type: "Account Information Update",
+    steps: "Verified client identity\nUpdated requested account information\nSynchronized changes across systems\nConfirmed update with client",
+    timestamp: new Date("2025-12-02T16:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[16]._id,
+    type: "Email Service Issue",
+    steps: "Checked ISP mail server status\nReset client mailbox\nUpdated email configuration\nTested sending and receiving emails",
+    timestamp: new Date("2025-12-02T17:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[17]._id,
+    type: "VPN Access Problem",
+    steps: "Reviewed VPN traffic policy\nWhitelisted required VPN ports\nAdjusted firewall rules\nConfirmed VPN connectivity",
+    timestamp: new Date("2025-12-02T17:30:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[18]._id,
+    type: "Service Termination Request",
+    steps: "Confirmed service termination request\nDisabled client service access\nFinalized billing and account closure\nSent termination confirmation",
+    timestamp: new Date("2025-12-02T18:00:00Z")
+  },
+  {
+    _id: genId(),
+    agentID: agents[19]._id,
+    type: "Security Breach",
+    steps: "Locked affected account\nReset all client credentials\nScanned for abnormal activity\nRestored service with enhanced security",
+    timestamp: new Date("2025-12-02T18:30:00Z")
+  }
+]
 
     // Cases — adapted: remove logs, add recommendedActionProtocol
-    const cases = [
-      {
-        _id: genId(),
-        assignedAgentID: agents[0]._id,
-        clientID: clients[0]._id,
-        case_description: "Payment failed but amount was debited.",
-        case_status: "solved",
-        recommendedActionProtocol: protocols[0]._id,
-        createdAt: new Date("2025-11-20T08:30:00Z"),
-        updatedAt: new Date("2025-11-20T09:10:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[1]._id,
-        clientID: clients[1]._id,
-        case_description: "Account verification issue.",
-        case_status: "pending",
-        recommendedActionProtocol: protocols[1]._id,
-        createdAt: new Date("2025-11-21T09:00:00Z"),
-        updatedAt: new Date("2025-11-21T10:20:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[2]._id,
-        clientID: clients[2]._id,
-        case_description: "Suspicious login activity detected.",
-        case_status: "pending",
-        recommendedActionProtocol: protocols[2]._id,
-        createdAt: new Date("2025-11-22T10:00:00Z"),
-        updatedAt: new Date("2025-11-22T11:45:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[3]._id,
-        clientID: clients[3]._id,
-        case_description: "Incorrect refund processing.",
-        case_status: "solved",
-        recommendedActionProtocol: protocols[3]._id,
-        createdAt: new Date("2025-11-23T11:00:00Z"),
-        updatedAt: new Date("2025-11-23T12:50:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: null,
-        clientID: clients[4]._id,
-        case_description: "Incorrect billing amount shown.",
-        case_status: "unsolved",
-        recommendedActionProtocol: protocols[4]._id,
-        createdAt: new Date("2025-11-24T12:00:00Z"),
-        updatedAt: new Date("2025-11-24T13:05:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[5]._id,
-        clientID: clients[5]._id,
-        case_description: "Missing KYC documents.",
-        case_status: "pending",
-        recommendedActionProtocol: protocols[5]._id,
-        createdAt: new Date("2025-11-25T13:30:00Z"),
-        updatedAt: new Date("2025-11-25T14:25:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[6]._id,
-        clientID: clients[6]._id,
-        case_description: "Onboarding delay reported.",
-        case_status: "pending",
-        recommendedActionProtocol: protocols[6]._id,
-        createdAt: new Date("2025-11-26T14:10:00Z"),
-        updatedAt: new Date("2025-11-26T15:05:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[7]._id,
-        clientID: clients[7]._id,
-        case_description: "Client requested account activity review.",
-        case_status: "solved",
-        recommendedActionProtocol: protocols[7]._id,
-        createdAt: new Date("2025-11-27T15:00:00Z"),
-        updatedAt: new Date("2025-11-27T16:20:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[8]._id,
-        clientID: clients[8]._id,
-        case_description: "Password reset not functioning.",
-        case_status: "solved",
-        recommendedActionProtocol: protocols[8]._id,
-        createdAt: new Date("2025-11-28T16:10:00Z"),
-        updatedAt: new Date("2025-11-28T17:30:00Z")
-      },
-      {
-        _id: genId(),
-        assignedAgentID: agents[9]._id,
-        clientID: clients[9]._id,
-        case_description: "Final billing confirmation.",
-        case_status: "solved",
-        recommendedActionProtocol: protocols[9]._id,
-        createdAt: new Date("2025-11-29T17:20:00Z"),
-        updatedAt: new Date("2025-11-29T18:40:00Z")
-      }
-    ];
+    const cases =[
+  {
+    _id: genId(),
+    assignedAgentID: agents[0]._id,
+    clientID: clients[0]._id,
+    case_description: "Internet connection completely down since morning.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[0]._id,
+    createdAt: new Date("2025-12-01T08:00:00Z"),
+    updatedAt: new Date("2025-12-01T09:10:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[1]._id,
+    clientID: clients[1]._id,
+    case_description: "Internet speed is much slower than subscribed plan.",
+    case_status: "pending",
+    recommendedActionProtocol: protocols[1]._id,
+    createdAt: new Date("2025-12-01T09:00:00Z"),
+    updatedAt: new Date("2025-12-01T09:45:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: null,
+    clientID: clients[2]._id,
+    case_description: "Client reports random disconnections throughout the day.",
+    case_status: "unsolved",
+    recommendedActionProtocol:null,
+    createdAt: new Date("2025-12-01T10:00:00Z"),
+    updatedAt: new Date("2025-12-01T10:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[3]._id,
+    clientID: clients[3]._id,
+    case_description: "Router not responding after power outage.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[2]._id,
+    createdAt: new Date("2025-12-01T10:30:00Z"),
+    updatedAt: new Date("2025-12-01T11:20:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[4]._id,
+    clientID: clients[4]._id,
+    case_description: "Unable to authenticate internet session.",
+    case_status: "pending",
+    createdAt: new Date("2025-12-01T11:00:00Z"),
+    updatedAt: new Date("2025-12-01T11:30:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[5]._id,
+    clientID: clients[5]._id,
+    case_description: "Incorrect monthly bill amount displayed.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[4]._id,
+    createdAt: new Date("2025-12-01T11:45:00Z"),
+    updatedAt: new Date("2025-12-01T12:30:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: null,
+    clientID: clients[6]._id,
+    case_description: "Service installation appointment not scheduled.",
+    case_status: "unsolved",
+    recommendedActionProtocol:null,
+    createdAt: new Date("2025-12-01T12:00:00Z"),
+    updatedAt: new Date("2025-12-01T12:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[7]._id,
+    clientID: clients[7]._id,
+    case_description: "High latency affecting online gaming.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[7]._id,
+    createdAt: new Date("2025-12-01T12:30:00Z"),
+    updatedAt: new Date("2025-12-01T13:20:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[8]._id,
+    clientID: clients[8]._id,
+    case_description: "Websites not opening due to DNS issues.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[8]._id,
+    createdAt: new Date("2025-12-01T13:00:00Z"),
+    updatedAt: new Date("2025-12-01T13:40:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[9]._id,
+    clientID: clients[9]._id,
+    case_description: "Client IP address appears blocked externally.",
+    case_status: "pending",
+    recommendedActionProtocol: protocols[9]._id,
+    createdAt: new Date("2025-12-01T13:30:00Z"),
+    updatedAt: new Date("2025-12-01T14:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: null,
+    clientID: clients[10]._id,
+    case_description: "Request to upgrade internet package.",
+    case_status: "unsolved",
+    recommendedActionProtocol:null,
+    createdAt: new Date("2025-12-01T14:00:00Z"),
+    updatedAt: new Date("2025-12-01T14:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[11]._id,
+    clientID: clients[11]._id,
+    case_description: "Request to downgrade internet package.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[11]._id,
+    createdAt: new Date("2025-12-01T14:30:00Z"),
+    updatedAt: new Date("2025-12-01T15:10:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[12]._id,
+    clientID: clients[12]._id,
+    case_description: "Internet connection drops multiple times daily.",
+    case_status: "pending",
+    recommendedActionProtocol: protocols[12]._id,
+    createdAt: new Date("2025-12-01T15:00:00Z"),
+    updatedAt: new Date("2025-12-01T15:40:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[13]._id,
+    clientID: clients[13]._id,
+    case_description: "Delayed home internet installation.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[13]._id,
+    createdAt: new Date("2025-12-01T15:30:00Z"),
+    updatedAt: new Date("2025-12-01T16:20:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: null,
+    clientID: clients[14]._id,
+    case_description: "Physical line suspected to be damaged.",
+    case_status: "unsolved",
+    recommendedActionProtocol:null,
+    createdAt: new Date("2025-12-01T16:00:00Z"),
+    updatedAt: new Date("2025-12-01T16:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[15]._id,
+    clientID: clients[15]._id,
+    case_description: "Client requested update of personal account details.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[15]._id,
+    createdAt: new Date("2025-12-01T16:30:00Z"),
+    updatedAt: new Date("2025-12-01T17:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[16]._id,
+    clientID: clients[16]._id,
+    case_description: "ISP email service not sending messages.",
+    case_status: "pending",
+    recommendedActionProtocol: protocols[16]._id,
+    createdAt: new Date("2025-12-01T17:00:00Z"),
+    updatedAt: new Date("2025-12-01T17:30:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[17]._id,
+    clientID: clients[17]._id,
+    case_description: "VPN connection blocked on ISP network.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[17]._id,
+    createdAt: new Date("2025-12-01T17:30:00Z"),
+    updatedAt: new Date("2025-12-01T18:10:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: null,
+    clientID: clients[18]._id,
+    case_description: "Request to terminate internet service.",
+    case_status: "unsolved",
+    recommendedActionProtocol:null,
+    createdAt: new Date("2025-12-01T18:00:00Z"),
+    updatedAt: new Date("2025-12-01T18:00:00Z")
+  },
+  {
+    _id: genId(),
+    assignedAgentID: agents[19]._id,
+    clientID: clients[19]._id,
+    case_description: "Client reports possible account security breach.",
+    case_status: "solved",
+    recommendedActionProtocol: protocols[19]._id,
+    createdAt: new Date("2025-12-01T18:30:00Z"),
+    updatedAt: new Date("2025-12-01T19:10:00Z")
+  }
+];
 
-    // Logs (NEW collection!)
-    const logs = [
-      {
-        _id: genId(),
-        caseID: cases[0]._id,
-        performedBy: agents[0]._id,
-        protocolID: protocols[0]._id,
-        timestamp: new Date("2025-11-20T09:05:00Z")
-      },
-      {
-        _id: genId(),
-        caseID: cases[3]._id,
-        performedBy: agents[3]._id,
-        protocolID: protocols[3]._id,
-        timestamp: new Date("2025-11-23T12:45:00Z")
-      },
-      {
-        _id: genId(),
-        caseID: cases[7]._id,
-        performedBy: agents[7]._id,
-        protocolID: protocols[7]._id,
-        timestamp: new Date("2025-11-27T16:10:00Z")
-      },
-      {
-        _id: genId(),
-        caseID: cases[8]._id,
-        performedBy: agents[8]._id,
-        protocolID: protocols[8]._id,
-        timestamp: new Date("2025-11-28T17:25:00Z")
-      },
-      {
-        _id: genId(),
-        caseID: cases[9]._id,
-        performedBy: agents[9]._id,
-        protocolID: protocols[9]._id,
-        timestamp: new Date("2025-11-29T18:35:00Z")
-      }
-    ];
+
+// Logs
+const logs = [
+  {
+    _id: genId(),
+    caseID: cases[0]._id,
+    performedBy: agents[0]._id,
+    protocolID: protocols[0]._id,
+    timestamp: new Date("2025-12-01T09:10:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[3]._id,
+    performedBy: agents[3]._id,
+    protocolID: protocols[2]._id,
+    timestamp: new Date("2025-12-01T11:20:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[5]._id,
+    performedBy: agents[5]._id,
+    protocolID: protocols[4]._id,
+    timestamp: new Date("2025-12-01T12:30:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[7]._id,
+    performedBy: agents[7]._id,
+    protocolID: protocols[7]._id,
+    timestamp: new Date("2025-12-01T13:20:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[8]._id,
+    performedBy: agents[8]._id,
+    protocolID: protocols[8]._id,
+    timestamp: new Date("2025-12-01T13:40:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[11]._id,
+    performedBy: agents[11]._id,
+    protocolID: protocols[11]._id,
+    timestamp: new Date("2025-12-01T15:10:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[13]._id,
+    performedBy: agents[13]._id,
+    protocolID: protocols[13]._id,
+    timestamp: new Date("2025-12-01T16:20:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[15]._id,
+    performedBy: agents[15]._id,
+    protocolID: protocols[15]._id,
+    timestamp: new Date("2025-12-01T17:00:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[17]._id,
+    performedBy: agents[17]._id,
+    protocolID: protocols[17]._id,
+    timestamp: new Date("2025-12-01T18:10:00Z")
+  },
+  {
+    _id: genId(),
+    caseID: cases[19]._id,
+    performedBy: agents[19]._id,
+    protocolID: protocols[19]._id,
+    timestamp: new Date("2025-12-01T19:10:00Z")
+  }
+];
+
 
     // ------------------------
     // INSERT DOCUMENTS
@@ -334,15 +651,36 @@ const clientSchema = new Schema({
 
     console.log("All documents inserted successfully.");
 
+    //delete all existing indexes
+await dropAllIndexesSafely(Supervisor, "supervisors");
+await dropAllIndexesSafely(Agent, "agents");
+await dropAllIndexesSafely(Client, "clients");
+await dropAllIndexesSafely(ActionProtocol, "action_protocols");
+await dropAllIndexesSafely(Case, "cases");
+await dropAllIndexesSafely(Log, "logs");
+
+
+    //ensure indexes
+await Supervisor.syncIndexes();
+await Agent.syncIndexes();
+await Client.syncIndexes();
+await ActionProtocol.syncIndexes();
+await Case.syncIndexes();
+await Log.syncIndexes();
+
+
     // ------------------------
-    // CRUD EXAMPLES (minimal changes)
+    // CRUD EXAMPLES
     // ------------------------
 
     const solvedCases = await Case.find({ case_status: "solved" });
     console.log(`Solved cases found: ${solvedCases.length}`);
 
+    const headSupervisors = await Supervisor.find({ role: "Head Supervisor" });
+    console.log(`Head supervisors: ${headSupervisors}`);
+
     // UPDATE
-const result = await Agent.updateOne(
+let result = await Agent.updateOne(
   { email: "ahmed.salem@company.com" },
   { $set: { password: "ahmedpass2" } }
 );
@@ -352,17 +690,44 @@ if (result.matchedCount === 0) {
 } else if (result.modifiedCount === 0) {
   console.log("Password was the same, no change");
 } else {
-  console.log("Password updated successfully");
+  console.log("Password updated successfully-New password:");
 }
 
-    // DELETE inactive agent
-    const deleted = await Agent.deleteOne({ isActive: false });
+result = await Client.updateOne(
+  { email: "sara.ahmed@yahoo.com" },
+  { $set: { firstName: "Sarsoor" } }
+);
+
+if (result.matchedCount === 0) {
+  console.log("No clients found with that email");
+} else if (result.modifiedCount === 0) {
+  console.log("Name was the same, no change");
+} else {
+  console.log("Name updated successfully-New password:");
+}
+result = await Client.findOne({email:"sara.ahmed@yahoo.com"})
+if(!result){
+  console.log("Client not found");
+}
+else{
+  console.log("Updated client: ",result);
+}
+
+    // DELETE an inactive agent
+    let deleted = await Agent.deleteOne({ isActive: false });
     console.log(`Deleted ${deleted.deletedCount} inactive agent.`);
+
+    //delete a case
+    deleted = await Case.deleteOne({_id:cases[18]._id});
+    const deletedCase = Case.findById({_id:cases[18]._id});
+    if(!deletedCase){
+      console.log("Case deleted successfully");
+    }
+
 
     // ------------------------
     // AGGREGATION
     // ------------------------
-
     const solvedPerAgent = await Log.aggregate([
       { $lookup: { from: "agents", localField: "performedBy", foreignField: "_id", as: "agent" } },
       { $unwind: "$agent" },
@@ -375,13 +740,12 @@ if (result.matchedCount === 0) {
     const activeAgentsByDept = await Agent.aggregate([
       { $match: { isActive: true } },
       { $group: { _id: "$role", count: { $sum: 1 } } }
-    ]);
-    //count agents per department
+    ]);//count agents per role
 
     console.log("Active agents by role:", activeAgentsByDept);
 
    
-    const casesPerClient = await Case.aggregate([  {
+  const casesPerClient = await Case.aggregate([  {
     $group: {
       _id: "$clientID",
       totalCases: { $sum: 1 },
@@ -416,7 +780,7 @@ if (result.matchedCount === 0) {
 console.log("Cases per customer:", casesPerClient); //finding number of cases per client
 
 
-    const topIssues = await Case.aggregate([
+const topIssues = await Case.aggregate([
   {
     $lookup: {
       from: "action_protocols",
@@ -447,6 +811,7 @@ console.log("Cases per customer:", casesPerClient); //finding number of cases pe
 
 console.log("Top issue types:", topIssues); //find issue types with most action protocols
 
+
 //////validation//////
 await mongoose.connection.db.command({
   collMod: "clients",
@@ -463,7 +828,7 @@ await mongoose.connection.db.command({
         lastName: { bsonType: "string" },
         phone: {
           bsonType: "string",
-          pattern: "^(\\+20)?\\d{11}$"
+          pattern: "^(\\+2)?\\d{11}$"
         },
         password: { bsonType: "string", minLength: 6 },
         updatedAt: { bsonType: ["date", "null"] }
@@ -474,7 +839,7 @@ await mongoose.connection.db.command({
 });
 
 
-    console.log("All done. Closing.");
+console.log("All done. Closing.");
   } catch (err) {
     console.error("Error:", err);
   } finally {
