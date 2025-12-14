@@ -152,8 +152,11 @@ async function assignAgent() {
           <p><strong>Agent:</strong> {log.agentName}</p>
           <p><strong>Email:</strong> {log.agentEmail}</p>
           <p><strong>Action Type:</strong> {log.actionType}</p>
-          <p><strong>Protocol:</strong> {log.actionProtocol}</p>
+          <br></br>
+          <p><strong>Protocol:</strong></p>
+          <p className="protocol-steps"> {log.actionProtocol}</p>
           <p>
+            <br></br>
             <strong>Time:</strong>{" "}
             {new Date(log.timestamp).toLocaleString()}
           </p>

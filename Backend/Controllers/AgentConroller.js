@@ -3,6 +3,7 @@ import Case from "../Models/Case.js";
 import bcrypt from "bcrypt"; 
 import mongoose from "mongoose";
 import Supervisor from "../Models/Supervisor.js";
+import ActionProtoclol from "../Models/ActionProtocol.js";
 import Client from "../Models/Client.js";
 
 export const getAllAgents = async (req, res) => {
@@ -128,11 +129,10 @@ res.status(201).json(newAgent);
 
 }
 // Delete agent and update assigned cases
-// Delete agent and update assigned cases
 export const deleteAgent = async (req, res) => {
     try {
         const { id } = req.params;
-
+        console.log("Delete agent route hit with ID:", id);
         // Find the agent
         const agent = await Agent.findById(id);
         if (!agent) {
@@ -146,19 +146,21 @@ export const deleteAgent = async (req, res) => {
             { assignedAgentID: id },
             { 
                 $set: { assignedAgentID: null },
-                $currentDate: {}, // optional: for updatedAt if you have timestamp
+                $currentDate: {}, 
             }
         );
 
-        console.log(`Updated ${updatedCases.modifiedCount} cases to have assignedAgentID = null`);
-
+        const UpdatedActionProtocols = await ActionProtoclol.updateMany(
+          { agentID: id ,case_status: { $ne: "solved" } },
+          { $set: { agentID: null } }
+      );
         // Update case_status from "pending" to "unsolved"
         const statusUpdatedCases = await Case.updateMany(
             { assignedAgentID: null, case_status: "pending" },
             { $set: { case_status: "unsolved" } }
         );
 
-        console.log(`Updated ${statusUpdatedCases.modifiedCount} cases from pending to unsolved`);
+       // console.log(`Updated ${statusUpdatedCases.modifiedCount} cases from pending to unsolved`);
 
         // Delete the agent
         const result = await Agent.deleteOne({ _id: id });
