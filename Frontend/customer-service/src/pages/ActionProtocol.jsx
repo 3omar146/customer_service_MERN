@@ -41,7 +41,6 @@ export default function ActionProtocol() {
             );
 
             console.log("Protocol selected:", protocolId);
-            alert("Protocol selected successfully!");
             navigate("/agent/dashboard");
 
         } catch (error) {
@@ -52,7 +51,6 @@ export default function ActionProtocol() {
     const handleCreateProtocol = async () => {
         try {
             if (!newType.trim() || !newSteps.trim()) {
-                alert("Please fill all fields");
                 return;
             }
 
@@ -74,7 +72,6 @@ export default function ActionProtocol() {
             setNewSteps("");
             setShowForm(false);
 
-            alert("New Action Protocol Created!");
 
         } catch (error) {
             console.error("Error creating action protocol:", error);
