@@ -6,14 +6,16 @@ import {
   getLogsMadeByagent,
   createLog,
   updateLog,
-  deleteLog
+  deleteLog,
+  getLogByCase
 } from "../Controllers/LogController.js";
 
 const router = express.Router();
 
 // GET all logs
 router.get("/", getAllLogs);
-
+//get log by case
+router.get("/case/:caseID",getLogByCase)
 // GET log by ID
 router.get("/:id", getLogById);
 

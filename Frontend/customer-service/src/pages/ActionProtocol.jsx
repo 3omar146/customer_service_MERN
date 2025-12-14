@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import "../Style/ActionProtocol.css";
+import "../Style/actionprotocol.css";
 
 export default function ActionProtocol() {
     const { caseId } = useParams();
@@ -10,11 +10,17 @@ export default function ActionProtocol() {
     const [protocols, setProtocols] = useState([]);
     const [loading, setLoading] = useState(true);
 
+
+    const [showForm, setShowForm] = useState(false);
+    const [newType, setNewType] = useState("");
+    const [newSteps, setNewSteps] = useState("");
+
     useEffect(() => {
         async function fetchProtocols() {
             try {
                 const res = await axios.get(
-                    `${import.meta.env.VITE_BACKEND_API_URL}/protocols`
+                    `${import.meta.env.VITE_BACKEND_API_URL}/protocols`,
+                    {withCredentials: true }
                 );
                 setProtocols(res.data);
             } catch (error) {
@@ -26,7 +32,6 @@ export default function ActionProtocol() {
         fetchProtocols();
     }, []);
 
-    // ⭐ FIXED: Correctly updates case
     const handleSelectProtocol = async (protocolId) => {
         try {
             await axios.patch(
@@ -34,6 +39,7 @@ export default function ActionProtocol() {
                 { recommendedActionProtocol: protocolId },
                 { withCredentials: true }
             );
+
             console.log("Protocol selected:", protocolId);
             alert("Protocol selected successfully!");
             navigate("/agent/dashboard");
@@ -43,9 +49,73 @@ export default function ActionProtocol() {
         }
     };
 
+    const handleCreateProtocol = async () => {
+        try {
+            if (!newType.trim() || !newSteps.trim()) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            const res = await axios.post(
+                `${import.meta.env.VITE_BACKEND_API_URL}/protocols`,
+                {
+
+                    type: newType,
+                    steps: newSteps,
+                },
+                { withCredentials: true }
+            );
+
+            console.log("Action protocol created:", res.data);
+
+            setProtocols((prev) => [...prev, res.data]);
+
+            setNewType("");
+            setNewSteps("");
+            setShowForm(false);
+
+            alert("New Action Protocol Created!");
+
+        } catch (error) {
+            console.error("Error creating action protocol:", error);
+        }
+    };
+
     return (
         <div className="protocol-page">
-            <h2>Available Action Protocols for Case: {caseId}</h2>
+            <h2>Available Action Protocols for This Case</h2>
+
+            <div className="center-button">
+                <button
+                    className="add-protocol-btn"
+                    onClick={() => setShowForm(!showForm)}
+                >
+                    Add Action Protocol
+                </button>
+            </div>
+
+
+
+            {showForm && (
+                <div className="new-protocol-form">
+                    <input
+                        type="text"
+                        placeholder="Protocol Type"
+                        value={newType}
+                        onChange={(e) => setNewType(e.target.value)}
+                    />
+
+                    <textarea
+                        placeholder="Protocol Steps"
+                        value={newSteps}
+                        onChange={(e) => setNewSteps(e.target.value)}
+                    />
+
+                    <button className="create-btn" onClick={handleCreateProtocol}>
+                        Create Protocol
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <p>Loading...</p>

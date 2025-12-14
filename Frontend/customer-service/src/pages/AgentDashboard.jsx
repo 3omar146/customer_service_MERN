@@ -47,6 +47,7 @@ export default function AgentDashboard() {
   };
   const handleMarkSolved = async (caseId) => {
     try {
+      alert("ana roht el functioin ")
       await axios.patch(
         `${import.meta.env.VITE_BACKEND_API_URL}/cases/solve/${caseId}`,
         {},
@@ -109,4 +110,3 @@ export default function AgentDashboard() {
     </>
   );
 };
-

@@ -23,8 +23,11 @@ const router = express.Router();
 
 // AGENT RELATED
 router.get("/assigned/:agentId", getCasesAssignedToAgent);
-router.get("/pending/:agentId", auth, getPendingCasesByAgent);
+
 router.get("/assigned/", auth, getCasesAssignedToSpecificAgent);
+router.get("/pending/:agentId",auth,getPendingCasesByAgent);
+
+
 router.get("/solved/:agentId", getSolvedCasesByAgent);
 router.get("/solved", auth, getSolvedCasesBySpecificAgent);
 router.patch("/assign/:caseId", auth, assignCaseToAgent);
@@ -33,16 +36,18 @@ router.patch("/unassign/:caseId/agent/:agentId", unassignCaseFromAgent);
 
 // CASE STATUS
 router.get("/unassigned", getAllUnassignedCases);
-router.patch("/solve/:id", solveCase);
+router.patch("/solve/:id",auth, solveCase);
 
 // SUPERVISOR DASHBOARD
 router.get("/supervisor", auth, getCasesForSupervisor);
 router.get("/supervisor/report", auth, getCasesReport);
 
 // CLIENT + ADMIN USAGE
-router.get("/", getAllCases);
+router.get("/",auth ,getAllCases);
 router.get("/:id", getCaseById);
 router.post("/", createCase);
 router.patch("/:id", auth, updateCaseById);
+router.post("/",auth, createCase);
+router.put("/:id", updateCaseById);
 
 export default router;

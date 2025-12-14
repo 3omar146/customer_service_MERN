@@ -24,10 +24,26 @@ function ProfilePage() {
 
   const [updatedData, setUpdatedData] = useState({});
 
+  // Human-friendly fields with backend keys
   const fieldMap = {
-    client: ["firstName", "lastName", "email", "phone"],
-    agent: ["name", "email", "role"],
-    supervisor: ["name", "email", "role"]
+    client: [
+      { key: "firstName", label: "First Name" },
+      { key: "lastName", label: "Last Name" },
+      { key: "email", label: "Email" },
+      { key: "phone", label: "Phone" }
+    ],
+
+    agent: [
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "role", label: "Role" }
+    ],
+
+    supervisor: [
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "role", label: "Role" }
+    ]
   };
 
   // Load user
@@ -41,8 +57,9 @@ function ProfilePage() {
       const usr = res.data;
       setUser(usr);
 
+      // initialize edit form
       const initial = {};
-      fieldMap[type].forEach((f) => (initial[f] = usr[f] || ""));
+      fieldMap[type].forEach(({ key }) => (initial[key] = usr[key] || ""));
       setUpdatedData(initial);
 
     } catch (err) {
@@ -61,7 +78,7 @@ function ProfilePage() {
     e.preventDefault();
 
     try {
-      //ALWAYS UPDATE NORMAL FIELDS
+      // ALWAYS UPDATE NORMAL FIELDS
       const res1 = await axios.patch(
         `${import.meta.env.VITE_BACKEND_API_URL}/user`,
         updatedData,
@@ -70,7 +87,7 @@ function ProfilePage() {
 
       let updatedUser = res1.data.user;
 
-      //OPTIONAL PASSWORD UPDATE
+      // OPTIONAL PASSWORD UPDATE
       if (changePassword) {
         await axios.patch(
           `${import.meta.env.VITE_BACKEND_API_URL}/user/password`,
@@ -104,9 +121,9 @@ function ProfilePage() {
         {/* ---------------- VIEW MODE ---------------- */}
         {!editMode ? (
           <div className="profile-box">
-            {fieldMap[type].map((f) => (
-              <p className="info" key={f}>
-                <strong>{f}:</strong> {String(user[f])}
+            {fieldMap[type].map(({ key, label }) => (
+              <p className="info" key={key}>
+                <strong>{label}:</strong> {String(user[key])}
               </p>
             ))}
 
@@ -119,10 +136,11 @@ function ProfilePage() {
                 className="logout-btn"
                 onClick={async () => {
                   await axios.post(
-                    `${import.meta.env.VITE_BACKEND_API_URL}/logout`,
+                    `${import.meta.env.VITE_BACKEND_API_URL}/authentication/logout`,
                     {},
                     { withCredentials: true }
                   );
+
                   navigate("/login");
                 }}
               >
@@ -133,28 +151,40 @@ function ProfilePage() {
         ) : (
           /* ---------------- EDIT MODE ---------------- */
           <form className="profile-form" onSubmit={handleSubmit}>
-            {fieldMap[type].map((f) => {
-  const isReadOnly = (f === "role");
 
-      return (
-        <input
-          key={f}
-          type="text"
-          placeholder={f}
-          value={updatedData[f]}
-          disabled={isReadOnly}         
-          style={isReadOnly ? { background: "#eee", cursor: "not-allowed" } : {}}
-          onChange={(e) =>
-            !isReadOnly &&
-            setUpdatedData({ ...updatedData, [f]: e.target.value })
-          }
-        />
-      );
-    })}
+            {/* Editable fields */}
+            {fieldMap[type].map(({ key, label }) => {
+              const isReadOnly = key === "role";
 
+              return (
+                <input
+                  key={key}
+                  type="text"
+                  placeholder={label}
+                  value={updatedData[key]}
+                  disabled={isReadOnly}
+                  style={
+                    isReadOnly
+                      ? { background: "#eee", cursor: "not-allowed" }
+                      : {}
+                  }
+                  onChange={(e) =>
+                    !isReadOnly &&
+                    setUpdatedData({ ...updatedData, [key]: e.target.value })
+                  }
+                />
+              );
+            })}
 
             {/*  Change password checkbox */}
-            <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginBottom: "12px"
+              }}
+            >
               <input
                 type="checkbox"
                 checked={changePassword}
@@ -163,7 +193,7 @@ function ProfilePage() {
               Change Password
             </label>
 
-            {/* ➤ Password fields appear ONLY if checkbox is checked */}
+            {/* Password fields appear ONLY if checkbox is checked */}
             {changePassword && (
               <>
                 {/* Old Password */}

@@ -1,69 +1,234 @@
+/* ================================================
+   MAIN LAYOUT — Matches Supervisor Dashboard
+================================================ */
+
 .client-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
   min-height: 100vh;
-  padding: 30px;
-  background: #ffffff;
-  align-items: center;
-}
-
-.modal-select {
-  padding: 12px;
   width: 100%;
-  border: 2px solid #90ee90;
-  border-radius: 10px;
-  background: #f8fff8;
-  font-size: 15px;
-  margin-bottom: 10px;
+  padding: 40px;
+  background-color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-.client-header {
-  text-align: center;
+/* ================================================
+   TOP ROW (Filters + Search + Buttons)
+================================================ */
+
+.client-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
   margin-bottom: 25px;
+  position: relative;
+}
+
+/* Styled select menus (same as supervisor) */
+.client-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid #90ee90;
+  background-color: #f7fff7;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.client-select:focus {
+  border-color: #76c776;
+  outline: none;
+}
+
+/* Search bar */
+.client-search {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid #90ee90;
+  background-color: #ffffff;
+  font-size: 14px;
+  width: 220px;
+  transition: 0.2s ease;
+}
+
+.client-search:focus {
+  border-color: #76c776;
+}
+
+/* ================================================
+   BUTTONS — Matches Supervisor
+================================================ */
+
+.client-btn {
+  padding: 9px 15px;
+  border: none;
+  border-radius: 6px;
+  background-color: #90ee90;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.client-btn:hover:not(:disabled) {
+  background-color: #76c776;
+  transform: translateY(-2px);
+}
+
+/* Disabled styling */
+.client-btn:disabled,
+.disabled-btn {
+  background-color: #cfcfcf !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  transform: none !important;
+}
+
+/* ================================================
+   TABLE WRAPPER — EXACT MATCH TO SUPERVISOR
+================================================ */
+
+.client-table {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px;
+  border: 2px solid #90ee90;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* ================================================
+   MODALS (Create + Edit) — Matches Supervisor
+================================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 10px;
+}
+
+.modal-box {
+  background: #ffffff;
+  padding: 28px 30px;
+  border-radius: 14px;
+  width: 420px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+}
+
+.modal-box h3 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.modal-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 2px solid #90ee90;
+  background: #f7fff7;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+
+.modal-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+  border-color: #76c776;
+}
+
+.modal-actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-submit,
+.modal-cancel {
+  width: 48%;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-submit {
+  background: #90ee90;
+  color: white;
+}
+
+.modal-submit:hover {
+  background: #76c776;
+}
+
+.modal-cancel {
+  background: #d8d8d8;
+}
+
+.modal-cancel:hover {
+  background: #c3c3c3;
 }
 
 .client-top-row {
   display: flex;
   justify-content: space-between;
-  width: 100%;
-  max-width: 1100px;
-  margin-bottom: 25px;
   align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 25px;
   position: relative;
 }
 
-.client-select {
-  padding: 10px;
-  border: 2px solid #90ee90;
-  border-radius: 6px;
+/* LEFT SECTION (filters) */
+.client-left-controls {
+  display: flex;
+  gap: 15px;
 }
 
-.client-search {
-  padding: 10px;
-  border: 2px solid #90ee90;
-  border-radius: 6px;
-  width: 210px;
+/* RIGHT SECTION (buttons) */
+.client-right-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.client-btn {
-  padding: 10px 16px;
-  background: #90ee90;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.client-btn:disabled {
-  opacity: 0.4;
-}
-
-.client-table {
-  width: 100%;
-  max-width: 1100px;
-  border: 2px solid #90ee90;
-  border-radius: 12px;
-  padding: 18px;
-  background: white;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+/* CENTER SEARCH FIELD */
+.center-search {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }

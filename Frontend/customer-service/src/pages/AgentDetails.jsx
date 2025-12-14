@@ -99,7 +99,6 @@ export default function AgentDetails({ isSupervisorView = true }) {
     );
 
     alert("Case assigned successfully!");
-window.location.reload();
 
     // Remove assigned case from unsolved list
     setUnsolvedCases(prev => prev.filter(c => c._id !== selectedId));

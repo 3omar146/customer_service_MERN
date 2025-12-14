@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Case from "../Models/Case.js";
 import Agent from "../Models/Agent.js";
 import Supervisor from "../Models/Supervisor.js";
+import Log from "../Models/Log.js";
 
 // Get cases assigned to an agent (not solved), supervisor uses this API 
 export const getCasesAssignedToAgent = async (req, res) => {
@@ -10,7 +11,7 @@ export const getCasesAssignedToAgent = async (req, res) => {
     const cases = await Case.find({
       assignedAgentID: agentId,
       case_status: { $ne: "solved" }
-    }).sort({ createdAt: -1 });
+    }).populate("recommendedActionProtocol", "type").sort({ createdAt: -1 });
 
 
     res.status(200).json(cases);
@@ -27,7 +28,7 @@ export const getCasesAssignedToSpecificAgent = async (req, res) => {
     const cases = await Case.find({
       assignedAgentID: agentId,
       case_status: { $ne: "solved" }
-    }).sort({ createdAt: -1 });
+    }).populate("recommendedActionProtocol", "type").sort({ createdAt: -1 });
 
 
     res.status(200).json(cases);
@@ -204,13 +205,20 @@ export const getAllUnassignedCases = async (req, res) => {
 // Get all cases
 export const getAllCases = async (req, res) => {
   try {
-    const cases = await Case.find().sort({ createdAt: -1 });
+    let query = {};
+
+    // CLIENT: only their own cases
+    if (req.user.type === "client") {
+      query.clientID = req.user.id;
+    }
+
+    // Agent & Supervisor: sees all cases (no filter)
+    const cases = await Case.find(query).sort({ createdAt: -1 });
     res.status(200).json(cases);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // Get case by ID
 export const getCaseById = async (req, res) => {
@@ -225,9 +233,12 @@ export const getCaseById = async (req, res) => {
 
     const response = {
       ...caseInfo.toObject(),
+
       agentName: caseInfo.assignedAgentID?.name || "Not assigned",
       agentEmail: caseInfo.assignedAgentID?.email || "No email",
-      recommendedActionProtocol: caseInfo.recommendedActionProtocol,
+
+      recommendedActionProtocolType:
+        caseInfo.recommendedActionProtocol?.type || null
     };
 
     res.status(200).json(response);
@@ -238,10 +249,18 @@ export const getCaseById = async (req, res) => {
 
 
 
+
 // Create a new case
 export const createCase = async (req, res) => {
   try {
-    const newCase = new Case(req.body);
+    const newCase = new Case({
+      case_description: req.body.case_description,
+      case_status: "unsolved",
+      clientID: req.user.id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
     const savedCase = await newCase.save();
     res.status(201).json(savedCase);
   } catch (error) {
@@ -268,7 +287,13 @@ export const updateCaseById = async (req, res) => {
 
 // SOLVE a case and set logs
 export const solveCase = async (req, res) => {
+  const caseID = req.params.id;
+
+  console.log("Solving case:", caseID);
+  const agentId = req.user.id;
+  console.log("agentId:", agentId);
   try {
+    const agentId = req.user.id;
     const caseID = req.params.id;
 
     console.log("Solving case:", caseID);
@@ -288,9 +313,7 @@ export const solveCase = async (req, res) => {
         message: "To solve case must select an action protocol"
       });
     }
-
-    // Must be pending and assigned before solving
-    if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
+ if (!caseItem.assignedAgentID || caseItem.case_status !== "pending") {
       return res.status(400).json({
         message: "Only pending cases with assigned agent can be solved"
       });
@@ -304,13 +327,23 @@ export const solveCase = async (req, res) => {
     const updated = await caseItem.save();
 
     //create log entry (if needed, implement logging here)
+    const newLog = await Log.create({
+      caseID: caseID,
+      performedBy: agentId,
+      protocolID: caseItem.recommendedActionProtocol,
+      timestamp: new Date()
+    });
 
     res.status(200).json(updated);
 
+    // res.status(200).json({ updated, newLog });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(501).json({ message: error.message });
   }
 };
+
+
 
 
 
@@ -375,6 +408,7 @@ export const unassignCaseFromAgent = async (req, res) => {
       {
         $set: {
           assignedAgentID: null,
+          recommendedActionProtocol:null,
           case_status: "unsolved"
         }
       },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ClientNavbar from "../Components/ClientNavbar";
+import Navbar from "../Components/Navbar.jsx";
 import "../Style/ClientProfile.css";
 
 function ClientProfile() {
@@ -13,26 +13,28 @@ function ClientProfile() {
     phone: ""
   });
 
+  // Load authenticated client
   async function loadClient() {
-    let id = localStorage.getItem("clientID");
-
-    if (!id) {
+    try {
+      // AuthMiddleware returns logged-in client
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_API_URL}/clients/default`
+        `${import.meta.env.VITE_BACKEND_API_URL}/clients/default`,
+        { withCredentials: true }
       );
-      id = res.data._id;
-      localStorage.setItem("clientID", id);
-    }
 
-    axios.get(`${import.meta.env.VITE_BACKEND_API_URL}/clients/${id}`).then((res) => {
-      setClient(res.data);
+      const data = res.data;
+      setClient(data);
+
       setUpdatedData({
-        firstName: res.data.firstName,
-        lastName: res.data.lastName,
-        email: res.data.email,
-        phone: res.data.phone
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone
       });
-    });
+
+    } catch (err) {
+      console.error("Failed to load client profile:", err);
+    }
   }
 
   useEffect(() => {
@@ -42,47 +44,49 @@ function ClientProfile() {
   function handleSubmit(e) {
     e.preventDefault();
 
-   axios.put(
-    `${import.meta.env.VITE_BACKEND_API_URL}/clients/${client._id}`,
-    updatedData
-  )
-  .then((res) => {
-    setClient(res.data);
-    setEditMode(false);
-  })
-  .catch(err => console.error("Profile update failed:", err));
-
+    axios
+      .put(
+        `${import.meta.env.VITE_BACKEND_API_URL}/clients/${client._id}`,
+        updatedData,
+        { withCredentials: true }
+      )
+      .then((res) => {
+        setClient(res.data);
+        setEditMode(false);
+      })
+      .catch((err) => console.error("Profile update failed:", err));
   }
 
   if (!client) return <p>Loading profile...</p>;
 
   return (
     <>
-      <ClientNavbar />
+      <Navbar type="client" />
 
       <div className="profile-container">
         <h2 className="profile-title">My Profile</h2>
 
         {!editMode ? (
           <div className="profile-box">
-            <p><strong>Name:</strong> {client.firstName} {client.lastName}</p>
-            <p><strong>Email:</strong> {client.email}</p>
-            <p><strong>Phone:</strong> {client.phone}</p>
+
+            <p>
+              <strong>Name:</strong> {client.firstName} {client.lastName}
+            </p>
+
+            <p>
+              <strong>Email:</strong> {client.email}
+            </p>
+
+            <p>
+              <strong>Phone:</strong> {client.phone}
+            </p>
 
             <div className="profile-actions">
               <button className="profile-btn" onClick={() => setEditMode(true)}>
                 Edit Profile
               </button>
 
-              <button
-                className="logout-btn"
-                onClick={() => {
-                  localStorage.removeItem("clientID");
-                  window.location.reload();
-                }}
-              >
-                Logout
-              </button>
+              {/* Logout handled by Navbar only (no localStorage anymore) */}
             </div>
           </div>
         ) : (

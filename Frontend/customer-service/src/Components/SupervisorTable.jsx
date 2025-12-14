@@ -10,6 +10,7 @@ const SupervisorTable = ({ supervisorID }) => {
 
   const navigate = useNavigate();
 
+
   const [agents, setAgents] = useState([]);
   const [cases, setCases] = useState([]);
   const [dataMode, setDataMode] = useState("agents");
@@ -22,6 +23,7 @@ const SupervisorTable = ({ supervisorID }) => {
 
   // Add agent modal
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addError, setAddError] = useState("");
   const [newAgent, setNewAgent] = useState({
     name: "",
     email: "",
@@ -60,19 +62,34 @@ const SupervisorTable = ({ supervisorID }) => {
   }
 
   function handleAddAgentSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const body = { ...newAgent };
+  setAddError(""); // clear previous errors
 
-    axios.post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body, { withCredentials: true })
-      .then(res => {
-        setAgents(prev => [...prev, res.data]);
-        setFilteredAgents(prev => [...prev, res.data]);
-        setShowAddModal(false);
-        setNewAgent({ name: "", email: "", password: "", role: "" });
-      })
-      .catch(err => console.error("Error adding agent:", err));
-  }
+  const body = { ...newAgent };
+
+  axios
+    .post(`${import.meta.env.VITE_BACKEND_API_URL}/agents`, body, { withCredentials: true })
+    .then((res) => {
+      setAgents((prev) => [...prev, res.data]);
+      setFilteredAgents((prev) => [...prev, res.data]);
+
+      setShowAddModal(false);
+      setNewAgent({ name: "", email: "", password: "", role: "" });
+    })
+    .catch((err) => {
+      console.error("Error adding agent:", err);
+
+      // extract message safely
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Something went wrong while adding the agent.";
+
+      setAddError(msg);
+    });
+}
+
 
   // -------------------
   // Search handler
@@ -240,7 +257,9 @@ const SupervisorTable = ({ supervisorID }) => {
           >
             Generate Report
           </button>
-            <button disabled={!selectedId} className="supervisor-btn">
+            <button disabled={!selectedId} className="supervisor-btn"    onClick={() =>
+                  navigate("/CaseDetail", { state: { CaseID: selectedId } })
+                }>
               Show Details
             </button>
             </>
@@ -260,58 +279,67 @@ const SupervisorTable = ({ supervisorID }) => {
 
       {/* ADD AGENT MODAL */}
       {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3>Add New Agent</h3>
+  <div className="modal-overlay">
+    <div className="modal-box">
 
-            <form onSubmit={handleAddAgentSubmit} className="modal-form">
-              <input
-                type="text"
-                placeholder="Name"
-                required
-                value={newAgent.name}
-                onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
-              />
+      <h3>Add New Agent</h3>
 
-              <input
-                type="email"
-                placeholder="Email"
-                required
-                value={newAgent.email}
-                onChange={(e) => setNewAgent({ ...newAgent, email: e.target.value })}
-              />
+      {addError && <div className="modal-error">{addError}</div>}
 
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                value={newAgent.password}
-                onChange={(e) => setNewAgent({ ...newAgent, password: e.target.value })}
-              />
+      <form onSubmit={handleAddAgentSubmit} className="modal-form">
 
-              <select
-                required
-                value={newAgent.role}
-                onChange={(e) => setNewAgent({ ...newAgent, role: e.target.value })}
-              >
-                <option value="">Select Role</option>
-                <option value="Agent">Agent</option>
-                <option value="Senior Agent">Senior Agent</option>
-              </select>
+        <input
+          type="text"
+          placeholder="Name"
+          required
+          value={newAgent.name}
+          onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
+        />
 
-              <div className="modal-actions">
-                <button type="button" className="modal-cancel" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </button>
+        <input
+          type="email"
+          placeholder="Email"
+          required
+          value={newAgent.email}
+          onChange={(e) => setNewAgent({ ...newAgent, email: e.target.value })}
+        />
 
-                <button type="submit" className="modal-submit">
-                  Add Agent
-                </button>
-              </div>
-            </form>
-          </div>
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          value={newAgent.password}
+          onChange={(e) => setNewAgent({ ...newAgent, password: e.target.value })}
+        />
+
+        <select
+          required
+          value={newAgent.role}
+          onChange={(e) => setNewAgent({ ...newAgent, role: e.target.value })}
+        >
+          <option value="">Select Role</option>
+          <option value="Agent">Agent</option>
+          <option value="Senior Agent">Senior Agent</option>
+        </select>
+
+        <div className="modal-actions">
+          <button
+            type="button"
+            className="modal-cancel"
+            onClick={() => setShowAddModal(false)}
+          >
+            Cancel
+          </button>
+
+          <button type="submit" className="modal-submit">
+            Add Agent
+          </button>
         </div>
-      )}
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* REPORT MODAL */}
       {showReport && (

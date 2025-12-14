@@ -29,30 +29,40 @@ function CaseCard({
   }
 
   function handleMarkSolved(e) {
+    
     e.stopPropagation();
-    onMarkSolved && onMarkSolved(caseItem._id);
+    onMarkSolved(caseItem._id);
   }
 
   return (
     <div className="case-card">
       <span className="case-label">Description:</span>
       <strong>{caseItem.case_description}</strong>
+     
 
       <p className="case-info">
         <span className="case-label">Status:</span> {caseItem.case_status}
       </p>
 
-      <p className="case-info">
-        <span className="case-label">Assigned Agent:</span>{" "}
-        {caseItem.assignedAgentID || "Unassigned"}
-      </p>
+    
+      
 
-      {/* SUPERVISOR VIEW */}
-      {isSupervisorView && caseItem.case_status === "pending" && (
-        <button className="solve-btn" onClick={handleUnassign}>
-          Unassign
-        </button>
-      )}
+  
+
+      {isSupervisorView && (
+        <>
+        <p className="case-info">
+        <span className="case-label">Assigned Agent:</span>{" "}
+        {caseItem.agentEmail || "Unassigned"}
+      </p>
+          {caseItem.case_status === "pending" && (
+            <button className="solve-btn" onClick={handleUnassign}>
+              unassign
+            </button>
+          )}
+        </>
+      )
+    }
 
       {/* AGENT VIEW */}
       {!isSupervisorView && (
@@ -63,6 +73,13 @@ function CaseCard({
               Assign
             </button>
           )}
+                    {caseItem.recommendedActionProtocol && (
+            <p className="case-info">
+                <span className="case-label">Selected Protocol :</span>{" "}
+                  {caseItem.recommendedActionProtocol.type || caseItem.recommendedActionProtocol}
+            </p>
+          )}
+
 
           {/* PENDING CASES */}
           {caseItem.case_status === "pending" && (

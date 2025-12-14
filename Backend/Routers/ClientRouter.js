@@ -1,6 +1,6 @@
 import express from 'express';
+import auth from '../Middleware/AuthMiddleware.js';
 import {
-  getDefaultClient,
   getClientById,
   getCasesByClient,
   updateClientProfile
@@ -8,11 +8,8 @@ import {
 
 const router = express.Router();
 
-// Moved before /:id to prevent conflict
-router.get("/default", getDefaultClient);
 
-router.get("/:id/cases", getCasesByClient);
-router.patch("/:id", updateClientProfile);
-router.get("/:id", getClientById);
-
+router.get("/:id/cases", auth, getCasesByClient);
+router.patch("/:id", auth, updateClientProfile);
+router.get("/:id", auth, getClientById);
 export default router;

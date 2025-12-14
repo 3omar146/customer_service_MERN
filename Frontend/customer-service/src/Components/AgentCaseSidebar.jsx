@@ -9,6 +9,7 @@ const AgentCaseSidebar = () => {
     useEffect(() => {
         async function fetchCases() {
             try {
+
                 const res = await axios.get(
                     `${import.meta.env.VITE_BACKEND_API_URL}/cases/assigned`,
                     { withCredentials: true }
@@ -26,6 +27,24 @@ const AgentCaseSidebar = () => {
         fetchCases();
     }, []);
 
+    const handleMarkSolved = async (caseId) => {
+        try {
+            await axios.patch(
+                `${import.meta.env.VITE_BACKEND_API_URL}/cases/solve/${caseId}`,
+                {},
+                { withCredentials: true }
+            );
+
+            // remove solved case from sidebar list
+            setAssignedCases((prev) => prev.filter((c) => c._id !== caseId));
+
+            // refresh other parts if needed
+            if (window.refreshSidebar) window.refreshSidebar();
+        } catch (error) {
+            console.error("Error marking case solved:", error);
+        }
+    };
+
     return (
         <div className="agent-cases-sidebar">
             <CasesTable
@@ -34,6 +53,7 @@ const AgentCaseSidebar = () => {
                 loading={loading}
                 isSupervisorView={false}
                 layout="list"
+                onMarkSolved={handleMarkSolved}
             />
         </div>
     );

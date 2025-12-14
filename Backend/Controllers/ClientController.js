@@ -2,26 +2,23 @@ import Client from '../Models/Client.js';
 import Case from '../Models/Case.js';
 import mongoose from 'mongoose';
 
-// Get any default client (used for testing/demo)
-export const getDefaultClient = async (req, res) => {
-  
-  
-  try {
-    const client = await Client.findOne();
-    if (!client) {
-      return res.status(404).json({ message: "No client found in DB" });
-    }
-    res.status(200).json(client);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+// Helper – enforce client self-access only
+const ensureClientSelfAccess = (req, res) => {
+  if (req.user.role === "client" && req.user._id.toString() !== req.params.id) {
+    return res.status(403).json({ message: "Unauthorized: Cannot access another client's data" });
   }
+  return null;
 };
+
+
 
 // Get client details by ID
 export const getClientById = async (req, res) => {
+  const accessError = ensureClientSelfAccess(req, res);
+  if (accessError) return accessError;
+
   try {
     const client = await Client.findById(req.params.id);
-
     if (!client) {
       return res.status(404).json({ message: "Client not found" });
     }
@@ -32,21 +29,24 @@ export const getClientById = async (req, res) => {
   }
 };
 
-// Get Cases for a specific Client via ID
+// Get Cases for a specific Client
 export const getCasesByClient = async (req, res) => {
+  const accessError = ensureClientSelfAccess(req, res);
+  if (accessError) return accessError;
+
   try {
-    const cases = await Case.find({ clientID: req.params.id })
-      .sort({ createdAt: -1 });
-
+    const cases = await Case.find({ clientID: req.params.id }).sort({ createdAt: -1 });
     res.status(200).json(cases);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update Client profile details
+// Update Client Profile
 export const updateClientProfile = async (req, res) => {
+  const accessError = ensureClientSelfAccess(req, res);
+  if (accessError) return accessError;
+
   try {
     const { id } = req.params;
 
@@ -76,7 +76,6 @@ export const updateClientProfile = async (req, res) => {
     }
 
     res.status(200).json(updatedClient);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -12,29 +12,39 @@ export const getAllProtocols = async (req, res) => {
 
 // get Protocol By Id
 export const getProtocolById = async (req, res) => {
-try{
-    const protocolID= req.params.id;
+  try {
+    const protocolID = req.params.id;
     const protocol = await ActionProtocol.findById(protocolID);
 
     if (!protocol)
       return res.status(404).json({ message: "Protocol not found" });
 
     res.json(protocol);
-}
-catch(err){
+  }
+  catch (err) {
     res.status(500).json({ error: err.message });
-}
+  }
 }
 
 // Add a new Action Prototcol
 export const createProtocol = async (req, res) => {
+  const agentID = req.user.id;
+  const { steps, type } = req.body;
+
   try {
-       const addedProtocol = await ActionProtocol.create(req.body);
+    const addedProtocol = await ActionProtocol.create({
+      agentID,
+      steps,
+      type,
+      timestamp: new Date()
+    });
+
     res.status(201).json(addedProtocol);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 
 // Update a Protocol by ID
@@ -66,7 +76,6 @@ export const deleteProtocol = async (req, res) => {
 
     res.status(200).json({ message: "Action Protocol deleted successfully!" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    res.status(500).json({ error: err.message });
+  }
 };
-

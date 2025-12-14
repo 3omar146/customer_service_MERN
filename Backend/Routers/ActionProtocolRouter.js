@@ -6,7 +6,7 @@ import {
   updateProtocol,
   deleteProtocol
 } from "../Controllers/ActionProtocolController.js";
-
+import auth from "../Middleware/AuthMiddleware.js";
 const router = express.Router();
 
 // Get all protocols
@@ -16,7 +16,7 @@ router.get("/", getAllProtocols);
 router.get("/:id", getProtocolById);
 
 // Create a new protocol
-router.post("/", createProtocol);
+router.post("/", auth, createProtocol);
 
 // Update a protocol by ID
 router.put("/:id", updateProtocol);
