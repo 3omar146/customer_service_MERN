@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import Navbar from "../Components/Navbar";
 import "../Style/actionprotocol.css";
 
 export default function ActionProtocol() {
@@ -79,6 +80,8 @@ export default function ActionProtocol() {
     };
 
     return (
+        <>
+        <Navbar type = "agent"></Navbar>
         <div className="protocol-page">
             <h2>Available Action Protocols for This Case</h2>
 
@@ -134,5 +137,6 @@ export default function ActionProtocol() {
                 </div>
             )}
         </div>
+        </>
     );
 }
