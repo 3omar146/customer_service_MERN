@@ -1,16 +1,22 @@
-/* Container that holds all case cards */
+/* ================================================
+   CONTAINER — HOLDS ALL CASE CARDS
+================================================ */
+
 .case-list-wrapper {
   padding: 40px;
   background-color: #f9fff9; /* mint white background */
   min-height: 100vh;
 
-  display: flex;            /* arrange cards in a row */
-  flex-wrap: wrap;          /* allow cards to go to next row */
-  gap: 20px;                /* spacing between cards */
-  justify-content: center;  /* center the cards */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
-/* Case Card */
+/* ================================================
+   CASE CARD — FLEX COLUMN
+================================================ */
+
 .case-card {
   background: white;
   border-radius: 14px;
@@ -20,7 +26,11 @@
   transition: 0.2s ease-in-out;
   cursor: pointer;
 
-  width: 300px; /* fixed width for multiple cards */
+  width: 300px;
+
+  /* IMPORTANT FOR BUTTON ALIGNMENT */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Hover effect */
@@ -29,7 +39,10 @@
   transform: translateY(-3px);
 }
 
-/* Case Title */
+/* ================================================
+   CASE CONTENT
+================================================ */
+
 .case-title {
   font-size: 22px;
   font-weight: bold;
@@ -37,14 +50,20 @@
   color: #333;
 }
 
-/* Case Info Text */
 .case-info {
   font-size: 15px;
   margin-bottom: 6px;
   color: #444;
 }
 
-/* Status Badge */
+.case-label {
+  font-weight: 600;
+}
+
+/* ================================================
+   STATUS BADGE
+================================================ */
+
 .status-badge {
   display: inline-block;
   padding: 6px 12px;
@@ -56,12 +75,15 @@
   color: #333;
 }
 
-/* Solve Button */
+/* ================================================
+   SOLVE BUTTON — STICKS TO BOTTOM
+================================================ */
+
 .solve-btn {
-  margin-top: 18px;
+  margin-top: auto; /* PUSHES BUTTON DOWN */
   padding: 12px 16px;
   font-size: 16px;
-  background-color: #92f7a1; /* mint button */
+  background-color: #92f7a1;
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -74,15 +96,13 @@
   background-color: #7edc8c;
 }
 
-/* Client/Agent labels */
-.case-label {
-  font-weight: 600;
-}
+/* ================================================
+   RESPONSIVE DESIGN
+================================================ */
 
-/* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
   .case-card {
-    width: 90%; /* almost full width on mobile */
+    width: 90%;
   }
 
   .case-list-wrapper {
@@ -93,7 +113,7 @@
 
 @media (max-width: 480px) {
   .case-card {
-    width: 100%; /* full width on very small screens */
+    width: 100%;
     padding: 20px;
   }
 
