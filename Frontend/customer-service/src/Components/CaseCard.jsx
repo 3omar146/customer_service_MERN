@@ -76,7 +76,7 @@ function CaseCard({
                     {caseItem.recommendedActionProtocol && (
             <p className="case-info">
                 <span className="case-label">Selected Protocol :</span>{" "}
-                  {caseItem.recommendedActionProtocol.type || caseItem.recommendedActionProtocol}
+                  {caseItem.recommendedActionProtocolType || caseItem.recommendedActionProtocol}
             </p>
           )}
 

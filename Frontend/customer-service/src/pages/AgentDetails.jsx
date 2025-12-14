@@ -115,6 +115,8 @@ async function unassignCase(caseId){
     await axios.patch(
 
       `${import.meta.env.VITE_BACKEND_API_URL}/cases/unassign/${caseId}/agent/${AgentID}`,
+      {},
+      {withCredentials:true},
       { agentId: null } // or just remove agentId from payload
     );
 
@@ -130,17 +132,7 @@ window.location.reload();
   }
 }
 
-  // Handle solving a case (only in agent view)
-  // const handleSolve = async (caseId) => {
-  //   try {
-  //     await axios.patch(`${import.meta.env.VITE_BACKEND_API_URL}/cases/solve/${caseId}`);
-  //     setPendingCases(prev =>
-  //       prev.map(c => c._id === caseId ? { ...c, case_status: "solved" } : c)
-  //     );
-  //   } catch (err) {
-  //     console.error("Error solving case:", err);
-  //   }
-  // };
+
 
   if (!agent) return <p>Loading agent details...</p>;
 
@@ -156,7 +148,6 @@ window.location.reload();
           <p><strong>Email:</strong> {agent.email || "N/A"}</p>
           <p><strong>Role:</strong> {agent.role || "N/A"}</p>
           <p><strong>Active:</strong> {agent.isActive ? "Yes" : "No"}</p>
-          <p><strong>Last Update:</strong> {agent.updatedAt ? new Date(agent.updatedAt).toLocaleString() : "N/A"}</p>
         </div>
 
         <button

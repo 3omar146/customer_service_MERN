@@ -171,8 +171,8 @@ async function assignAgent() {
             <p>No agent assigned.</p>
           ) : (
             <div className="agent-info">
-              <p><strong>Name:</strong> {caseItem.assignedAgentID.name}</p>
-              <p><strong>Email:</strong> {caseItem.assignedAgentID.email}</p>
+              <p><strong>Name:</strong> {caseItem.agentName}</p>
+              <p><strong>Email:</strong> {caseItem.agentEmail}</p>
 
               {isSupervisorView&&caseItem.case_status!=="solved"&& (
                 <button className="solve-btn" onClick={unassignAgent}>
