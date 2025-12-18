@@ -91,12 +91,12 @@ export default function AgentDashboard() {
         </div>
 
 
-        {/* ⭐⭐ RIGHT — Pending Cases Sidebar (WITH SEPARATOR) ⭐⭐ */}
+     
         <div
           style={{
             width: "350px",
             paddingLeft: "20px",
-            borderLeft: "3px solid #e6e6e6",   // <-- THIS IS THE SEPARATOR
+            borderLeft: "3px solid #e6e6e6",   
             background: "#fafafa",
             borderRadius: "8px",
             boxShadow: "0 0 8px rgba(0,0,0,0.05)",

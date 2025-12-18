@@ -58,7 +58,7 @@ const SupervisorReport = ({ onClose }) => {
         <h3 className="report-header">2. Oldest 5 Unsolved Cases</h3>
 
         {report.oldestUnsolved.length === 0 ? (
-          <p className="empty-msg">No unsolved cases 🎉</p>
+          <p className="empty-msg">No unsolved cases</p>
         ) : (
           <ol className="report-list">
             {report.oldestUnsolved.map((c) => (
