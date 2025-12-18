@@ -14,7 +14,6 @@ function ProfilePage() {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
 
-  // Password-change toggle inside EDIT MODE
   const [changePassword, setChangePassword] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -24,7 +23,6 @@ function ProfilePage() {
 
   const [updatedData, setUpdatedData] = useState({});
 
-  // Human-friendly fields with backend keys
   const fieldMap = {
     client: [
       { key: "firstName", label: "First Name" },
@@ -71,9 +69,7 @@ function ProfilePage() {
     loadUser();
   }, [type]);
 
-  // ---------------------------------------------------
-  // SUBMIT HANDLER (PROFILE + OPTIONAL PASSWORD UPDATE)
-  // ---------------------------------------------------
+  // SUBMIT HANDLER
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -230,7 +226,7 @@ function ProfilePage() {
               </>
             )}
 
-            {/* ACTION BUTTONS */}
+            {/* btns */}
             <div className="profile-actions">
               <button className="profile-btn" type="submit">
                 Save

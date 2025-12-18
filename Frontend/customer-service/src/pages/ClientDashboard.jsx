@@ -43,7 +43,6 @@ function ClientDashboard() {
     fetchCases();
   }, []);
 
-  // ================= SEARCH =================
   function handleSearch(query) {
     const q = query.toLowerCase();
     setFiltered(
@@ -55,7 +54,6 @@ function ClientDashboard() {
     );
   }
 
-  // ================= CREATE CASE =================
   function createNewCase(e) {
     e.preventDefault();
 
@@ -77,7 +75,6 @@ function ClientDashboard() {
       .catch((err) => console.error("Case creation error:", err));
   }
 
-  // ================= EDIT CASE =================
   function openEditCase() {
     const selected = cases.find((c) => c._id === selectedId);
     if (!selected || selected.case_status !== "unsolved") return;
@@ -113,7 +110,6 @@ function ClientDashboard() {
       .catch((err) => console.error("Error updating case:", err));
   }
 
-  // ================= FILTERING =================
   const visibleCases =
     caseFilter === "all"
       ? filtered
@@ -125,7 +121,6 @@ function ClientDashboard() {
 
   const isUnsolved = selectedCase?.case_status === "unsolved";
 
-  // ================= UI =================
   return (
     <>
       <Navbar type="client" />
@@ -189,7 +184,6 @@ function ClientDashboard() {
         </div>
       </div>
 
-      {/* CREATE MODAL */}
       {showCreateModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -233,7 +227,6 @@ function ClientDashboard() {
         </div>
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && (
         <div className="modal-overlay">
           <div className="modal-box">

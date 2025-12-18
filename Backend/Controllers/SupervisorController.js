@@ -73,6 +73,7 @@ export const deleteSupervisor = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const getSupervisorByEmail = async (req, res) => {
   try {
     const supervisor = await Supervisor.findOne({ email: req.query.email }).select("-password");

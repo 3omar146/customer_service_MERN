@@ -11,7 +11,6 @@ const ensureClientSelfAccess = (req, res) => {
 };
 
 
-
 // Get client details by ID
 export const getClientById = async (req, res) => {
   const accessError = ensureClientSelfAccess(req, res);

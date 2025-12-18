@@ -92,7 +92,6 @@ try{
 const {department, email, name, role, password} = req.body;
 
     //check if email already exists
-    // Check in clients
     const clientExists = await Client.findOne({ email });
     if (clientExists)
       return res.status(400).json({ message: "Email already in use" });
@@ -160,7 +159,6 @@ export const deleteAgent = async (req, res) => {
             { $set: { case_status: "unsolved" } }
         );
 
-       // console.log(`Updated ${statusUpdatedCases.modifiedCount} cases from pending to unsolved`);
 
         // Delete the agent
         const result = await Agent.deleteOne({ _id: id });
@@ -440,7 +438,6 @@ if (!supervisor) {
 }
 
 
-    // 1) Get all agents under this supervisor
     const agents = await Agent.find({ supervisorID });
     const agentIDs = agents.map(a => a._id);
 
@@ -448,7 +445,7 @@ if (!supervisor) {
     const activeAgents = agents.filter(a => a.isActive).length;
     const inactiveAgents = agents.filter(a => !a.isActive).length;
 
-    // 2) Top 3 agents by solved cases (only solved cases of these agents)
+    // 2) Top 3 agents by solved cases 
     const topSolved = await Case.aggregate([
       {
         $match: {
@@ -482,7 +479,7 @@ if (!supervisor) {
       }
     ]);
 
-    // 3) Top 3 agents by average solving time
+    // Top 3 agents by average solving time
     const topAvgSolve = await Case.aggregate([
       {
         $match: {
