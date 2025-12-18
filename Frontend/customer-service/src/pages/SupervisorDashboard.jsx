@@ -55,29 +55,29 @@ const SupervisorDashboard = () => {
     <div className="container">
       <Navbar type="supervisor" />
 
-      {/* TOP STAT CARDS */}
+      {/* stats */}
       <div className="stats-container">
         
-        {/* Agents Card */}
+        {/*agents card */}
         <div className="stat-card">
           <h3>{stats.totalAgents}</h3>
           <p>Total Agents</p>
           <small>Active: {stats.activeAgents}  Inactive: {stats.inactiveAgents}</small>
         </div>
 
-        {/* Unsolved */}
+        {/* unsolved */}
         <div className="stat-card">
           <h3>{stats.unsolvedCases}</h3>
           <p>Unsolved Cases</p>
         </div>
 
-        {/* Solved */}
+        {/* solved */}
         <div className="stat-card">
           <h3>{stats.solvedCases}</h3>
           <p>Solved Cases</p>
         </div>
 
-        {/* Pending */}
+        {/* pending */}
         <div className="stat-card">
           <h3>{stats.pendingCases}</h3>
           <p>Pending Cases</p>
@@ -85,7 +85,7 @@ const SupervisorDashboard = () => {
 
       </div>
 
-      {/* TABLE */}
+      {/* table */}
       <SupervisorTable />
     </div>
   );

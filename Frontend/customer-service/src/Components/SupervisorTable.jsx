@@ -6,7 +6,7 @@ import axios from "axios";
 import SupervisorReport from "./SupervisorReport";
 import "../Style/SupervisorTable.css";
 
-const SupervisorTable = ({ supervisorID }) => {
+const SupervisorTable = () => {
 
   const navigate = useNavigate();
 
@@ -31,12 +31,10 @@ const SupervisorTable = ({ supervisorID }) => {
     role: ""
   });
 
-  // NEW — REPORT MODAL
+  //report modal
   const [showReport, setShowReport] = useState(false);
 
-  // -------------------
-  // Column Definitions
-  // -------------------
+  // columns
   const agentColumns = [
     { header: "Name", accessor: "name" },
     { header: "Email", accessor: "email" },
@@ -54,9 +52,7 @@ const SupervisorTable = ({ supervisorID }) => {
     { header: "Updated At", accessor: "updatedAt" },
   ];
 
-  // -------------------
-  // Add agent
-  // -------------------
+  // add agent modal
   function addAgent() {
     setShowAddModal(true);
   }
@@ -64,7 +60,7 @@ const SupervisorTable = ({ supervisorID }) => {
   function handleAddAgentSubmit(e) {
   e.preventDefault();
 
-  setAddError(""); // clear previous errors
+  setAddError(""); 
 
   const body = { ...newAgent };
 
@@ -79,21 +75,12 @@ const SupervisorTable = ({ supervisorID }) => {
     })
     .catch((err) => {
       console.error("Error adding agent:", err);
-
-      // extract message safely
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Something went wrong while adding the agent.";
-
       setAddError(msg);
     });
 }
 
 
-  // -------------------
   // Search handler
-  // -------------------
   function handleSearch(query) {
     const q = query.toLowerCase();
 
@@ -119,9 +106,7 @@ const SupervisorTable = ({ supervisorID }) => {
     }
   }
 
-  // -------------------
-  // Fetch AGENTS
-  // -------------------
+  // Fetch agents
   useEffect(() => {
     const url = `${import.meta.env.VITE_BACKEND_API_URL}/agents/supervisor`;
 
@@ -134,12 +119,9 @@ const SupervisorTable = ({ supervisorID }) => {
       .catch((err) => console.error("Error fetching agents:", err));
   }, []);
 
-  // -------------------
-  // Fetch CASES
-  // -------------------
+  // Fetch Ccases
   useEffect(() => {
     const url = `${import.meta.env.VITE_BACKEND_API_URL}/cases/supervisor/`;
-
     axios
       .get(url, { withCredentials: true })
       .then((res) => {
@@ -149,9 +131,8 @@ const SupervisorTable = ({ supervisorID }) => {
       .catch((err) => console.error("Error fetching cases:", err));
   }, []);
 
-  // -------------------
+
   // Filters
-  // -------------------
   const filteredAgents2 =
     agentFilter === "all"
       ? filteredAgents
@@ -169,10 +150,10 @@ const SupervisorTable = ({ supervisorID }) => {
 
   return (
     <div className="supervisor-container">
-      {/* TOP BAR */}
+      {/* top bar*/}
       <div className="supervisor-top-row">
 
-        {/* LEFT SIDE CONTROLS */}
+        {/* left side filters */}
         <div className="supervisor-left-controls">
           <select
             className="supervisor-select"
@@ -209,7 +190,7 @@ const SupervisorTable = ({ supervisorID }) => {
           )}
         </div>
 
-        {/* SEARCH BAR */}
+        {/* search*/}
         <input
           type="text"
           placeholder="Search..."
@@ -217,15 +198,11 @@ const SupervisorTable = ({ supervisorID }) => {
           onChange={(e) => handleSearch(e.target.value)}
         />
 
-        {/* RIGHT SIDE CONTROLS */}
+        {/* right side controls */}
         <div className="supervisor-right-controls">
-
-          {/* ALWAYS SHOW REPORT BUTTON */}
           
-
           {dataMode === "agents" && (
             <>
-            
               <button className="supervisor-btn add-btn" onClick={addAgent}>
                 +
               </button>
@@ -267,7 +244,7 @@ const SupervisorTable = ({ supervisorID }) => {
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* table nfso */}
       <div className="supervisor-table-container">
         <DataTable
           columns={ActiveColumns}
@@ -277,7 +254,7 @@ const SupervisorTable = ({ supervisorID }) => {
         />
       </div>
 
-      {/* ADD AGENT MODAL */}
+      {/* add agent */}
       {showAddModal && (
   <div className="modal-overlay">
     <div className="modal-box">
@@ -341,7 +318,7 @@ const SupervisorTable = ({ supervisorID }) => {
 )}
 
 
-      {/* REPORT MODAL */}
+      {/* report */}
       {showReport && (
         <SupervisorReport onClose={() => setShowReport(false)} />
       )}

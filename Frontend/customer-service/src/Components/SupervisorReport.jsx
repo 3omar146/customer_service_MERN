@@ -44,7 +44,7 @@ const SupervisorReport = ({ onClose }) => {
     <div className="modal-overlay">
       <div className="modal-box report-box report-content">
 
-        {/* =================== 1. CASE STATISTICS =================== */}
+        {/* Case statssss */}
         <h3 className="report-header">1. Case Statistics</h3>
 
         <div className="report-block">
@@ -54,7 +54,7 @@ const SupervisorReport = ({ onClose }) => {
           <p><strong>Average Solving Time:</strong> {report.averageSolvingTime.toFixed(2)} hrs</p>
         </div>
 
-        {/* =================== 2. OLDEST UNSOLVED =================== */}
+        {/* Oldest unsolved cases */}
         <h3 className="report-header">2. Oldest 5 Unsolved Cases</h3>
 
         {report.oldestUnsolved.length === 0 ? (
@@ -70,7 +70,7 @@ const SupervisorReport = ({ onClose }) => {
           </ol>
         )}
 
-        {/* =================== 3. AGENTS OVERVIEW =================== */}
+        {/* Agent statsss*/}
         <h3 className="report-header">3. Agents Overview</h3>
 
         <div className="report-block">
@@ -78,7 +78,7 @@ const SupervisorReport = ({ onClose }) => {
           <p><strong>Inactive Agents:</strong> {report.inactiveAgents}</p>
         </div>
 
-        {/* =================== 4. TOP SOLVE =================== */}
+        {/* top agents */}
         <h3 className="report-header">4. Top Agents by Solved Cases</h3>
 
         {report.topSolved.length === 0 ? (
@@ -94,7 +94,7 @@ const SupervisorReport = ({ onClose }) => {
           </ol>
         )}
 
-        {/* =================== 5. FASTEST AGENTS =================== */}
+        {/* fastest solvers */}
         <h3 className="report-header">5. Fastest Agents (Avg. Solve Time)</h3>
 
         {report.topAvgSolve.length === 0 ? (
@@ -110,7 +110,7 @@ const SupervisorReport = ({ onClose }) => {
           </ol>
         )}
 
-        {/* =================== CLOSE BUTTON =================== */}
+        {/* close btn to set show report in parent to false */}
         <button className="modal-cancel" onClick={onClose}>
           Close
         </button>

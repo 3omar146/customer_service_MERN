@@ -639,9 +639,7 @@ const logs = [
 ];
 
 
-    // ------------------------
-    // INSERT DOCUMENTS
-    // ------------------------
+    //insertt
     await Supervisor.insertMany(supervisors);
     await Agent.insertMany(agents);
     await Client.insertMany(clients);
@@ -669,10 +667,7 @@ await Case.syncIndexes();
 await Log.syncIndexes();
 
 
-    // ------------------------
-    // CRUD EXAMPLES
-    // ------------------------
-
+    // CRUD
     const solvedCases = await Case.find({ case_status: "solved" });
     console.log(`Solved cases found: ${solvedCases.length}`);
 
@@ -725,9 +720,7 @@ else{
     }
 
 
-    // ------------------------
     // AGGREGATION
-    // ------------------------
     const solvedPerAgent = await Log.aggregate([
       { $lookup: { from: "agents", localField: "performedBy", foreignField: "_id", as: "agent" } },
       { $unwind: "$agent" },
