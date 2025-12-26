@@ -189,7 +189,6 @@ function ProfilePage() {
               Change Password
             </label>
 
-            {/* Password fields appear ONLY if checkbox is checked */}
             {changePassword && (
               <>
                 {/* Old Password */}
