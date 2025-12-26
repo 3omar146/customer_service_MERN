@@ -12,7 +12,7 @@ const createToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-// ------------------ SIGNUP (Clients only) ------------------
+// sign up
 export const signupClient = async (req, res) => {
   try {
     const { email, firstName, lastName, phone, password } = req.body;
@@ -63,7 +63,7 @@ res.status(200).json({ message: "Client created", user: client });
 };
 
 
-// ------------------ LOGIN (Clients, Agents, Supervisors) ------------------
+// login
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -84,7 +84,6 @@ export const login = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ------------------ SAFE HASH CHECK ------------------
     let isHashed = false;
 
     if (typeof user.password === "string") {
@@ -106,7 +105,6 @@ export const login = async (req, res) => {
       user.password = await bcrypt.hash(user.password, 10);
       await user.save();
     }
-    // -----------------------------------------------------
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ message: "Invalid password" });
@@ -131,7 +129,7 @@ res.status(200).json({ message: "Logged in", type, user });
 
 
 
-// ------------------ LOGOUT ------------------
+// logout
 export const logout = (req, res) => {
   if(req.user && req.user.type === "agent") {
     // Mark agent as inactive on logout
